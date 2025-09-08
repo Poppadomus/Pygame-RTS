@@ -17,7 +17,6 @@ CONSOLE_HEIGHT = 200
 
 pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.scrap.init()
 clock = pygame.time.Clock()
 font = pygame.font.SysFont(None, 24)
 console_font = pygame.font.SysFont(None, 18)
@@ -775,7 +774,7 @@ class GameConsole:
                 if 0 <= line_idx < len(self.lines):
                     self.selected_text = self.lines[line_idx]
                     try:
-                        pygame.scrap.put(pygame.SCRAP_TEXT, self.selected_text.encode('utf-8'))
+                        pygame.scrap.put_text(pygame.SCRAP_TEXT)
                         print(f"Copied to clipboard: {self.selected_text}")
                     except Exception as e:
                         print(f"Failed to copy to clipboard: {e}")
