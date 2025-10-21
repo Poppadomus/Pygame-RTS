@@ -1388,7 +1388,7 @@ class MainMenu:
     def __init__(self, font_large, font_medium):
         self.font_large = font_large
         self.font_medium = font_medium
-        self.skirmish_btn = MenuButton(SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2 - 60, 200, 60, "Skirmish", pg.Color(50, 150, 50), pg.Color(100, 200, 100))
+        self.skirmish_btn = MenuButton(SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2 - 60, 200, 60, "Single Player", pg.Color(50, 150, 50), pg.Color(100, 200, 100))
         self.quit_btn = MenuButton(SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2 + 40, 200, 60, "Quit", pg.Color(150, 50, 50), pg.Color(200, 100, 100))
     
     # Handles menu events
@@ -1423,8 +1423,7 @@ class SkirmishSetup:
         self.size_choice = None
         self.map_choice = None
         
-        self.mode_1v1 = MenuButton(SCREEN_WIDTH // 4 - 60, 150, 120, 50, "1v1", pg.Color(50, 100, 150), pg.Color(100, 150, 200))
-        self.mode_2v2 = MenuButton(SCREEN_WIDTH // 4 - 60 + SCREEN_WIDTH // 2, 150, 120, 50, "2v2", pg.Color(50, 100, 150), pg.Color(100, 150, 200))
+        self.mode_1v1 = MenuButton(SCREEN_WIDTH // 2 - 60, 150, 120, 50, "1v1", pg.Color(50, 100, 150), pg.Color(100, 150, 200))
         
         self.size_small = MenuButton(200, 220, 120, 50, "Small", pg.Color(50, 100, 150), pg.Color(100, 150, 200))
         self.size_medium = MenuButton(350, 220, 120, 50, "Medium", pg.Color(50, 100, 150), pg.Color(100, 150, 200))
@@ -1447,8 +1446,6 @@ class SkirmishSetup:
         if event.type == pg.MOUSEBUTTONDOWN:
             if self.mode_1v1.is_clicked(event.pos):
                 self.game_mode = "1v1"
-            elif self.mode_2v2.is_clicked(event.pos):
-                self.game_mode = "2v2"
             
             if self.size_small.is_clicked(event.pos):
                 self.size_choice = "small"
@@ -1476,7 +1473,6 @@ class SkirmishSetup:
     # Updates button hovers
     def update(self, mouse_pos):
         self.mode_1v1.update(mouse_pos)
-        self.mode_2v2.update(mouse_pos)
         self.size_small.update(mouse_pos)
         self.size_medium.update(mouse_pos)
         self.size_large.update(mouse_pos)
@@ -1498,7 +1494,6 @@ class SkirmishSetup:
         mode_label = self.font_medium.render("Select Game Mode:", True, pg.Color(200, 200, 200))
         surface.blit(mode_label, (50, 120))
         self.mode_1v1.draw(surface, self.font_medium)
-        self.mode_2v2.draw(surface, self.font_medium)
         
         if self.game_mode:
             mode_text = self.font_medium.render(f"Selected: {self.game_mode}", True, pg.Color(100, 255, 100))
