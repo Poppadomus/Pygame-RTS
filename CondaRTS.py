@@ -8,9 +8,14 @@ from typing import TYPE_CHECKING, Any, ClassVar, Dict, Type, Set
 from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor
 import threading
+from collections import deque
 
 import pygame as pg
 from pygame.math import Vector2
+
+# =============================================================================
+# Group: Screen & Map Constants
+# =============================================================================
 
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
@@ -23,6 +28,10 @@ MINI_MAP_HEIGHT = 150
 PAN_EDGE = 30
 PAN_SPEED = 10
 
+# =============================================================================
+# Group: Team Colors & Mapping
+# =============================================================================
+
 class Team(Enum):
     RED = 1
     BLUE = 2
@@ -32,13 +41,6 @@ class Team(Enum):
     ORANGE = 6
     YELLOW = 7
     GREY = 8
-
-class GameState(Enum):
-    MENU = 1
-    SKIRMISH_SETUP = 2
-    PLAYING = 3
-    VICTORY = 4
-    DEFEAT = 5
 
 RED_COLOR = pg.Color(255, 0, 0)
 BLUE_COLOR = pg.Color(0, 0, 255)
@@ -60,6 +62,21 @@ team_to_color = {
     Team.GREY: GREY_COLOR,
 }
 
+# =============================================================================
+# Group: Game States
+# =============================================================================
+
+class GameState(Enum):
+    MENU = 1
+    SKIRMISH_SETUP = 2
+    PLAYING = 3
+    VICTORY = 4
+    DEFEAT = 5
+
+# =============================================================================
+# Group: Game Data & Config
+# =============================================================================
+
 MAPS = {
     "Desert": {"width": 2560, "height": 1440, "color": (139, 120, 80)},
     "Forest": {"width": 3200, "height": 1800, "color": (34, 100, 34)},
@@ -71,8 +88,8 @@ UNIT_CLASSES = {
     "Infantry": {
         "cost": 100,
         "hp": 125,
-        "speed": 4,
-        "attack_range": 150,
+        "speed": 0.5,
+        "attack_range": 40,
         "sight_range": 120,
         "weapons": [
             {"name": "Rifle", "damage": 10, "fire_rate": 0.6, "projectile_speed": 6, "projectile_length": 8, "projectile_width": 4, "cooldown": 25}
@@ -84,8 +101,8 @@ UNIT_CLASSES = {
     "Tank": {
         "cost": 700,
         "hp": 300,
-        "speed": 8,
-        "attack_range": 250,
+        "speed": 0.6,
+        "attack_range": 80,
         "sight_range": 200,
         "weapons": [
             {"name": "Cannon", "damage": 80, "fire_rate": 0.3, "projectile_speed": 5, "projectile_length": 12, "projectile_width": 6, "cooldown": 50}
@@ -97,8 +114,8 @@ UNIT_CLASSES = {
     "Grenadier": {
         "cost": 300,
         "hp": 100,
-        "speed": 4,
-        "attack_range": 150,
+        "speed": 0.5,
+        "attack_range": 100,
         "sight_range": 120,
         "weapons": [
             {"name": "Grenade", "damage": 20, "fire_rate": 0.75, "projectile_speed": 4, "projectile_length": 10, "projectile_width": 5, "cooldown": 20}
@@ -110,8 +127,8 @@ UNIT_CLASSES = {
     "MachineGunVehicle": {
         "cost": 600,
         "hp": 200,
-        "speed": 10,
-        "attack_range": 180,
+        "speed": 0.8,
+        "attack_range": 120,
         "sight_range": 200,
         "weapons": [
             {"name": "MG", "damage": 25, "fire_rate": 0.3, "projectile_speed": 6, "projectile_length": 6, "projectile_width": 3, "cooldown": 50}
@@ -123,8 +140,8 @@ UNIT_CLASSES = {
     "RocketArtillery": {
         "cost": 800,
         "hp": 150,
-        "speed": 4,
-        "attack_range": 400,
+        "speed": 0.5,
+        "attack_range": 150,
         "sight_range": 175,
         "weapons": [
             {"name": "Rockets", "damage": 200, "fire_rate": 0.1, "projectile_speed": 3, "projectile_length": 15, "projectile_width": 8, "cooldown": 150}
@@ -136,8 +153,8 @@ UNIT_CLASSES = {
     "AttackHelicopter": {
         "cost": 1200,
         "hp": 200,
-        "speed": 12,
-        "attack_range": 260,
+        "speed": 0.9,
+        "attack_range": 100,
         "sight_range": 175,
         "weapons": [
             {"name": "Missiles", "damage": 30, "fire_rate": 0.375, "projectile_speed": 7, "projectile_length": 10, "projectile_width": 4, "cooldown": 40}
@@ -289,6 +306,10 @@ PROJECTILE_LIFETIME = 5.0
 PARTICLES_PER_EXPLOSION = 20
 PLASMA_BURN_PARTICLES = 10
 PLASMA_BURN_DURATION = 2.0
+
+# =============================================================================
+# Group: Drawing Recipes
+# =============================================================================
 
 # Modular drawing functions for units and buildings
 def create_infantry_image(size: tuple, team: Team) -> pg.Surface:
@@ -678,9 +699,9 @@ def create_turret_surfaces(team: Team):
     pg.draw.circle(turret_surf, team_color, (10, 10), 10)
     pg.draw.circle(turret_surf, (120, 120, 120), (10, 10), 8)
     pg.draw.circle(turret_surf, (100, 150, 255), (10, 12), 2)  
-    barrel_surf = pg.Surface((5, 20), pg.SRCALPHA)
-    pg.draw.rect(barrel_surf, team_color, (0, 0, 5, 20))
-    pg.draw.rect(barrel_surf, (90, 90, 90), (4, 18, 1, 2))  
+    barrel_surf = pg.Surface((20, 5), pg.SRCALPHA)
+    pg.draw.rect(barrel_surf, team_color, (0, 0, 20, 5))
+    pg.draw.rect(barrel_surf, (90, 90, 90), (18, 2, 2, 1))  
     return body_surf, turret_surf, barrel_surf
 
 def draw_turret(self, surface: pg.Surface, camera: Camera, mouse_pos: tuple = None):
@@ -698,7 +719,7 @@ def draw_turret(self, surface: pg.Surface, camera: Camera, mouse_pos: tuple = No
     turret_center = Vector2(body_rect.center) + offset_rot
     turret_rect.center = turret_center
     surface.blit(rotated_turret, turret_rect.topleft)
-    barrel_scaled = pg.transform.smoothscale(self.barrel_surf, (int(5 * zoom), int(20 * zoom)))
+    barrel_scaled = pg.transform.smoothscale(self.barrel_surf, (int(20 * zoom), int(5 * zoom)))
     rotated_barrel = pg.transform.rotate(barrel_scaled, -math.degrees(self.turret_angle))
     barrel_rect = rotated_barrel.get_rect()
     barrel_offset_rot = self.barrel_offset.rotate_rad(self.turret_angle) * zoom
@@ -740,6 +761,10 @@ BUILDING_DRAW_RECIPES = {
     "BlackMarket": create_blackmarket_image,
 }
 
+# =============================================================================
+# Group: Placement & Spawn Utilities
+# =============================================================================
+
 def snap_to_grid(pos: tuple[float, float], grid_size: int = TILE_SIZE) -> tuple[float, float]:
     return (round(pos[0] / grid_size) * grid_size, round(pos[1] / grid_size) * grid_size)
 
@@ -751,10 +776,11 @@ def is_valid_building_position(
     map_width: int = MAP_WIDTH,
     map_height: int = MAP_HEIGHT,
     building_range: int = 200,
+    margin: int = 60,  # Passage margin for units
 ) -> bool:
     width, height = UNIT_CLASSES[new_building_cls.__name__]["size"]
-    half_w, half_h = width / 2, height / 2
-    temp_rect = pg.Rect(position[0] - half_w, position[1] - half_h, width, height)
+    half_w_n, half_h_n = width / 2, height / 2
+    temp_rect = pg.Rect(position[0] - half_w_n, position[1] - half_h_n, width, height)
     if not (0 <= temp_rect.left and temp_rect.right <= map_width and
             0 <= temp_rect.top and temp_rect.bottom <= map_height):
         return False
@@ -764,7 +790,13 @@ def is_valid_building_position(
     has_nearby_friendly = False
     for building in buildings:
         if building.team == team and building.health > 0:
-            dist = math.sqrt((proposed_center[0] - building.position.x)**2 + (proposed_center[1] - building.position.y)**2)
+            # Dynamic min_dist based on sizes + margin
+            e_size = UNIT_CLASSES[building.unit_type]["size"]
+            half_w_e, half_h_e = e_size[0] / 2, e_size[1] / 2
+            min_dist = max(half_w_n + half_w_e, half_h_n + half_h_e) + margin
+            dist = math.hypot(proposed_center[0] - building.position.x, proposed_center[1] - building.position.y)
+            if dist < min_dist:
+                return False
             if dist <= building_range:
                 has_nearby_friendly = True
         
@@ -827,6 +859,10 @@ def get_starting_positions(map_width: int, map_height: int, num_players: int):
 
     return selected_positions
 
+# =============================================================================
+# Group: Spatial Query System
+# =============================================================================
+
 class SpatialHash:
     def __init__(self, cell_size: int = 200):
         self.cell_size = cell_size
@@ -855,6 +891,10 @@ class SpatialHash:
                     if o.distance_to(pos) <= radius:
                         nearby.append(o)
         return nearby
+
+# =============================================================================
+# Group: Camera System
+# =============================================================================
 
 class Camera:
     def __init__(self):
@@ -949,6 +989,10 @@ class Camera:
     def apply(self, rect: pg.Rect) -> pg.Rect:
         return rect.move(-self.rect.x, -self.rect.y)
 
+# =============================================================================
+# Group: Fog of War
+# =============================================================================
+
 class FogOfWar:
     def __init__(self, map_width: int, map_height: int, tile_size: int = TILE_SIZE, spectator: bool = False):
         self.tile_size = tile_size
@@ -1026,6 +1070,10 @@ class FogOfWar:
                     pg.draw.rect(fog_overlay, (0, 0, 0, alpha), (sx, sy, tile_sw, tile_sh))
         surface.blit(fog_overlay, (0, 0))
 
+# =============================================================================
+# Group: Particle Effects
+# =============================================================================
+
 class Particle(pg.sprite.Sprite):
     def __init__(self, pos: tuple, vx: float, vy: float, size: int, color: pg.Color, lifetime: int):
         super().__init__()
@@ -1086,9 +1134,13 @@ def create_explosion(position: tuple, particles: pg.sprite.Group, team: Team, co
     for _ in range(count):
         vx = random.uniform(-3, 3)
         vy = random.uniform(-3, 3)
-        size = random.randint(3, 8)
-        lifetime = random.randint(20, 40)
+        size = random.randint(2, 4)
+        lifetime = random.randint(3, 7)
         particles.add(Particle(position, vx, vy, size, color, lifetime))
+
+# =============================================================================
+# Group: Projectile System
+# =============================================================================
 
 class Projectile(pg.sprite.Sprite):
     def __init__(self, pos: tuple, direction: Vector2, damage: int, team: Team, weapon: Dict[str, Any]):
@@ -1109,8 +1161,10 @@ class Projectile(pg.sprite.Sprite):
             alpha = int(255 * (i / self.length))
             pg.draw.line(self.image, (color.r, color.g, color.b, alpha), (i, 0), (i, self.width), 1)
         self.rect = self.image.get_rect(center=self.position)
+        self.trail = deque(maxlen=15)
     
     def update(self):
+        self.trail.append(self.position.copy())
         self.position += self.direction * self.speed
         self.age += 1
         self.rect.center = self.position
@@ -1122,6 +1176,22 @@ class Projectile(pg.sprite.Sprite):
         if not screen_rect.colliderect((0, 0, camera.width, camera.height)):
             return
         screen_pos = camera.world_to_screen(self.position)
+        if len(self.trail) > 1:
+            trail_positions = [camera.world_to_screen(pos) for pos in self.trail]
+            num_segments = len(trail_positions) - 1
+            for i in range(num_segments):
+                p1 = trail_positions[i]
+                p2 = trail_positions[i + 1]
+                age_factor = i / max(1, num_segments - 1)
+                c = pg.Color(team_to_color[self.team])
+                intensity = 0.3 + 0.7 * age_factor
+                trail_color = (
+                    int(c.r * intensity),
+                    int(c.g * intensity),
+                    int(c.b * intensity)
+                )
+                trail_width = max(1, int(self.width * camera.zoom * (0.2 + 0.3 * age_factor)))
+                pg.draw.line(surface, trail_color, p1, p2, trail_width)
         scaled_length = int(self.length * camera.zoom)
         scaled_width = int(self.width * camera.zoom)
         if scaled_length > 0 and scaled_width > 0:
@@ -1137,6 +1207,10 @@ def check_collision(entity, projectile):
         return dist < (entity.radius + max(projectile.length, projectile.width) / 2)
     else:
         return entity.rect.colliderect(proj_rect)
+
+# =============================================================================
+# Group: Base Entity Classes
+# =============================================================================
 
 class GameObject(pg.sprite.Sprite, ABC):
     def __init__(self, position: tuple, team: Team):
@@ -1277,7 +1351,7 @@ class Unit(GameObject):
                 self.barrel_offset = Vector2(6, 0)
             else:
                 self.turret_offset = Vector2(0, -3) if unit_type != "Turret" else Vector2(0, -15)
-                self.barrel_offset = Vector2(8, 0) if unit_type == "Tank" else Vector2(10, 0) if unit_type == "MachineGunVehicle" else Vector2(15, 0) if unit_type == "RocketArtillery" else Vector2(0, -10)
+                self.barrel_offset = Vector2(8, 0) if unit_type == "Tank" else Vector2(10, 0) if unit_type == "MachineGunVehicle" else Vector2(15, 0) if unit_type == "RocketArtillery" else Vector2(10, 0)
             self.draw = draw_func.__get__(self, self.__class__)
         elif self.is_building and unit_type in BUILDING_DRAW_RECIPES:
             self.image = BUILDING_DRAW_RECIPES[unit_type](UNIT_CLASSES[unit_type]["size"], self.team)
@@ -1328,7 +1402,7 @@ class Unit(GameObject):
                     self.production_queue.append({'unit_type': unit_type, 'repeat': True})
                 self.production_timer = None
     
-    def update(self, particles=None, friendly_units=None, all_units=None, global_buildings=None, projectiles=None, enemy_units=None):
+    def update(self, particles=None, friendly_units=None, all_units=None, global_buildings=None, projectiles=None, enemy_units=None, enemy_buildings=None):
         self.under_attack_timer = max(0, self.under_attack_timer - 1)
         self.under_attack = self.under_attack_timer > 0
         
@@ -1338,8 +1412,12 @@ class Unit(GameObject):
         # Clear invalid attack target
         if self.attack_target:
             if not hasattr(self.attack_target, 'health') or self.attack_target.health <= 0:
+                if self.move_target == self.attack_target.position:
+                    self.move_target = None
                 self.attack_target = None
             elif self.distance_to(self.attack_target.position) > self.sight_range:
+                if self.move_target == self.attack_target.position:
+                    self.move_target = None
                 self.attack_target = None
         
         if not self.is_building:
@@ -1361,7 +1439,18 @@ class Unit(GameObject):
                     # Restore move_target after combat if needed, but for now, stay stopped until enemy dead or out of sight
                 else:
                     # Chase the target
-                    self.move_target = self.attack_target.position
+                    if self.attack_target.is_building:
+                        dir_to_center = Vector2(self.attack_target.position) - self.position
+                        if dir_to_center.length() > 0:
+                            dir_to_center = dir_to_center.normalize()
+                            dir_from_center = -dir_to_center
+                            # Add small spread to avoid clustering
+                            spread_angle = random.uniform(-math.pi/6, math.pi/6)
+                            dir_from_center = dir_from_center.rotate_rad(spread_angle)
+                            stop_dist = self.attack_range - 10  # Stop a bit inside range to ensure attack
+                            self.move_target = self.attack_target.position + dir_from_center * stop_dist
+                    else:
+                        self.move_target = self.attack_target.position
             
             # Normal movement if no close combat
             if not self.attack_target or self.distance_to(self.attack_target.position) > self.attack_range:
@@ -1378,25 +1467,6 @@ class Unit(GameObject):
         
         if not self.attack_target:
             self.turret_angle = self.body_angle
-        
-        if self.weapons and self.is_building and projectiles is not None and enemy_units is not None:
-            if self.last_shot_time == 0:
-                closest = min((u for u in enemy_units if u.health > 0), key=lambda u: self.distance_to(u.position), default=None)
-                if closest:
-                    dist = self.distance_to(closest.position)
-                    if dist <= self.attack_range:
-                        weapon = self.weapons[0]
-                        time_to_target = dist / weapon["projectile_speed"]
-                        target_vel = Vector2(
-                            closest.speed * math.cos(getattr(closest, 'body_angle', 0)) if hasattr(closest, 'speed') else 0,
-                            closest.speed * math.sin(getattr(closest, 'body_angle', 0)) if hasattr(closest, 'speed') else 0
-                        )
-                        predicted_pos = closest.position + target_vel * time_to_target
-                        direction = (predicted_pos - self.position).normalize()
-                        proj = Projectile(self.position, direction, weapon["damage"], self.team, weapon)
-                        projectiles.add(proj)
-                        self.last_shot_time = weapon["cooldown"]
-                        self.turret_angle = math.atan2(direction.y, direction.x)
         
         if hasattr(self, 'stats') and "producible" in self.stats and friendly_units is not None and all_units is not None:
             self._update_production(friendly_units, all_units)
@@ -1475,6 +1545,10 @@ class Unit(GameObject):
             self.turret_angle = math.atan2(direction.y, direction.x)
             create_explosion(self.position, pg.sprite.Group(), self.team, 3)
 
+# =============================================================================
+# Group: Unit Drawing & Creation + Specific Unit Classes
+# =============================================================================
+
 # Subclasses now lean, relying on base Unit for drawing setup
 class Infantry(Unit):
     def __init__(self, position: tuple, team: Team):
@@ -1499,6 +1573,10 @@ class RocketArtillery(Unit):
 class AttackHelicopter(Unit):
     def __init__(self, position: tuple, team: Team):
         super().__init__(position, team, "AttackHelicopter")
+
+# =============================================================================
+# Group: Building Drawing & Creation + Specific Building Classes + Turret
+# =============================================================================
 
 class Headquarters(Unit):
     def __init__(self, position: tuple, team: Team):
@@ -1568,6 +1646,10 @@ class Turret(Unit):
     def __init__(self, position: tuple, team: Team):
         super().__init__(position, team, "Turret")
 
+# =============================================================================
+# Group: Console & Logging
+# =============================================================================
+
 class GameConsole:
     def __init__(self):
         self.messages = []
@@ -1580,6 +1662,10 @@ class GameConsole:
     
     def draw(self, surface: pg.Surface):
         pass
+
+# =============================================================================
+# Group: AI Controller
+# =============================================================================
 
 class AI:
     def __init__(self, hq, console, build_dir=math.pi, allies: Set[Team] = frozenset()):
@@ -1594,15 +1680,30 @@ class AI:
         self.threat_level = 0
         self.scout_timer = 0
         self.defense_timer = 0
+        self.attack_timer = 0
         self.build_queue = []
-        self.production_priorities = {
-            "Infantry": 0.6,
-            "Grenadier": 0.2,
-            "Tank": 0.15,
-            "MachineGunVehicle": 0.05,
-            "RocketArtillery": 0.05,
-            "AttackHelicopter": 0.0,
+        self.barracks_index = 0
+        self.warfactory_index = 0
+        self.hangar_index = 0
+        self.personality = random.choice(['aggressive', 'defensive', 'balanced', 'rusher'])  # Random trait
+        self.timer_offset = random.randint(0, 180)  # Stagger starts by up to 3 seconds (at 60 FPS)
+        self.interval_multiplier = random.uniform(0.7, 1.3)  # Vary speeds: 70-130% of base intervals
+        self.build_jitter = random.uniform(0.1, 0.5)  # Extra randomness in build angles (lower = more biased)
+        self.aggression_bias = 1.2 if self.personality in ['aggressive', 'rusher'] else 0.8 if self.personality == 'defensive' else 1.0
+        self.economy_bias = 0.8 if self.personality in ['aggressive', 'rusher'] else 1.2 if self.personality == 'defensive' else 1.0
+        
+        # Adjust priorities based on personality
+        base_priorities = {
+            "Infantry": 0.6, "Grenadier": 0.2, "Tank": 0.15,
+            "MachineGunVehicle": 0.05, "RocketArtillery": 0.05, "AttackHelicopter": 0.0,
         }
+        if self.personality == 'rusher':
+            base_priorities["Infantry"] *= 1.5  # Rush cheap units
+            base_priorities["AttackHelicopter"] *= 0.5
+        elif self.personality == 'defensive':
+            base_priorities["Grenadier"] *= 1.5  # More area denial
+            base_priorities["Tank"] *= 0.5
+        self.production_priorities = base_priorities
         self.preferred_build_direction = build_dir
         self.build_bias_strength = 0.3  
     
@@ -1726,11 +1827,13 @@ class AI:
         if not prefer_near_hq:
             dist_min, dist_max = max(200, dist_min), 400 * scale
 
-        ring_step = 20 * scale
-        num_samples_per_ring = 20
+        ring_step = 25 * scale  # Increased from 20: Wider rings to sample more spaced positions
+        num_samples_per_ring = 25  # Increased from 20: More attempts per ring for better spacing
+        # Increase jitter for personality
+        angle_jitter = math.pi * self.build_jitter * (1.5 if self.personality == 'rusher' else 1.0)  # Rushers spread out more
         for ring_dist in range(int(dist_min), int(dist_max + 100), int(ring_step)):
             for _ in range(num_samples_per_ring):
-                angle_offset = random.uniform(-math.pi * self.build_bias_strength, math.pi * self.build_bias_strength)
+                angle_offset = random.uniform(-angle_jitter, angle_jitter) + random.uniform(-0.2, 0.2)
                 angle = bias_angle + angle_offset
                 dist = ring_dist + random.uniform(-ring_step / 2, ring_step / 2)
                 center_x = hq_pos.x + dist * math.cos(angle)
@@ -1741,7 +1844,7 @@ class AI:
                 position = snapped_center
                 if is_valid_building_position(
                     position, self.hq.team, building_cls, list(all_buildings),
-                    map_width, map_height
+                    map_width, map_height, margin=60
                 ):
                     return position
                 attempts += 1
@@ -1751,35 +1854,44 @@ class AI:
                 break
         return None
     
-    def queue_unit_production(self, barracks, war_factory, hangar, friendly_units):
+    def queue_unit_production(self, barracks_list, war_factory_list, hangar_list, friendly_units):
         num_units = len([u for u in friendly_units if u.health > 0])
         target_units = max(8, int(self.military_strength * 1.5) + int(self.threat_level * 25))
         
         if num_units < target_units:
-            if barracks and len(barracks.production_queue) < 5:
-                if self.threat_level > 0.5:
-                    unit_type = random.choices(list(self.production_priorities.keys()), weights=[0.7, 0.2, 0.1, 0, 0, 0])[0]
-                else:
-                    unit_type = random.choices(list(self.production_priorities.keys()), weights=list(self.production_priorities.values()))[0]
-                
-                cost = UNIT_CLASSES[unit_type]["cost"]
-                if self.hq.credits >= cost:
-                    barracks.production_queue.append({'unit_type': unit_type, 'repeat': False})
-                    self.hq.credits -= cost
-                    if random.random() < 0.4 and unit_type == "Infantry" and num_units < 5:
-                        barracks.production_queue[-1]['repeat'] = True
+            if barracks_list:
+                barracks = barracks_list[self.barracks_index % len(barracks_list)]
+                self.barracks_index += 1
+                if len(barracks.production_queue) < 5:
+                    if self.threat_level > 0.5:
+                        unit_type = random.choices(list(self.production_priorities.keys()), weights=[0.7, 0.2, 0.1, 0, 0, 0])[0]
+                    else:
+                        unit_type = random.choices(list(self.production_priorities.keys()), weights=list(self.production_priorities.values()))[0]
+                    
+                    cost = UNIT_CLASSES[unit_type]["cost"]
+                    if self.hq.credits >= cost:
+                        barracks.production_queue.append({'unit_type': unit_type, 'repeat': False})
+                        self.hq.credits -= cost
+                        if random.random() < 0.4 and unit_type == "Infantry" and num_units < 5:
+                            barracks.production_queue[-1]['repeat'] = True
             
-            if war_factory and len(war_factory.production_queue) < 3 and self.economy_level > 1:
-                heavy_unit = random.choice(["Tank", "MachineGunVehicle", "RocketArtillery"])
-                cost = UNIT_CLASSES[heavy_unit]["cost"]
-                if self.hq.credits >= cost and num_units < target_units * 0.8:
-                    war_factory.production_queue.append({'unit_type': heavy_unit, 'repeat': False})
-                    self.hq.credits -= cost
+            if war_factory_list:
+                war_factory = war_factory_list[self.warfactory_index % len(war_factory_list)]
+                self.warfactory_index += 1
+                if len(war_factory.production_queue) < 3 and self.economy_level > 1:
+                    heavy_unit = random.choice(["Tank", "MachineGunVehicle", "RocketArtillery"])
+                    cost = UNIT_CLASSES[heavy_unit]["cost"]
+                    if self.hq.credits >= cost and num_units < target_units * 0.8:
+                        war_factory.production_queue.append({'unit_type': heavy_unit, 'repeat': False})
+                        self.hq.credits -= cost
             
-            if hangar and len(hangar.production_queue) < 2 and self.economy_level >= 2:
-                if random.random() < 0.2:
-                    hangar.production_queue.append({'unit_type': "AttackHelicopter", 'repeat': False})
-                    self.hq.credits -= UNIT_CLASSES["AttackHelicopter"]["cost"]
+            if hangar_list:
+                hangar = hangar_list[self.hangar_index % len(hangar_list)]
+                self.hangar_index += 1
+                if len(hangar.production_queue) < 2 and self.economy_level >= 2:
+                    if random.random() < 0.2:
+                        hangar.production_queue.append({'unit_type': "AttackHelicopter", 'repeat': False})
+                        self.hq.credits -= UNIT_CLASSES["AttackHelicopter"]["cost"]
     
     def build_defenses(self, all_buildings, map_width, map_height):
         if self.threat_level > 0.2 and self.hq.credits >= UNIT_CLASSES["Turret"]["cost"]:
@@ -1792,24 +1904,49 @@ class AI:
             return
         
         self.scout_timer += 1
-        if self.scout_timer > 60 and len(friendly_units) > 1:
+        scout_interval = int(60 * self.interval_multiplier)  # Varied: 42-78 frames
+        if self.scout_timer > scout_interval and len(friendly_units) > 1:
             scout_target = enemy_hq.position if enemy_hq else ((self._get_nearest_enemy_building(enemy_buildings, friendly_units[0].position if friendly_units else (0, 0)).position if enemy_buildings else (0, 0)))
-            idle_units = [u for u in friendly_units if u.health > 0 and u.move_target is None][:1]
+            idle_units = [u for u in friendly_units if u.health > 0 and u.move_target is None][:3]
             for scout in idle_units:
                 scout.move_target = (scout_target[0] + random.uniform(-200, 200), scout_target[1] + random.uniform(-200, 200))
-            self.scout_timer = 0
+            self.scout_timer = random.randint(0, scout_interval // 2)  # Jitter reset
         
-        if self.military_strength > self.enemy_strength * 0.7:
+        self.attack_timer += 1
+        attack_interval = int(30 * self.interval_multiplier)  # Varied: 21-39 frames
+        attack_fraction = (0.3 if self.threat_level > 0.5 else 0.2) * self.aggression_bias  # Personality tweak
+        if self.attack_timer > attack_interval:
             idle_units = [u for u in friendly_units if u.health > 0 and u.move_target is None]
-            if len(idle_units) > 1:
-                attack_fraction = 0.8 if self.threat_level > 0.5 else 0.5
+            if len(idle_units) > 0:
+                num_to_send = max(1, int(len(idle_units) * attack_fraction * random.uniform(0.8, 1.2)))  # Extra randomness
+                for unit in idle_units[:num_to_send]:
+                    primary_target = self._get_nearest_enemy_target(enemy_buildings, enemy_units, unit.position)
+                    if primary_target:
+                        unit.attack_target = primary_target
+                        unit.move_target = primary_target.position
+                    else:
+                        if enemy_hq:
+                            unit.attack_target = enemy_hq
+                            unit.move_target = enemy_hq.position
+                        else:
+                            unit.move_target = None
+            self.attack_timer = random.randint(0, attack_interval // 2)
+        
+        # Aggressive push: Scale by personality
+        push_threshold = 0.5 * self.aggression_bias
+        if self.military_strength > self.enemy_strength * push_threshold:
+            idle_units = [u for u in friendly_units if u.health > 0 and u.move_target is None]
+            if len(idle_units) > 3:
+                attack_fraction = (0.8 if self.threat_level > 0.5 else 0.5) * self.aggression_bias
                 num_to_send = int(len(idle_units) * attack_fraction)
                 for unit in idle_units[:num_to_send]:
                     primary_target = self._get_nearest_enemy_target(enemy_buildings, enemy_units, unit.position)
                     if primary_target:
+                        unit.attack_target = primary_target
                         unit.move_target = primary_target.position
                     else:
                         if enemy_hq:
+                            unit.attack_target = enemy_hq
                             unit.move_target = enemy_hq.position
                         else:
                             unit.move_target = None
@@ -1818,50 +1955,61 @@ class AI:
         self.assess_situation(friendly_units, friendly_buildings, enemy_units, enemy_buildings)
         self.action_timer += 1
         
-        if self.action_timer % 60 == 0:
-            barracks = next((b for b in friendly_buildings if b.unit_type == "Barracks" and b.health > 0), None)
-            war_factory = next((b for b in friendly_buildings if b.unit_type == "WarFactory" and b.health > 0), None)
-            hangar = next((b for b in friendly_buildings if b.unit_type == "Hangar" and b.health > 0), None)
-            self.queue_unit_production(barracks, war_factory, hangar, friendly_units)
+        # Apply offset and multiplier for desync
+        effective_timer = (self.action_timer + self.timer_offset) * self.interval_multiplier
         
-        if self.action_timer % 180 == 0 and self.hq.credits >= 300:
-            if self.threat_level > 0.4 and self.turret_count < min(3, self.total_buildings // 2) and self.hq.credits >= UNIT_CLASSES["Turret"]["cost"]:
-                pos = self.find_build_position(Turret, all_buildings, map_width, map_height)
-                if pos:
-                    self.hq.place_building(pos, Turret, all_buildings)
-                    return
-            
-            if self.resource_count == 0 and self.hq.credits >= UNIT_CLASSES["OilDerrick"]["cost"]:
-                cls = OilDerrick
-            elif self.resource_count < 2 and self.hq.credits >= UNIT_CLASSES["Refinery"]["cost"]:
-                built_ref = any(b.unit_type == "Refinery" for b in friendly_buildings if b.health > 0)
-                if not built_ref:
-                    cls = Refinery
-                else:
-                    cls = random.choice([ShaleFracker, BlackMarket])
-            elif self.power_shortage and self.economy_level > 0 and self.hq.credits >= UNIT_CLASSES["PowerPlant"]["cost"]:
-                cls = PowerPlant
-            elif self.military_prod_count < max(1, self.resource_count // 2 + 1):
-                built_barracks = any(b.unit_type == "Barracks" for b in friendly_buildings if b.health > 0)
-                built_factory = any(b.unit_type == "WarFactory" for b in friendly_buildings if b.health > 0)
-                built_hangar = any(b.unit_type == "Hangar" for b in friendly_buildings if b.health > 0)
-                if not built_barracks:
-                    cls = Barracks
-                elif self.resource_count >= 2 and not built_factory:
-                    cls = WarFactory
-                elif self.resource_count >= 3 and not built_hangar:
-                    cls = Hangar
-                else:
-                    cls = random.choice([Barracks, WarFactory, Hangar])
+        # Production: Base 60, now varied (e.g., 42-78 frames)
+        if int(effective_timer) % int(60 * self.interval_multiplier) == 0:
+            barracks_list = [b for b in friendly_buildings if b.unit_type == "Barracks" and b.health > 0]
+            war_factory_list = [b for b in friendly_buildings if b.unit_type == "WarFactory" and b.health > 0]
+            hangar_list = [b for b in friendly_buildings if b.unit_type == "Hangar" and b.health > 0]
+            self.queue_unit_production(barracks_list, war_factory_list, hangar_list, friendly_units)
+        
+        # Building: Base 180, now varied (e.g., 126-234 frames)
+        if int(effective_timer) % int(180 * self.interval_multiplier) == 0 and self.hq.credits >= 300:
+            # Tweak building choice with personality
+            if self.personality == 'rusher' and self.resource_count == 0:
+                cls = Barracks  # Rush military over economy
+            elif self.personality == 'defensive' and self.turret_count < self.total_buildings // 3:
+                cls = Turret
             else:
-                rand = random.random()
-                if rand < 0.4:
-                    cls = random.choice([Barracks, WarFactory, Hangar])
-                elif rand < 0.7:
-                    cls = random.choice([OilDerrick, Refinery, ShaleFracker, BlackMarket])
+                if self.threat_level > 0.4 and self.turret_count < min(3, self.total_buildings // 2) and self.hq.credits >= UNIT_CLASSES["Turret"]["cost"]:
+                    pos = self.find_build_position(Turret, all_buildings, map_width, map_height)
+                    if pos:
+                        self.hq.place_building(pos, Turret, all_buildings)
+                        return
+                
+                if self.resource_count == 0 and self.hq.credits >= UNIT_CLASSES["OilDerrick"]["cost"]:
+                    cls = OilDerrick
+                elif self.resource_count < 2 and self.hq.credits >= UNIT_CLASSES["Refinery"]["cost"]:
+                    built_ref = any(b.unit_type == "Refinery" for b in friendly_buildings if b.health > 0)
+                    if not built_ref:
+                        cls = Refinery
+                    else:
+                        cls = random.choice([ShaleFracker, BlackMarket])
+                elif self.power_shortage and self.economy_level > 0 and self.hq.credits >= UNIT_CLASSES["PowerPlant"]["cost"]:
+                    cls = PowerPlant
+                elif self.military_prod_count < max(1, self.resource_count // 2 + 1):
+                    built_barracks = any(b.unit_type == "Barracks" for b in friendly_buildings if b.health > 0)
+                    built_factory = any(b.unit_type == "WarFactory" for b in friendly_buildings if b.health > 0)
+                    built_hangar = any(b.unit_type == "Hangar" for b in friendly_buildings if b.health > 0)
+                    if not built_barracks:
+                        cls = Barracks
+                    elif self.resource_count >= 2 and not built_factory:
+                        cls = WarFactory
+                    elif self.resource_count >= 3 and not built_hangar:
+                        cls = Hangar
+                    else:
+                        cls = random.choice([Barracks, WarFactory, Hangar])
                 else:
-                    all_possible = [PowerPlant, Turret] + [OilDerrick, Refinery, ShaleFracker, BlackMarket]
-                    cls = random.choice(all_possible)
+                    rand = random.random()
+                    if rand < 0.4:
+                        cls = random.choice([Barracks, WarFactory, Hangar])
+                    elif rand < 0.7:
+                        cls = random.choice([OilDerrick, Refinery, ShaleFracker, BlackMarket])
+                    else:
+                        all_possible = [PowerPlant, Turret] + [OilDerrick, Refinery, ShaleFracker, BlackMarket]
+                        cls = random.choice(all_possible)
             
             cost = UNIT_CLASSES[cls.__name__]["cost"]
             if self.hq.credits >= cost:
@@ -1870,11 +2018,13 @@ class AI:
                     self.hq.place_building(pos, cls, all_buildings)
         
         self.defense_timer += 1
-        if self.defense_timer > 240 and self.threat_level > 0.3 and self.turret_count < min(5, self.total_buildings // 3) and self.hq.credits >= UNIT_CLASSES["Turret"]["cost"]:
+        defense_interval = int(240 * self.interval_multiplier)
+        threat_threshold = 0.3 * self.aggression_bias  # Aggressive AIs build turrets sooner
+        if self.defense_timer > defense_interval and self.threat_level > threat_threshold and self.turret_count < min(5, self.total_buildings // 3) and self.hq.credits >= UNIT_CLASSES["Turret"]["cost"]:
             pos = self.find_build_position(Turret, all_buildings, map_width, map_height, prefer_near_hq=True)
             if pos:
                 self.hq.place_building(pos, Turret, all_buildings)
-            self.defense_timer = 0
+            self.defense_timer = random.randint(0, defense_interval // 2)  # Reset with jitter
         
         enemy_hq = min(
             (b for b in enemy_buildings if b.unit_type == "Headquarters" and b.health > 0),
@@ -1882,6 +2032,10 @@ class AI:
             default=None
         )
         self.strategize_attacks(friendly_units, enemy_hq, enemy_buildings, enemy_units)
+
+# =============================================================================
+# Group: Production UI Constants
+# =============================================================================
 
 @dataclass(kw_only=True)
 class ProductionInterface:
@@ -2090,6 +2244,10 @@ class ProductionInterface:
                 return False
         return False
 
+# =============================================================================
+# Group: Game Loop Handlers
+# =============================================================================
+
 def draw_mini_map(screen: pg.Surface, camera: Camera, fog_of_war: FogOfWar, map_width: int, map_height: int, map_color: tuple, buildings, all_units, player_allies: Set[Team]):
     mini_map_rect = pg.Rect(SCREEN_WIDTH - MINI_MAP_WIDTH, SCREEN_HEIGHT - MINI_MAP_HEIGHT, MINI_MAP_WIDTH, MINI_MAP_HEIGHT)
     mini_map = pg.Surface((MINI_MAP_WIDTH, MINI_MAP_HEIGHT))
@@ -2199,28 +2357,47 @@ def handle_unit_building_collisions(all_units: list, all_buildings: list, buildi
                         unit.position.x -= direction_x * overlap
                         unit.position.y -= direction_y * overlap
 
-def handle_attacks(team_units, all_units, all_buildings, projectiles, particles, unit_hash, building_hash, alliances):
-    for unit in team_units:
-        if unit.last_shot_time == 0 and unit.weapons:
-            closest_target, min_dist = None, float("inf")
-            unit_allies = alliances[unit.team]
-            # Query within sight range to detect threats for interception
-            candidates = unit_hash.query(unit.position, unit.sight_range) + building_hash.query(unit.position, unit.sight_range)
-            for obj in candidates:
-                if obj.team not in unit_allies and obj.health > 0:
-                    dist = unit.distance_to(obj.position)
-                    if dist <= unit.sight_range and dist < min_dist:
-                        closest_target, min_dist = obj, dist
-            
-            if closest_target:
-                unit.attack_target = closest_target
-                dist_to_target = unit.distance_to(closest_target.position)
-                if dist_to_target > unit.attack_range:
-                    # Intercept: move towards threat
-                    unit.move_target = closest_target.position
-                # Shoot if in range
-                if dist_to_target <= unit.attack_range:
-                    unit.shoot(closest_target, projectiles)
+def handle_attacks(team: Team, all_units: list, all_buildings: list, projectiles, particles, unit_hash: SpatialHash, building_hash: SpatialHash, alliances: Dict[Team, Set[Team]]):
+    unit_allies = alliances[team]
+    armed_entities = []
+    # Mobile units
+    for u in all_units:
+        if u.team == team and hasattr(u, 'weapons') and u.weapons and u.health > 0:
+            armed_entities.append(u)
+    # Buildings
+    for b in all_buildings:
+        if b.team == team and hasattr(b, 'weapons') and b.weapons and b.health > 0:
+            armed_entities.append(b)
+    for entity in armed_entities:
+        if entity.last_shot_time != 0:
+            continue
+        closest_target, min_dist = None, float("inf")
+        candidates = unit_hash.query(entity.position, entity.sight_range) + building_hash.query(entity.position, entity.sight_range)
+        for obj in candidates:
+            if hasattr(obj, 'team') and obj.team not in unit_allies and hasattr(obj, 'health') and obj.health > 0:
+                dist = entity.distance_to(obj.position)
+                if dist <= entity.sight_range and dist < min_dist:
+                    closest_target, min_dist = obj, dist
+        if closest_target:
+            entity.attack_target = closest_target
+            dist_to_target = entity.distance_to(closest_target.position)
+            if dist_to_target > entity.attack_range and not entity.is_building:
+                # Chase the target
+                if entity.attack_target.is_building:
+                    dir_to_center = Vector2(entity.attack_target.position) - entity.position
+                    if dir_to_center.length() > 0:
+                        dir_to_center = dir_to_center.normalize()
+                        dir_from_center = -dir_to_center
+                        # Add small spread to avoid clustering
+                        spread_angle = random.uniform(-math.pi/6, math.pi/6)
+                        dir_from_center = dir_from_center.rotate_rad(spread_angle)
+                        stop_dist = entity.attack_range - 10  # Stop a bit inside range to ensure attack
+                        entity.move_target = entity.attack_target.position + dir_from_center * stop_dist
+                else:
+                    entity.move_target = entity.attack_target.position
+            # Shoot if in range
+            if dist_to_target <= entity.attack_range:
+                entity.shoot(closest_target, projectiles)
 
 def handle_projectiles(projectiles, all_units, all_buildings, particles, g):
     for projectile in list(projectiles):
@@ -2281,6 +2458,10 @@ def cleanup_dead_entities(g):
                     if hasattr(p, 'kill'):
                         p.kill()
                 d.plasma_burn_particles = []
+
+# =============================================================================
+# Group: Menu Components
+# =============================================================================
 
 class MenuButton:
     def __init__(self, x, y, width, height, text, color, hover_color):
@@ -2493,6 +2674,10 @@ class VictoryScreen:
         surface.blit(message, msg_rect)
         self.continue_btn.draw(surface, self.font_medium)
 
+# =============================================================================
+# Group: Game Orchestrator
+# =============================================================================
+
 class GameManager:
     def __init__(self, screen, clock, font_large, font_medium):
         self.screen = screen
@@ -2616,6 +2801,7 @@ class GameManager:
             center_x = map_width / 2
             center_y = map_height / 2
             build_dir = math.atan2(center_y - pos[1], center_x - pos[0])
+            random.seed(team.value * 12345)  # Seed per team for consistent "personality" across runs
             ai = AI(hqs[team], GameConsole(), build_dir=build_dir, allies=alliances[team])
             ais.append(ai)
         
@@ -2777,12 +2963,47 @@ class GameManager:
                         elif g["selected_building"] and hasattr(g["selected_building"], 'rally_point'):
                             g["selected_building"].rally_point = Vector2(world_pos)
                         elif g["selected_units"]:
-                            formation_positions = calculate_formation_positions(
-                                center=world_pos, target=world_pos, num_units=len(g["selected_units"])
-                            )
-                            for unit, pos in zip(g["selected_units"], formation_positions):
-                                unit.move_target = pos
-                                unit.formation_target = pos
+                            # Check for clicked enemy
+                            clicked_enemy = None
+                            unit_list = list(g["global_units"])
+                            building_list = [b for b in g["global_buildings"] if b.health > 0]
+                            for u in unit_list:
+                                screen_rect = g["camera"].get_screen_rect(u.rect)
+                                if screen_rect.collidepoint(mouse_pos) and u.team not in g["player_allies"] and u.health > 0:
+                                    clicked_enemy = u
+                                    break
+                            if not clicked_enemy:
+                                for b in building_list:
+                                    screen_rect = g["camera"].get_screen_rect(b.rect)
+                                    if screen_rect.collidepoint(mouse_pos) and b.team not in g["player_allies"] and b.health > 0:
+                                        clicked_enemy = b
+                                        break
+                            if clicked_enemy:
+                                for unit in g["selected_units"]:
+                                    unit.attack_target = clicked_enemy
+                                    dist_to_target = unit.distance_to(clicked_enemy.position)
+                                    if dist_to_target > unit.attack_range:
+                                        # Chase
+                                        if clicked_enemy.is_building:
+                                            dir_to_center = Vector2(clicked_enemy.position) - unit.position
+                                            if dir_to_center.length() > 0:
+                                                dir_to_center = dir_to_center.normalize()
+                                                dir_from_center = -dir_to_center
+                                                spread_angle = random.uniform(-math.pi/6, math.pi/6)
+                                                dir_from_center = dir_from_center.rotate_rad(spread_angle)
+                                                stop_dist = unit.attack_range - 10
+                                                unit.move_target = clicked_enemy.position + dir_from_center * stop_dist
+                                        else:
+                                            unit.move_target = clicked_enemy.position
+                            else:
+                                # Normal move
+                                formation_positions = calculate_formation_positions(
+                                    center=world_pos, target=world_pos, num_units=len(g["selected_units"])
+                                )
+                                for unit, pos in zip(g["selected_units"], formation_positions):
+                                    unit.move_target = pos
+                                    unit.attack_target = None  # Clear attack target for move order
+                                    unit.formation_target = pos
                 
                 elif event.type == pg.MOUSEMOTION and g["selecting"]:
                     current_pos = event.pos
@@ -2845,13 +3066,15 @@ class GameManager:
                 friendly_units_for_build = g["unit_groups"].get(building_team, pg.sprite.Group())
                 allies = g["alliances"][building_team]
                 enemy_units_for_build = [u for u in g["global_units"].sprites() if u.team not in allies and u.health > 0]
+                enemy_buildings_for_build = [b for b in g["global_buildings"].sprites() if b.team not in allies and b.health > 0]
                 building.update(
                     particles=g["particles"],
                     friendly_units=friendly_units_for_build,
                     all_units=g["global_units"],
                     global_buildings=g["global_buildings"],
                     projectiles=g["projectiles"],
-                    enemy_units=enemy_units_for_build
+                    enemy_units=enemy_units_for_build,
+                    enemy_buildings=enemy_buildings_for_build
                 )
             
             g["projectiles"].update()
@@ -2870,9 +3093,11 @@ class GameManager:
             for unit in unit_list:
                 unit.rect.center = unit.position
             
-            if not g.get("spectator", False):
-                handle_attacks(g["player_units"], unit_list, building_list, g["projectiles"], g["particles"], unit_hash, building_hash, g["alliances"])
-            handle_attacks(g["ai_units"], unit_list, building_list, g["projectiles"], g["particles"], unit_hash, building_hash, g["alliances"])
+            # Unified attacks for all teams
+            unique_teams = set(g["teams"])
+            for team in unique_teams:
+                handle_attacks(team, unit_list, building_list, g["projectiles"], g["particles"], unit_hash, building_hash, g["alliances"])
+            
             handle_projectiles(g["projectiles"], unit_list, building_list, g["particles"], g)
             
             # Cleanup dead entities
