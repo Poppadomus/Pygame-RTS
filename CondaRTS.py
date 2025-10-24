@@ -78,7 +78,8 @@ UNIT_CLASSES = {
             {"name": "Rifle", "damage": 10, "fire_rate": 0.6, "projectile_speed": 6, "projectile_length": 8, "projectile_width": 4, "cooldown": 25}
         ],
         "size": (16, 16),
-        "air": False
+        "air": False,
+        "is_building": False
     },
     "Tank": {
         "cost": 700,
@@ -90,7 +91,8 @@ UNIT_CLASSES = {
             {"name": "Cannon", "damage": 80, "fire_rate": 0.3, "projectile_speed": 5, "projectile_length": 12, "projectile_width": 6, "cooldown": 50}
         ],
         "size": (30, 20),
-        "air": False
+        "air": False,
+        "is_building": False
     },
     "Grenadier": {
         "cost": 300,
@@ -102,7 +104,8 @@ UNIT_CLASSES = {
             {"name": "Grenade", "damage": 20, "fire_rate": 0.75, "projectile_speed": 4, "projectile_length": 10, "projectile_width": 5, "cooldown": 20}
         ],
         "size": (16, 16),
-        "air": False
+        "air": False,
+        "is_building": False
     },
     "MachineGunVehicle": {
         "cost": 600,
@@ -114,7 +117,8 @@ UNIT_CLASSES = {
             {"name": "MG", "damage": 25, "fire_rate": 0.3, "projectile_speed": 6, "projectile_length": 6, "projectile_width": 3, "cooldown": 50}
         ],
         "size": (35, 25),
-        "air": False
+        "air": False,
+        "is_building": False
     },
     "RocketArtillery": {
         "cost": 800,
@@ -126,7 +130,8 @@ UNIT_CLASSES = {
             {"name": "Rockets", "damage": 200, "fire_rate": 0.1, "projectile_speed": 3, "projectile_length": 15, "projectile_width": 8, "cooldown": 150}
         ],
         "size": (40, 25),
-        "air": False
+        "air": False,
+        "is_building": False
     },
     "AttackHelicopter": {
         "cost": 1200,
@@ -138,7 +143,145 @@ UNIT_CLASSES = {
             {"name": "Missiles", "damage": 30, "fire_rate": 0.375, "projectile_speed": 7, "projectile_length": 10, "projectile_width": 4, "cooldown": 40}
         ],
         "size": (25, 15),
-        "air": True
+        "air": True,
+        "fly_height": 10,
+        "is_building": False
+    },
+    "Headquarters": {
+        "cost": 1000,
+        "starting_credits": 7500,
+        "hp": 500,
+        "speed": 0,
+        "attack_range": 0,
+        "sight_range": 200,
+        "weapons": [],
+        "size": (100, 100),
+        "air": False,
+        "is_building": True
+    },
+    "Barracks": {
+        "cost": 300,
+        "hp": 200,
+        "speed": 0,
+        "attack_range": 0,
+        "sight_range": 200,
+        "weapons": [],
+        "producible": ["Infantry", "Grenadier"],
+        "production_time": 60,
+        "gate_width": 20,
+        "half_door_offset": 15,
+        "door_color": (60, 60, 60),
+        "size": (80, 80),
+        "air": False,
+        "is_building": True
+    },
+    "WarFactory": {
+        "cost": 500,
+        "hp": 200,
+        "speed": 0,
+        "attack_range": 0,
+        "sight_range": 200,
+        "weapons": [],
+        "producible": ["Tank", "MachineGunVehicle", "RocketArtillery"],
+        "production_time": 60,
+        "gate_width": 20,
+        "half_door_offset": 15,
+        "door_color": (60, 60, 60),
+        "size": (100, 80),
+        "air": False,
+        "is_building": True
+    },
+    "Hangar": {
+        "cost": 600,
+        "hp": 200,
+        "speed": 0,
+        "attack_range": 0,
+        "sight_range": 200,
+        "weapons": [],
+        "producible": ["AttackHelicopter"],
+        "production_time": 90,
+        "gate_width": 10,
+        "half_door_offset": 10,
+        "door_color": (80, 80, 80),
+        "size": (90, 70),
+        "air": False,
+        "is_building": True
+    },
+    "PowerPlant": {
+        "cost": 300,
+        "hp": 200,
+        "speed": 0,
+        "attack_range": 0,
+        "sight_range": 200,
+        "weapons": [],
+        "size": (80, 80),
+        "air": False,
+        "is_building": True
+    },
+    "OilDerrick": {
+        "cost": 300,
+        "hp": 200,
+        "speed": 0,
+        "attack_range": 0,
+        "sight_range": 200,
+        "weapons": [],
+        "income": 100,
+        "income_interval": 300,
+        "size": (60, 80),
+        "air": False,
+        "is_building": True
+    },
+    "Refinery": {
+        "cost": 2000,
+        "hp": 200,
+        "speed": 0,
+        "attack_range": 0,
+        "sight_range": 200,
+        "weapons": [],
+        "income": 125,
+        "income_interval": 300,
+        "size": (120, 80),
+        "air": False,
+        "is_building": True
+    },
+    "ShaleFracker": {
+        "cost": 800,
+        "hp": 200,
+        "speed": 0,
+        "attack_range": 0,
+        "sight_range": 200,
+        "weapons": [],
+        "income": 165,
+        "income_interval": 300,
+        "size": (70, 70),
+        "air": False,
+        "is_building": True
+    },
+    "BlackMarket": {
+        "cost": 1500,
+        "hp": 200,
+        "speed": 0,
+        "attack_range": 0,
+        "sight_range": 200,
+        "weapons": [],
+        "income": 200,
+        "income_interval": 300,
+        "size": (90, 60),
+        "air": False,
+        "is_building": True
+    },
+    "Turret": {
+        "cost": 400,
+        "hp": 200,
+        "speed": 0,
+        "attack_range": 300,
+        "sight_range": 200,
+        "weapons": [
+            {"name": "TurretGun", "damage": 20, "fire_rate": 0.67, "projectile_speed": 5, "projectile_length": 10, "projectile_width": 4, "cooldown": 30}
+        ],
+        "size": (60, 60),
+        "air": False,
+        "is_building": True
     }
 }
 
@@ -146,6 +289,456 @@ PROJECTILE_LIFETIME = 5.0
 PARTICLES_PER_EXPLOSION = 20
 PLASMA_BURN_PARTICLES = 10
 PLASMA_BURN_DURATION = 2.0
+
+# Modular drawing functions for units and buildings
+def create_infantry_image(size: tuple, team: Team) -> pg.Surface:
+    team_color = team_to_color[team]
+    image = pg.Surface(size, pg.SRCALPHA)
+    pg.draw.circle(image, (150, 150, 150), (8, 4), 4)
+    pg.draw.circle(image, (0, 0, 0), (7, 3), 1)  
+    pg.draw.circle(image, (0, 0, 0), (9, 3), 1)  
+    pg.draw.rect(image, team_color, (6, 2, 4, 2))
+    pg.draw.rect(image, (100, 100, 100), (6, 8, 4, 8))
+    pg.draw.line(image, (120, 120, 120), (6, 10), (2, 12), 2)
+    pg.draw.line(image, (120, 120, 120), (10, 10), (14, 12), 2)
+    pg.draw.line(image, team_color, (14, 10), (18, 8), 2)
+    pg.draw.rect(image, team_color, (18, 7, 3, 2))
+    pg.draw.line(image, (80, 80, 80), (7, 16), (7, 20), 2)
+    pg.draw.line(image, (80, 80, 80), (9, 16), (9, 20), 2)
+    return image
+
+def create_grenadier_image(size: tuple, team: Team) -> pg.Surface:
+    team_color = team_to_color[team]
+    image = pg.Surface(size, pg.SRCALPHA)
+    pg.draw.circle(image, (150, 150, 150), (8, 4), 4)
+    pg.draw.circle(image, (0, 0, 0), (7, 3), 1)
+    pg.draw.circle(image, (0, 0, 0), (9, 3), 1)
+    pg.draw.rect(image, team_color, (6, 2, 4, 2))
+    pg.draw.rect(image, (100, 100, 100), (6, 8, 4, 8))
+    pg.draw.line(image, (120, 120, 120), (6, 10), (2, 12), 2)
+    pg.draw.line(image, (120, 120, 120), (10, 10), (14, 12), 2)
+    pg.draw.line(image, (200, 100, 100), (14, 10), (18, 12), 2)
+    pg.draw.circle(image, (200, 0, 0), (18, 12), 3)
+    pg.draw.circle(image, (150, 0, 0), (12, 10), 2)  
+    pg.draw.line(image, (80, 80, 80), (7, 16), (7, 20), 2)
+    pg.draw.line(image, (80, 80, 80), (9, 16), (9, 20), 2)
+    return image
+
+def create_tank_surfaces(team: Team):
+    team_color = team_to_color[team]
+    body_surf = pg.Surface((30, 20), pg.SRCALPHA)
+    pg.draw.rect(body_surf, (50, 50, 50), (0, 0, 30, 3), width=2)
+    pg.draw.rect(body_surf, (50, 50, 50), (0, 17, 30, 3), width=2)
+    pg.draw.rect(body_surf, team_color, (2, 3, 26, 14), width=2)
+    pg.draw.line(body_surf, team_color, (0, 3), (30, 3), width=2)
+    pg.draw.circle(body_surf, (60, 60, 60), (5, 10), 1, width=1)
+    pg.draw.circle(body_surf, (60, 60, 60), (25, 10), 1, width=1)
+    turret_surf = pg.Surface((12, 12), pg.SRCALPHA)
+    pg.draw.circle(turret_surf, team_color, (6, 6), 6, width=2)
+    barrel_surf = pg.Surface((20, 6), pg.SRCALPHA)
+    pg.draw.line(barrel_surf, team_color, (0, 3), (20, 3), width=3)
+    pg.draw.line(barrel_surf, (90, 90, 90), (20, 2), (20, 4), width=1)  
+    return body_surf, turret_surf, barrel_surf
+
+def draw_tank(self, surface: pg.Surface, camera: Camera, mouse_pos: tuple = None):
+    if self.health <= 0:
+        return
+    screen_pos = camera.world_to_screen(self.position)
+    zoom = camera.zoom
+    body_scaled = pg.transform.smoothscale(self.body_surf, (int(30 * zoom), int(20 * zoom)))
+    rotated_body = pg.transform.rotate(body_scaled, -math.degrees(self.body_angle))
+    body_rect = rotated_body.get_rect(center=screen_pos)
+    surface.blit(rotated_body, body_rect.topleft)
+    turret_scaled = pg.transform.smoothscale(self.turret_surf, (int(12 * zoom), int(12 * zoom)))
+    rotated_turret = pg.transform.rotate(turret_scaled, -math.degrees(self.turret_angle))
+    turret_rect = rotated_turret.get_rect()
+    offset_rot = self.turret_offset.rotate_rad(self.body_angle) * zoom
+    turret_center = Vector2(body_rect.center) + offset_rot
+    turret_rect.center = turret_center
+    surface.blit(rotated_turret, turret_rect.topleft)
+    barrel_scaled = pg.transform.smoothscale(self.barrel_surf, (int(20 * zoom), int(6 * zoom)))
+    rotated_barrel = pg.transform.rotate(barrel_scaled, -math.degrees(self.turret_angle))
+    barrel_rect = rotated_barrel.get_rect()
+    barrel_offset_rot = self.barrel_offset.rotate_rad(self.turret_angle) * zoom
+    barrel_center = Vector2(turret_center) + barrel_offset_rot
+    barrel_rect.center = barrel_center
+    surface.blit(rotated_barrel, barrel_rect.topleft)
+    if self.selected:
+        radius = 15 * zoom + 3
+        pg.draw.circle(surface, (255, 255, 0), (int(screen_pos[0]), int(screen_pos[1])), int(radius), int(2 * zoom))
+    self.draw_health_bar(surface, camera, mouse_pos)
+    for particle in self.plasma_burn_particles:
+        particle.draw(surface, camera)
+
+def create_machinegunvehicle_surfaces(team: Team):
+    team_color = team_to_color[team]
+    body_surf = pg.Surface((35, 25), pg.SRCALPHA)
+    pg.draw.rect(body_surf, team_color, (0, 5, 35, 15), width=2)
+    wheel_positions = [5, 15, 25]
+    for px in wheel_positions:
+        pg.draw.circle(body_surf, (50, 50, 50), (px, 5), 3, width=2)
+        pg.draw.circle(body_surf, (50, 50, 50), (px, 20), 3, width=2)
+    pg.draw.line(body_surf, team_color, (0, 5), (35, 5), width=2)
+    for px in wheel_positions:
+        pg.draw.circle(body_surf, (40, 40, 40), (px, 5), 1, width=1)
+        pg.draw.circle(body_surf, (40, 40, 40), (px, 20), 1, width=1)
+    turret_surf = pg.Surface((8, 8), pg.SRCALPHA)
+    pg.draw.rect(turret_surf, team_color, (0, 0, 8, 8), width=2)
+    barrel_surf = pg.Surface((25, 2), pg.SRCALPHA)
+    pg.draw.line(barrel_surf, team_color, (0, 1), (25, 1), width=2)
+    return body_surf, turret_surf, barrel_surf
+
+def draw_machinegunvehicle(self, surface: pg.Surface, camera: Camera, mouse_pos: tuple = None):
+    if self.health <= 0:
+        return
+    screen_pos = camera.world_to_screen(self.position)
+    zoom = camera.zoom
+    body_scaled = pg.transform.smoothscale(self.body_surf, (int(35 * zoom), int(25 * zoom)))
+    rotated_body = pg.transform.rotate(body_scaled, -math.degrees(self.body_angle))
+    body_rect = rotated_body.get_rect(center=screen_pos)
+    surface.blit(rotated_body, body_rect.topleft)
+    turret_scaled = pg.transform.smoothscale(self.turret_surf, (int(8 * zoom), int(8 * zoom)))
+    rotated_turret = pg.transform.rotate(turret_scaled, -math.degrees(self.turret_angle))
+    turret_rect = rotated_turret.get_rect()
+    offset_rot = self.turret_offset.rotate_rad(self.body_angle) * zoom
+    turret_center = Vector2(body_rect.center) + offset_rot
+    turret_rect.center = turret_center
+    surface.blit(rotated_turret, turret_rect.topleft)
+    barrel_scaled = pg.transform.smoothscale(self.barrel_surf, (int(25 * zoom), int(2 * zoom)))
+    rotated_barrel = pg.transform.rotate(barrel_scaled, -math.degrees(self.turret_angle))
+    barrel_rect = rotated_barrel.get_rect()
+    barrel_offset_rot = self.barrel_offset.rotate_rad(self.turret_angle) * zoom
+    barrel_center = Vector2(turret_center) + barrel_offset_rot
+    barrel_rect.center = barrel_center
+    surface.blit(rotated_barrel, barrel_rect.topleft)
+    if self.selected:
+        radius = 17.5 * zoom + 3
+        pg.draw.circle(surface, (255, 255, 0), (int(screen_pos[0]), int(screen_pos[1])), int(radius), int(2 * zoom))
+    self.draw_health_bar(surface, camera, mouse_pos)
+    for particle in self.plasma_burn_particles:
+        particle.draw(surface, camera)
+
+def create_rocketartillery_surfaces(team: Team):
+    team_color = team_to_color[team]
+    body_surf = pg.Surface((40, 25), pg.SRCALPHA)
+    pg.draw.rect(body_surf, team_color, (0, 5, 40, 15), width=2)
+    pg.draw.rect(body_surf, (50, 50, 50), (0, 0, 40, 5), width=2)
+    pg.draw.rect(body_surf, (50, 50, 50), (0, 20, 40, 5), width=2)
+    pg.draw.line(body_surf, team_color, (0, 5), (40, 5), width=2)
+    pg.draw.circle(body_surf, (40, 40, 40), (8, 12.5), 3, width=2)
+    pg.draw.circle(body_surf, (40, 40, 40), (32, 12.5), 3, width=2)
+    turret_surf = pg.Surface((12, 12), pg.SRCALPHA)
+    pg.draw.rect(turret_surf, team_color, (0, 0, 12, 12), width=2)
+    barrel_surf = pg.Surface((30, 8), pg.SRCALPHA)
+    for i in range(3):
+        pg.draw.line(barrel_surf, team_color, (i*10, 4), (i*10 + 20, 4), width=2)
+    return body_surf, turret_surf, barrel_surf
+
+def draw_rocketartillery(self, surface: pg.Surface, camera: Camera, mouse_pos: tuple = None):
+    if self.health <= 0:
+        return
+    screen_pos = camera.world_to_screen(self.position)
+    zoom = camera.zoom
+    body_scaled = pg.transform.smoothscale(self.body_surf, (int(40 * zoom), int(25 * zoom)))
+    rotated_body = pg.transform.rotate(body_scaled, -math.degrees(self.body_angle))
+    body_rect = rotated_body.get_rect(center=screen_pos)
+    surface.blit(rotated_body, body_rect.topleft)
+    turret_scaled = pg.transform.smoothscale(self.turret_surf, (int(12 * zoom), int(12 * zoom)))
+    rotated_turret = pg.transform.rotate(turret_scaled, -math.degrees(self.turret_angle))
+    turret_rect = rotated_turret.get_rect()
+    offset_rot = self.turret_offset.rotate_rad(self.body_angle) * zoom
+    turret_center = Vector2(body_rect.center) + offset_rot
+    turret_rect.center = turret_center
+    surface.blit(rotated_turret, turret_rect.topleft)
+    barrel_scaled = pg.transform.smoothscale(self.barrel_surf, (int(30 * zoom), int(8 * zoom)))
+    rotated_barrel = pg.transform.rotate(barrel_scaled, -math.degrees(self.turret_angle))
+    barrel_rect = rotated_barrel.get_rect()
+    barrel_offset_rot = self.barrel_offset.rotate_rad(self.turret_angle) * zoom
+    barrel_center = Vector2(turret_center) + barrel_offset_rot
+    barrel_rect.center = barrel_center
+    surface.blit(rotated_barrel, barrel_rect.topleft)
+    if self.selected:
+        radius = 20 * zoom + 3
+        pg.draw.circle(surface, (255, 255, 0), (int(screen_pos[0]), int(screen_pos[1])), int(radius), int(2 * zoom))
+    self.draw_health_bar(surface, camera, mouse_pos)
+    for particle in self.plasma_burn_particles:
+        particle.draw(surface, camera)
+
+def create_attackhelicopter_surfaces(team: Team):
+    team_color = team_to_color[team]
+    body_surf = pg.Surface((25, 15), pg.SRCALPHA)
+    pg.draw.ellipse(body_surf, team_color, (0, 2, 25, 11), width=2)
+    pg.draw.ellipse(body_surf, (80, 80, 80), (2, 4, 21, 7), width=2)
+    pg.draw.ellipse(body_surf, (150, 200, 255), (18, 3, 6, 5), width=2)
+    pg.draw.line(body_surf, (90, 90, 90), (0, 7), (-5, 7), width=2)
+    pg.draw.circle(body_surf, team_color, (-5, 7), 2, width=2)
+    pg.draw.circle(body_surf, (60, 60, 60), (12, 7), 3, width=2)
+    pg.draw.line(body_surf, team_color, (0, 0), (25, 0), width=2)
+    pg.draw.line(body_surf, team_color, (5, 12), (9, 12), width=2)
+    pg.draw.line(body_surf, team_color, (16, 12), (20, 12), width=2)
+    turret_surf = pg.Surface((8, 6), pg.SRCALPHA)
+    pg.draw.rect(turret_surf, team_color, (0, 0, 8, 6), width=2)
+    barrel_surf = pg.Surface((12, 2), pg.SRCALPHA)
+    pg.draw.line(barrel_surf, team_color, (0, 1), (12, 1), width=2)
+    return body_surf, turret_surf, barrel_surf
+
+def draw_attackhelicopter(self, surface: pg.Surface, camera: Camera, mouse_pos: tuple = None):
+    if self.health <= 0:
+        return
+    fly_screen_pos = camera.world_to_screen((self.position.x, self.position.y - self.fly_height))
+    zoom = camera.zoom
+    body_scaled = pg.transform.smoothscale(self.body_surf, (int(25 * zoom), int(15 * zoom)))
+    rotated_body = pg.transform.rotate(body_scaled, -math.degrees(self.body_angle))
+    body_rect = rotated_body.get_rect(center=fly_screen_pos)
+    surface.blit(rotated_body, body_rect.topleft)
+    turret_scaled = pg.transform.smoothscale(self.turret_surf, (int(8 * zoom), int(6 * zoom)))
+    rotated_turret = pg.transform.rotate(turret_scaled, -math.degrees(self.turret_angle))
+    turret_rect = rotated_turret.get_rect()
+    offset_rot = self.turret_offset.rotate_rad(self.body_angle) * zoom
+    turret_center = Vector2(body_rect.center) + offset_rot
+    turret_rect.center = turret_center
+    surface.blit(rotated_turret, turret_rect.topleft)
+    barrel_scaled = pg.transform.smoothscale(self.barrel_surf, (int(12 * zoom), int(2 * zoom)))
+    rotated_barrel = pg.transform.rotate(barrel_scaled, -math.degrees(self.turret_angle))
+    barrel_rect = rotated_barrel.get_rect()
+    barrel_offset_rot = self.barrel_offset.rotate_rad(self.turret_angle) * zoom
+    barrel_center = Vector2(turret_center) + barrel_offset_rot
+    barrel_rect.center = barrel_center
+    surface.blit(rotated_barrel, barrel_rect.topleft)
+    rotor_size = int(20 * zoom)
+    pg.draw.circle(surface, self.team_color, (int(fly_screen_pos[0]), int(fly_screen_pos[1])), rotor_size // 2, int(2 * zoom))
+    if self.selected:
+        radius = 12.5 * zoom + 3
+        pg.draw.circle(surface, (255, 255, 0), (int(fly_screen_pos[0]), int(fly_screen_pos[1])), int(radius), int(2 * zoom))
+    self.draw_health_bar(surface, camera, mouse_pos)
+    for particle in self.plasma_burn_particles:
+        particle.draw(surface, camera)
+
+def create_headquarters_image(size: tuple, team: Team) -> pg.Surface:
+    team_color = team_to_color[team]
+    image = pg.Surface(size)
+    image.fill((80, 80, 80))
+    pg.draw.rect(image, (100, 100, 100), (10, 10, 80, 70))
+    pg.draw.rect(image, team_color, (10, 10, 80, 20))
+    for i in range(5):
+        win_x = 15 + i * 15
+        win_y = 30 + (i % 2) * 15
+        pg.draw.rect(image, (100, 150, 255), (win_x, win_y, 8, 6))
+        pg.draw.rect(image, (100, 150, 255), (77 - (i % 2)*8, win_y, 8, 6))
+    pg.draw.rect(image, (50, 50, 50), (40, 80, 20, 20))
+    pg.draw.line(image, (30, 30, 30), (40, 80), (60, 100), 3)
+    pg.draw.line(image, team_color, (50, 10), (50, 0), 2)
+    pg.draw.circle(image, team_color, (50, 50), 10)
+    pg.draw.arc(image, (40, 40, 40), (40, 40, 20, 20), 0, math.pi, 2)
+    pg.draw.rect(image, (60, 60, 60), (20, 85, 10, 5))
+    pg.draw.rect(image, (60, 60, 60), (70, 85, 10, 5))
+    return image
+
+def create_barracks_image(size: tuple, team: Team) -> pg.Surface:
+    team_color = team_to_color[team]
+    image = pg.Surface(size)
+    image.fill((100, 100, 100))
+    pg.draw.rect(image, (120, 120, 120), (5, 5, 70, 60))
+    pg.draw.polygon(image, (90, 90, 90), [(0, 5), (80, 5), (60, 0), (20, 0)])
+    for i in range(3):
+        win_y = 20 + i * 12
+        pg.draw.rect(image, (100, 150, 255), (15, win_y, 8, 6))
+        pg.draw.rect(image, (100, 150, 255), (57, win_y, 8, 6))
+    pg.draw.rect(image, (60, 60, 60), (30, 65, 20, 15))
+    pg.draw.line(image, (40, 40, 40), (30, 65), (50, 80), 2)
+    pg.draw.line(image, (40, 40, 40), (50, 65), (70, 80), 2)
+    pg.draw.rect(image, (70, 70, 70), (70, 10, 5, 10))
+    pg.draw.rect(image, (50, 50, 50), (72, 5, 1, 5))  
+    pg.draw.line(image, team_color, (5, 5), (0, 0), 3)
+    return image
+
+def create_warfactory_image(size: tuple, team: Team) -> pg.Surface:
+    team_color = team_to_color[team]
+    image = pg.Surface(size)
+    image.fill((150, 150, 150))
+    pg.draw.rect(image, (130, 130, 130), (10, 10, 80, 50))
+    pg.draw.rect(image, (140, 140, 140), (0, 0, 100, 80))
+    pg.draw.rect(image, (110, 110, 110), (85, 0, 15, 30))
+    pg.draw.rect(image, (200, 200, 200), (87, 2, 11, 26))
+    pg.draw.circle(image, (100, 150, 255), (92, 18), 3)
+    for y in [20, 40]:
+        pg.draw.rect(image, (100, 150, 255), (20, y, 12, 8))
+        pg.draw.rect(image, (100, 150, 255), (68, y, 12, 8))
+    pg.draw.rect(image, (70, 70, 70), (40, 60, 20, 20))
+    pg.draw.line(image, (50, 50, 50), (40, 60), (60, 80), 3)
+    pg.draw.line(image, (50, 50, 50), (60, 60), (80, 80), 3)
+    pg.draw.line(image, (90, 90, 90), (10, 70), (90, 70), 2)
+    pg.draw.rect(image, team_color, (5, 5, 5, 5))
+    return image
+
+def create_hangar_image(size: tuple, team: Team) -> pg.Surface:
+    team_color = team_to_color[team]
+    image = pg.Surface(size)
+    image.fill((120, 120, 120))
+    pg.draw.rect(image, (140, 140, 140), (5, 10, 80, 50))
+    pg.draw.polygon(image, (100, 100, 100), [(0, 10), (90, 10), (70, 0), (20, 0)])
+    pg.draw.rect(image, (80, 80, 80), (40, 60, 10, 10))
+    pg.draw.line(image, (60, 60, 60), (40, 60), (50, 70), 2)
+    pg.draw.line(image, (60, 60, 60), (50, 60), (60, 70), 2)
+    pg.draw.rect(image, (110, 110, 110), (80, 5, 10, 25))
+    pg.draw.circle(image, (100, 150, 255), (85, 15), 2)
+    pg.draw.rect(image, team_color, (5, 5, 80, 3))
+    return image
+
+def create_powerplant_image(size: tuple, team: Team) -> pg.Surface:
+    team_color = team_to_color[team]
+    image = pg.Surface(size)
+    image.fill((200, 180, 100))
+    pg.draw.rect(image, (220, 200, 120), (10, 10, 60, 50))
+    pg.draw.rect(image, (150, 150, 150), (65, 5, 10, 25))
+    pg.draw.rect(image, (150, 150, 150), (65, 40, 10, 25))
+    pg.draw.rect(image, (100, 100, 100), (67, 7, 6, 23))
+    pg.draw.rect(image, (100, 100, 100), (67, 42, 6, 23))
+    pg.draw.rect(image, (120, 120, 120), (68, 0, 4, 5))  
+    pg.draw.rect(image, (120, 120, 120), (68, 35, 4, 5))  
+    for i in range(3):
+        win_y = 20 + i * 10
+        pg.draw.rect(image, (255, 255, 150), (20, win_y, 8, 6))
+        pg.draw.rect(image, (255, 255, 150), (52, win_y, 8, 6))
+    pg.draw.rect(image, (120, 120, 120), (35, 60, 10, 20))
+    pg.draw.line(image, (140, 140, 140), (70, 30), (80, 30), 3)
+    pg.draw.line(image, (140, 140, 140), (70, 50), (80, 50), 3)
+    pg.draw.rect(image, team_color, (0, 0, 80, 3))
+    return image
+
+def create_oilderrick_image(size: tuple, team: Team) -> pg.Surface:
+    team_color = team_to_color[team]
+    image = pg.Surface(size)
+    image.fill((139, 120, 80))
+    pg.draw.rect(image, (100, 80, 60), (20, 20, 20, 50))
+    pg.draw.line(image, (80, 80, 80), (30, 25), (45, 15), 4)
+    pg.draw.line(image, (60, 60, 60), (45, 15), (45, 30), 3)
+    pg.draw.circle(image, (60, 60, 60), (45, 15), 5)
+    pg.draw.rect(image, (120, 100, 80), (10, 70, 40, 10))
+    pg.draw.rect(image, team_color, (25, 75, 10, 5))
+    pg.draw.line(image, (90, 70, 50), (10, 70), (10, 20), 3)
+    pg.draw.line(image, (90, 70, 50), (50, 70), (50, 20), 3)
+    pg.draw.rect(image, (70, 50, 30), (40, 10, 10, 10))
+    return image
+
+def create_refinery_image(size: tuple, team: Team) -> pg.Surface:
+    team_color = team_to_color[team]
+    image = pg.Surface(size)
+    image.fill((100, 50, 0))
+    pg.draw.ellipse(image, (120, 80, 40), (10, 10, 50, 60))
+    pg.draw.ellipse(image, (120, 80, 40), (60, 10, 50, 60))
+    pg.draw.circle(image, (140, 100, 60), (35, 40), 5)  
+    pg.draw.circle(image, (140, 100, 60), (85, 40), 5)  
+    pg.draw.rect(image, (80, 80, 80), (55, 35, 10, 10))
+    pg.draw.rect(image, (60, 60, 60), (100, 20, 20, 40))
+    pg.draw.rect(image, (80, 80, 80), (102, 22, 16, 36))
+    pg.draw.line(image, (50, 50, 50), (60, 40), (100, 40), 4)
+    pg.draw.line(image, (50, 50, 50), (60, 50), (100, 50), 4)
+    pg.draw.rect(image, team_color, (0, 0, 120, 5))
+    return image
+
+def create_shalefracker_image(size: tuple, team: Team) -> pg.Surface:
+    team_color = team_to_color[team]
+    image = pg.Surface(size)
+    image.fill((80, 60, 40))
+    pg.draw.rect(image, (100, 80, 60), (10, 10, 50, 50))
+    pg.draw.rect(image, (120, 100, 80), (20, 60, 30, 10))
+    pg.draw.line(image, (60, 40, 20), (35, 10), (35, 60), 8)
+    pg.draw.polygon(image, (40, 20, 0), [(33, 65), (35, 70), (37, 65)])
+    pg.draw.line(image, (90, 70, 50), (10, 60), (10, 10), 3)
+    pg.draw.line(image, (90, 70, 50), (60, 60), (60, 10), 3)
+    pg.draw.rect(image, team_color, (5, 5, 5, 5))
+    return image
+
+def create_blackmarket_image(size: tuple, team: Team) -> pg.Surface:
+    team_color = team_to_color[team]
+    image = pg.Surface(size)
+    image.fill((40, 40, 80))
+    pg.draw.polygon(image, (60, 60, 100), [(10, 20), (35, 5), (60, 20)])
+    pg.draw.line(image, (50, 50, 90), (10, 20), (60, 20), 2)
+    pg.draw.polygon(image, (60, 60, 100), [(10, 40), (35, 25), (60, 40)])
+    pg.draw.line(image, (50, 50, 90), (10, 40), (60, 40), 2)
+    pg.draw.rect(image, (80, 60, 40), (65, 10, 20, 15))
+    pg.draw.rect(image, (80, 60, 40), (65, 30, 20, 15))
+    pg.draw.line(image, (70, 50, 30), (65, 15), (85, 15), 1)
+    pg.draw.line(image, (70, 50, 30), (65, 35), (85, 35), 1)
+    pg.draw.rect(image, (70, 70, 70), (20, 45, 20, 15))
+    pg.draw.rect(image, team_color, (0, 0, 90, 3))
+    return image
+
+def create_turret_surfaces(team: Team):
+    team_color = team_to_color[team]
+    body_surf = pg.Surface((60, 60), pg.SRCALPHA)
+    pg.draw.rect(body_surf, (100, 100, 100), (15, 35, 30, 25))
+    pg.draw.rect(body_surf, (80, 80, 80), (17, 37, 26, 21))
+    pg.draw.circle(body_surf, (60, 60, 60), (20, 55), 2)
+    pg.draw.circle(body_surf, (60, 60, 60), (40, 55), 2)
+    pg.draw.rect(body_surf, (120, 120, 120), (25, 50, 10, 5))  
+    turret_surf = pg.Surface((20, 20), pg.SRCALPHA)
+    pg.draw.circle(turret_surf, team_color, (10, 10), 10)
+    pg.draw.circle(turret_surf, (120, 120, 120), (10, 10), 8)
+    pg.draw.circle(turret_surf, (100, 150, 255), (10, 12), 2)  
+    barrel_surf = pg.Surface((5, 20), pg.SRCALPHA)
+    pg.draw.rect(barrel_surf, team_color, (0, 0, 5, 20))
+    pg.draw.rect(barrel_surf, (90, 90, 90), (4, 18, 1, 2))  
+    return body_surf, turret_surf, barrel_surf
+
+def draw_turret(self, surface: pg.Surface, camera: Camera, mouse_pos: tuple = None):
+    if self.health <= 0:
+        return
+    screen_pos = camera.world_to_screen(self.position)
+    zoom = camera.zoom
+    body_scaled = pg.transform.smoothscale(self.body_surf, (int(60 * zoom), int(60 * zoom)))
+    body_rect = body_scaled.get_rect(center=screen_pos)
+    surface.blit(body_scaled, body_rect.topleft)
+    turret_scaled = pg.transform.smoothscale(self.turret_surf, (int(20 * zoom), int(20 * zoom)))
+    rotated_turret = pg.transform.rotate(turret_scaled, -math.degrees(self.turret_angle))
+    turret_rect = rotated_turret.get_rect()
+    offset_rot = self.turret_offset.rotate_rad(self.body_angle) * zoom
+    turret_center = Vector2(body_rect.center) + offset_rot
+    turret_rect.center = turret_center
+    surface.blit(rotated_turret, turret_rect.topleft)
+    barrel_scaled = pg.transform.smoothscale(self.barrel_surf, (int(5 * zoom), int(20 * zoom)))
+    rotated_barrel = pg.transform.rotate(barrel_scaled, -math.degrees(self.turret_angle))
+    barrel_rect = rotated_barrel.get_rect()
+    barrel_offset_rot = self.barrel_offset.rotate_rad(self.turret_angle) * zoom
+    barrel_center = Vector2(turret_center) + barrel_offset_rot
+    barrel_rect.center = barrel_center
+    surface.blit(rotated_barrel, barrel_rect.topleft)
+    if self.selected:
+        screen_rect = camera.get_screen_rect(self.rect)
+        pg.draw.rect(surface, (255, 255, 0), screen_rect, int(3 * zoom))
+    self.draw_health_bar(surface, camera, mouse_pos)
+    for particle in self.plasma_burn_particles:
+        particle.draw(surface, camera)
+
+# Drawing recipe dictionary for simple rotated units
+SIMPLE_DRAW_RECIPES = {
+    "Infantry": create_infantry_image,
+    "Grenadier": create_grenadier_image,
+}
+
+# Complex draw mappings
+COMPLEX_DRAW_CLASSES = {
+    "Tank": (create_tank_surfaces, draw_tank),
+    "MachineGunVehicle": (create_machinegunvehicle_surfaces, draw_machinegunvehicle),
+    "RocketArtillery": (create_rocketartillery_surfaces, draw_rocketartillery),
+    "AttackHelicopter": (create_attackhelicopter_surfaces, draw_attackhelicopter),
+    "Turret": (create_turret_surfaces, draw_turret),
+}
+
+# Static image recipes for buildings
+BUILDING_DRAW_RECIPES = {
+    "Headquarters": create_headquarters_image,
+    "Barracks": create_barracks_image,
+    "WarFactory": create_warfactory_image,
+    "Hangar": create_hangar_image,
+    "PowerPlant": create_powerplant_image,
+    "OilDerrick": create_oilderrick_image,
+    "Refinery": create_refinery_image,
+    "ShaleFracker": create_shalefracker_image,
+    "BlackMarket": create_blackmarket_image,
+}
 
 def snap_to_grid(pos: tuple[float, float], grid_size: int = TILE_SIZE) -> tuple[float, float]:
     return (round(pos[0] / grid_size) * grid_size, round(pos[1] / grid_size) * grid_size)
@@ -159,25 +752,26 @@ def is_valid_building_position(
     map_height: int = MAP_HEIGHT,
     building_range: int = 200,
 ) -> bool:
-    width, height = new_building_cls.SIZE
-    temp_rect = pg.Rect(position[0], position[1], width, height)
+    width, height = UNIT_CLASSES[new_building_cls.__name__]["size"]
+    half_w, half_h = width / 2, height / 2
+    temp_rect = pg.Rect(position[0] - half_w, position[1] - half_h, width, height)
     if not (0 <= temp_rect.left and temp_rect.right <= map_width and
             0 <= temp_rect.top and temp_rect.bottom <= map_height):
         return False
     
-    proposed_center = (position[0] + width / 2, position[1] + height / 2)
+    proposed_center = position
     
     has_nearby_friendly = False
     for building in buildings:
         if building.team == team and building.health > 0:
-            dist = math.sqrt((proposed_center[0] - building.rect.centerx)**2 + (proposed_center[1] - building.rect.centery)**2)
+            dist = math.sqrt((proposed_center[0] - building.position.x)**2 + (proposed_center[1] - building.position.y)**2)
             if dist <= building_range:
                 has_nearby_friendly = True
         
         if building.health > 0 and building.rect.colliderect(temp_rect):
             return False
     
-    return has_nearby_friendly or issubclass(new_building_cls, Headquarters)
+    return has_nearby_friendly or new_building_cls.__name__ == "Headquarters"
 
 def find_free_spawn_position(building_pos: tuple, target_pos: tuple, global_buildings, global_units, unit_size=(40, 40)):
     for _ in range(20):
@@ -385,15 +979,15 @@ class FogOfWar:
         num_tiles_y = len(self.visible[0])
         self.visible = [[False] * num_tiles_y for _ in range(num_tiles_x)]
         for unit in ally_units:
-            self.reveal(unit.position, getattr(unit, 'sight_range', 150))
+            self.reveal(unit.position, unit.sight_range)
         for building in ally_buildings:
             if building.health > 0:
-                self.reveal(building.position, 200)
+                self.reveal(building.position, building.sight_range)
         for building in global_buildings:
             if building.health > 0:
                 tx, ty = int(building.position[0] // self.tile_size), int(building.position[1] // self.tile_size)
                 if 0 <= tx < num_tiles_x and 0 <= ty < num_tiles_y:
-                    building.is_seen = getattr(building, 'is_seen', False) or self.visible[tx][ty]
+                    building.is_seen = building.is_seen or self.visible[tx][ty]
     
     def is_visible(self, pos: tuple) -> bool:
         tx, ty = int(pos[0] // self.tile_size), int(pos[1] // self.tile_size)
@@ -440,7 +1034,7 @@ class Particle(pg.sprite.Sprite):
         self.vy = vy
         self.size = size
         self.color = color
-        self.lifetime = lifetime * 60
+        self.lifetime = lifetime * 10
         self.age = 0
         self.image = pg.Surface((size, size), pg.SRCALPHA)
         pg.draw.circle(self.image, color, (size // 2, size // 2), size // 2)
@@ -474,7 +1068,7 @@ class PlasmaBurnParticle(Particle):
         super().__init__(pos, 0, 0, 4, color, lifetime)
         self.entity = entity
         self.offset = Vector2(random.uniform(-20, 20), random.uniform(-10, 10))
-        self.initial_lifetime = lifetime * 60
+        self.initial_lifetime = lifetime * 30
 
     def update(self):
         body_angle = getattr(self.entity, 'body_angle', 0)
@@ -504,7 +1098,7 @@ class Projectile(pg.sprite.Sprite):
         self.damage = damage
         self.team = team
         self.speed = weapon["projectile_speed"]
-        self.lifetime = PROJECTILE_LIFETIME * 60
+        self.lifetime = PROJECTILE_LIFETIME * 30
         self.age = 0
         self.length = weapon["projectile_length"]
         self.width = weapon["projectile_width"]
@@ -552,6 +1146,7 @@ class GameObject(pg.sprite.Sprite, ABC):
         self.health = 100
         self.max_health = 100
         self.under_attack = False
+        self.under_attack_timer = 0
         self.selected = False
         self.is_seen = False
         self.body_angle = 0
@@ -562,12 +1157,12 @@ class GameObject(pg.sprite.Sprite, ABC):
     def distance_to(self, other_pos: tuple) -> float:
         return self.position.distance_to(other_pos)
     
-    def displacement_to(self, other_pos: tuple) -> tuple[float, float]:
+    def displacement_to(self, other_pos: tuple) -> float:
         dx = other_pos[0] - self.position.x
         dy = other_pos[1] - self.position.y
         return (dx, dy)
     
-    def draw(self, surface: pg.Surface, camera: Camera):
+    def draw(self, surface: pg.Surface, camera: Camera, mouse_pos: tuple = None):
         screen_rect = camera.get_screen_rect(self.rect)
         if not screen_rect.colliderect((0, 0, camera.width, camera.height)):
             return
@@ -587,9 +1182,24 @@ class GameObject(pg.sprite.Sprite, ABC):
         for particle in self.plasma_burn_particles:
             particle.draw(surface, camera)
     
-    def draw_health_bar(self, screen, camera):
-        if self.health >= self.max_health and not self.under_attack:
+    def draw_health_bar(self, screen, camera, mouse_pos: tuple = None):
+        hovered = False
+        if mouse_pos is not None:
+            screen_rect = camera.get_screen_rect(self.rect)
+            if screen_rect.collidepoint(mouse_pos):
+                hovered = True
+        
+        show = True
+        if self.is_building:
+            if self.health >= self.max_health:
+                show = False
+        else:
+            if not (self.under_attack or hovered):
+                show = False
+        
+        if not show:
             return
+        
         screen_pos = camera.world_to_screen(self.position)
         health_ratio = self.health / self.max_health
         color = (0, 255, 0) if health_ratio > 0.5 else (255, 0, 0)
@@ -604,6 +1214,7 @@ class GameObject(pg.sprite.Sprite, ABC):
     def take_damage(self, damage: int, particles: pg.sprite.Group):
         self.health -= damage
         self.under_attack = True
+        self.under_attack_timer = 120
         if self.health < self.max_health * 0.7 and random.random() < 0.3:
             color = team_to_color[self.team]
             for _ in range(PLASMA_BURN_PARTICLES):
@@ -614,72 +1225,233 @@ class GameObject(pg.sprite.Sprite, ABC):
     def update(self): pass
 
 class Unit(GameObject):
-    def __init__(self, position: tuple, team: Team, unit_type: str):
+    def __init__(self, position: tuple, team: Team, unit_type: str, hq=None):
         super().__init__(position, team)
-        self.unit_type = unit_type
         stats = UNIT_CLASSES[unit_type]
+        self.stats = stats.copy()
+        self.unit_type = unit_type
         self.health = stats["hp"]
         self.max_health = stats["hp"]
         self.speed = stats["speed"]
-        self.sight_range = stats.get("sight_range", 150)
+        self.sight_range = stats["sight_range"]
+        self.attack_range = stats["attack_range"]
         self.weapons = stats["weapons"]
+        self.is_building = stats["is_building"]
         self.current_weapon = 0
         self.attack_target = None
         self.last_shot_time = 0
-        self.cooldown = stats["weapons"][0]["cooldown"] if stats["weapons"] else 0
+        self.cooldown = stats["weapons"][0].get("cooldown", 0) if stats["weapons"] else 0
         self.move_target = None
         self.formation_target = None
         self.player_ordered = False
         self.random_offset_angle = random.uniform(-0.5, 0.5)
         self.turret_angle = 0
         self.body_angle = 0
-        self.air = stats.get("air", False)
+        self.air = stats["air"]
+        self.team_color = team_to_color[team]
+        self.hq = hq
+        self.fly_height = stats.get("fly_height", 0)
+        if "income" in stats:
+            self.income = stats["income"]
+            self.collection_timer = 0
+        if "producible" in stats:
+            self.rally_point = Vector2(position[0] + 80, position[1])
+            self.production_queue = []
+            self.production_timer = None
+            self.gate_open = False
+            self.gate_timer = 0
+        self.rect = self.image.get_rect(center=position)
+        # Modular drawing setup
+        self._setup_drawing(unit_type)
     
-    def update(self):
+    def _setup_drawing(self, unit_type: str):
+        if unit_type in SIMPLE_DRAW_RECIPES:
+            self.image = SIMPLE_DRAW_RECIPES[unit_type](UNIT_CLASSES[unit_type]["size"], self.team)
+            if unit_type in ["Infantry", "Grenadier"]:
+                self.needs_rotation = True
+        elif unit_type in COMPLEX_DRAW_CLASSES:
+            create_surfaces, draw_func = COMPLEX_DRAW_CLASSES[unit_type]
+            self.body_surf, self.turret_surf, self.barrel_surf = create_surfaces(self.team)
+            if unit_type == "AttackHelicopter":
+                self.turret_offset = Vector2(12, 0)
+                self.barrel_offset = Vector2(6, 0)
+            else:
+                self.turret_offset = Vector2(0, -3) if unit_type != "Turret" else Vector2(0, -15)
+                self.barrel_offset = Vector2(8, 0) if unit_type == "Tank" else Vector2(10, 0) if unit_type == "MachineGunVehicle" else Vector2(15, 0) if unit_type == "RocketArtillery" else Vector2(0, -10)
+            self.draw = draw_func.__get__(self, self.__class__)
+        elif self.is_building and unit_type in BUILDING_DRAW_RECIPES:
+            self.image = BUILDING_DRAW_RECIPES[unit_type](UNIT_CLASSES[unit_type]["size"], self.team)
+        else:
+            # Fallback
+            self.image.fill(self.team_color)
+        self.rect = self.image.get_rect(center=self.position)
+    
+    def _draw_gate(self, surface: pg.Surface, camera: Camera):
+        door_width = self.stats.get("gate_width", 20)
+        half_door_offset = self.stats.get("half_door_offset", 15)
+        door_color = self.stats.get("door_color", (60, 60, 60))
+        door_height = self.rect.height - 20
+        half_door = door_width // 2
+        left_door = pg.Rect(self.rect.right - door_width, self.rect.top + 10, half_door, door_height)
+        right_door = pg.Rect(self.rect.right - half_door, self.rect.top + 10, half_door, door_height)
+        open_left = left_door.move(-half_door_offset, 0)
+        open_right = right_door.move(half_door_offset, 0)
+        pg.draw.rect(surface, door_color, camera.get_screen_rect(open_left))
+        pg.draw.rect(surface, door_color, camera.get_screen_rect(open_right))
+    
+    def _update_production(self, friendly_units, all_units):
+        if self.gate_open:
+            self.gate_timer -= 1
+            if self.gate_timer <= 0:
+                self.gate_open = False
+        if self.production_queue:
+            if self.production_timer is None:
+                self.production_timer = self.stats["production_time"]
+            self.production_timer -= 1
+            if self.production_timer <= 0:
+                item = self.production_queue.pop(0)
+                unit_type = item['unit_type']
+                repeat = item.get('repeat', False)
+                spawn_pos = (self.rect.right, self.rect.centery)
+                try:
+                    new_unit = globals()[unit_type](spawn_pos, self.team)
+                except KeyError:
+                    new_unit = globals()["Infantry"](spawn_pos, self.team)  # fallback
+                new_unit.position = Vector2(spawn_pos)
+                new_unit.rect.center = new_unit.position
+                new_unit.move_target = self.rally_point
+                friendly_units.add(new_unit)
+                all_units.add(new_unit)
+                self.gate_open = True
+                self.gate_timer = 60
+                if repeat:
+                    self.production_queue.append({'unit_type': unit_type, 'repeat': True})
+                self.production_timer = None
+    
+    def update(self, particles=None, friendly_units=None, all_units=None, global_buildings=None, projectiles=None, enemy_units=None):
+        self.under_attack_timer = max(0, self.under_attack_timer - 1)
+        self.under_attack = self.under_attack_timer > 0
+        
         if self.last_shot_time > 0:
             self.last_shot_time -= 1
         
-        move_dir = None
-        if self.move_target:
-            dir_to_target = Vector2(self.move_target) - self.position
-            dist_to_move = dir_to_target.length()
-            if dist_to_move > 5:
-                move_dir = dir_to_target.normalize()
-                self.position += move_dir * self.speed
-                self.body_angle = math.atan2(move_dir.y, move_dir.x)
-            else:
-                self.move_target = None
+        # Clear invalid attack target
+        if self.attack_target:
+            if not hasattr(self.attack_target, 'health') or self.attack_target.health <= 0:
+                self.attack_target = None
+            elif self.distance_to(self.attack_target.position) > self.sight_range:
+                self.attack_target = None
         
-        if self.attack_target and self.attack_target.health > 0:
-            dist = self.distance_to(self.attack_target.position)
-            dir_to_enemy = Vector2(self.attack_target.position) - self.position
-            if dir_to_enemy.length() > 0:
-                dir_to_enemy = dir_to_enemy.normalize()
-            self.turret_angle = math.atan2(dir_to_enemy.y, dir_to_enemy.x)
-            if dist <= self.get_attack_range():
-                if self.move_target is not None:
-                    if dist > self.get_attack_range() * 1.2:
-                        maneuver_dir = dir_to_enemy
-                        self.position += maneuver_dir * self.speed * 0.5
-                        self.body_angle = self.turret_angle
-                    elif dist < self.get_attack_range() * 0.8:
-                        maneuver_dir = -dir_to_enemy
-                        self.position += maneuver_dir * self.speed * 0.8
-                        self.body_angle = math.atan2(maneuver_dir.y, maneuver_dir.x)
+        if not self.is_building:
+            if self.attack_target and self.attack_target.health > 0:
+                dist = self.distance_to(self.attack_target.position)
+                dir_to_enemy = Vector2(self.attack_target.position) - self.position
+                if dir_to_enemy.length() > 0:
+                    dir_to_enemy = dir_to_enemy.normalize()
+                self.turret_angle = math.atan2(dir_to_enemy.y, dir_to_enemy.x)
+                if dist <= self.attack_range:
+                    # Stop moving and fight
+                    original_move_target = self.move_target
+                    self.move_target = None
+                    # Face the enemy
+                    self.body_angle = self.turret_angle
+                    # Small random movement to avoid clustering
+                    if random.random() < 0.1:
+                        self.position += dir_to_enemy.rotate_rad(random.uniform(-0.5, 0.5)) * self.speed * 0.2
+                    # Restore move_target after combat if needed, but for now, stay stopped until enemy dead or out of sight
+                else:
+                    # Chase the target
+                    self.move_target = self.attack_target.position
+            
+            # Normal movement if no close combat
+            if not self.attack_target or self.distance_to(self.attack_target.position) > self.attack_range:
+                move_dir = None
+                if self.move_target:
+                    dir_to_target = Vector2(self.move_target) - self.position
+                    dist_to_move = dir_to_target.length()
+                    if dist_to_move > 5:
+                        move_dir = dir_to_target.normalize()
+                        self.position += move_dir * self.speed
+                        self.body_angle = math.atan2(move_dir.y, move_dir.x)
                     else:
-                        maneuver_dir = dir_to_enemy.rotate_rad(self.random_offset_angle)
-                        self.position += maneuver_dir * self.speed * 0.3
-                        self.body_angle = math.atan2(maneuver_dir.y, maneuver_dir.x)
+                        self.move_target = None
         
         if not self.attack_target:
             self.turret_angle = self.body_angle
         
+        if self.weapons and self.is_building and projectiles is not None and enemy_units is not None:
+            if self.last_shot_time == 0:
+                closest = min((u for u in enemy_units if u.health > 0), key=lambda u: self.distance_to(u.position), default=None)
+                if closest:
+                    dist = self.distance_to(closest.position)
+                    if dist <= self.attack_range:
+                        weapon = self.weapons[0]
+                        time_to_target = dist / weapon["projectile_speed"]
+                        target_vel = Vector2(
+                            closest.speed * math.cos(getattr(closest, 'body_angle', 0)) if hasattr(closest, 'speed') else 0,
+                            closest.speed * math.sin(getattr(closest, 'body_angle', 0)) if hasattr(closest, 'speed') else 0
+                        )
+                        predicted_pos = closest.position + target_vel * time_to_target
+                        direction = (predicted_pos - self.position).normalize()
+                        proj = Projectile(self.position, direction, weapon["damage"], self.team, weapon)
+                        projectiles.add(proj)
+                        self.last_shot_time = weapon["cooldown"]
+                        self.turret_angle = math.atan2(direction.y, direction.x)
+        
+        if hasattr(self, 'stats') and "producible" in self.stats and friendly_units is not None and all_units is not None:
+            self._update_production(friendly_units, all_units)
+        
+        if hasattr(self, 'collection_timer'):
+            self.collection_timer += 1
+            if self.collection_timer >= self.stats.get("income_interval", 300):
+                if hasattr(self, 'hq') and self.hq:
+                    self.hq.credits += self.income
+                self.collection_timer = 0
+        
         self.rect.center = self.position
         
-        self.plasma_burn_particles = [p for p in self.plasma_burn_particles if not p.alive()]
+        self.plasma_burn_particles = [p for p in self.plasma_burn_particles if p.alive()]
+    
+    def draw(self, surface: pg.Surface, camera: Camera, mouse_pos: tuple = None):
+        if self.health <= 0:
+            return
+        screen_pos = camera.world_to_screen(self.position)
+        if self.air:
+            screen_pos = (screen_pos[0], screen_pos[1] - self.fly_height * camera.zoom)
+        zoom = camera.zoom
+        screen_rect = camera.get_screen_rect(self.rect)
+        if not screen_rect.colliderect((0, 0, camera.width, camera.height)):
+            return
+        scaled_size = (int(self.image.get_width() * zoom), int(self.image.get_height() * zoom))
+        if scaled_size[0] > 0 and scaled_size[1] > 0:
+            scaled_image = pg.transform.smoothscale(self.image, scaled_size)
+            if hasattr(self, 'needs_rotation') and self.needs_rotation:
+                rotated_image = pg.transform.rotate(scaled_image, -math.degrees(self.body_angle))
+                rot_rect = rotated_image.get_rect(center=screen_pos)
+                surface.blit(rotated_image, rot_rect.topleft)
+            else:
+                offset_x = scaled_size[0] / 2
+                offset_y = scaled_size[1] / 2
+                blit_pos = (screen_pos[0] - offset_x, screen_pos[1] - offset_y)
+                surface.blit(scaled_image, blit_pos)
+        if self.selected:
+            if self.is_building:
+                screen_rect = camera.get_screen_rect(self.rect)
+                pg.draw.rect(surface, (255, 255, 0), screen_rect, int(3 * zoom))
+            else:
+                radius = max(self.rect.width, self.rect.height) / 2 * zoom + 3
+                pg.draw.circle(surface, (255, 255, 0), (int(screen_pos[0]), int(screen_pos[1])), int(radius), int(2 * zoom))
+        if hasattr(self, 'rally_point') and self.selected:
+            rally_screen = camera.world_to_screen(self.rally_point)
+            pg.draw.circle(surface, (0, 255, 0), (int(rally_screen[0]), int(rally_screen[1])), 5)
+        if hasattr(self, 'gate_open') and self.gate_open:
+            self._draw_gate(surface, camera)
+        self.draw_health_bar(surface, camera, mouse_pos)
+        for particle in self.plasma_burn_particles:
+            particle.draw(surface, camera)
     
     def get_attack_range(self) -> float:
-        return UNIT_CLASSES[self.unit_type]["attack_range"]
+        return self.attack_range
     
     def get_damage(self) -> int:
         if self.weapons:
@@ -703,389 +1475,35 @@ class Unit(GameObject):
             self.turret_angle = math.atan2(direction.y, direction.x)
             create_explosion(self.position, pg.sprite.Group(), self.team, 3)
 
+# Subclasses now lean, relying on base Unit for drawing setup
 class Infantry(Unit):
     def __init__(self, position: tuple, team: Team):
         super().__init__(position, team, "Infantry")
-        self.image = pg.Surface(UNIT_CLASSES["Infantry"]["size"], pg.SRCALPHA)
-        team_color = team_to_color[team]
-        pg.draw.circle(self.image, (150, 150, 150), (8, 4), 4)
-        pg.draw.circle(self.image, (0, 0, 0), (7, 3), 1)  
-        pg.draw.circle(self.image, (0, 0, 0), (9, 3), 1)  
-        pg.draw.rect(self.image, team_color, (6, 2, 4, 2))
-        pg.draw.rect(self.image, (100, 100, 100), (6, 8, 4, 8))
-        pg.draw.line(self.image, (120, 120, 120), (6, 10), (2, 12), 2)
-        pg.draw.line(self.image, (120, 120, 120), (10, 10), (14, 12), 2)
-        pg.draw.line(self.image, team_color, (14, 10), (18, 8), 2)
-        pg.draw.rect(self.image, team_color, (18, 7, 3, 2))
-        pg.draw.line(self.image, (80, 80, 80), (7, 16), (7, 20), 2)
-        pg.draw.line(self.image, (80, 80, 80), (9, 16), (9, 20), 2)
-        self.rect = self.image.get_rect(center=position)
-
-    def draw(self, surface: pg.Surface, camera: Camera):
-        if self.health <= 0:
-            return
-        screen_rect = camera.get_screen_rect(self.rect)
-        if not screen_rect.colliderect((0, 0, camera.width, camera.height)):
-            return
-        screen_pos = camera.world_to_screen(self.position)
-        zoom = camera.zoom
-        scaled_size = (int(self.image.get_width() * zoom), int(self.image.get_height() * zoom))
-        if scaled_size[0] > 0 and scaled_size[1] > 0:
-            scaled_image = pg.transform.smoothscale(self.image, scaled_size)
-            rotated_image = pg.transform.rotate(scaled_image, -math.degrees(self.body_angle))
-            rot_rect = rotated_image.get_rect(center=screen_pos)
-            surface.blit(rotated_image, rot_rect.topleft)
-        if self.selected:
-            radius = max(self.rect.width, self.rect.height) / 2 * zoom + 3
-            pg.draw.circle(surface, (255, 255, 0), (int(screen_pos[0]), int(screen_pos[1])), int(radius), int(2 * zoom))
-        self.draw_health_bar(surface, camera)
-        for particle in self.plasma_burn_particles:
-            particle.draw(surface, camera)
 
 class Tank(Unit):
     def __init__(self, position: tuple, team: Team):
         super().__init__(position, team, "Tank")
-        self.recoil = 0
-        team_color = team_to_color[team]
-        self.body_surf = pg.Surface((30, 20), pg.SRCALPHA)
-        pg.draw.rect(self.body_surf, (50, 50, 50), (0, 0, 30, 3), width=2)
-        pg.draw.rect(self.body_surf, (50, 50, 50), (0, 17, 30, 3), width=2)
-        pg.draw.rect(self.body_surf, team_color, (2, 3, 26, 14), width=2)
-        pg.draw.line(self.body_surf, team_color, (0, 3), (30, 3), width=2)
-        pg.draw.circle(self.body_surf, (60, 60, 60), (5, 10), 1, width=1)
-        pg.draw.circle(self.body_surf, (60, 60, 60), (25, 10), 1, width=1)
-        self.turret_surf = pg.Surface((12, 12), pg.SRCALPHA)
-        pg.draw.circle(self.turret_surf, team_color, (6, 6), 6, width=2)
-        self.barrel_surf = pg.Surface((20, 6), pg.SRCALPHA)
-        pg.draw.line(self.barrel_surf, team_color, (0, 3), (20, 3), width=3)
-        pg.draw.line(self.barrel_surf, (90, 90, 90), (20, 2), (20, 4), width=1)  
-        self.turret_offset = Vector2(0, -2)
-        self.barrel_offset = Vector2(8, 0)
-        self.rect = pg.Rect(position[0] - 15, position[1] - 10, 30, 20)
-
-    def draw(self, surface: pg.Surface, camera: Camera):
-        if self.health <= 0:
-            return
-        screen_pos = camera.world_to_screen(self.position)
-        zoom = camera.zoom
-        body_scaled = pg.transform.smoothscale(self.body_surf, (int(30 * zoom), int(20 * zoom)))
-        rotated_body = pg.transform.rotate(body_scaled, -math.degrees(self.body_angle))
-        body_rect = rotated_body.get_rect(center=screen_pos)
-        surface.blit(rotated_body, body_rect.topleft)
-        rel_angle = self.turret_angle - self.body_angle
-        turret_scaled = pg.transform.smoothscale(self.turret_surf, (int(12 * zoom), int(12 * zoom)))
-        rotated_turret = pg.transform.rotate(turret_scaled, -math.degrees(rel_angle))
-        turret_rect = rotated_turret.get_rect()
-        offset_rot = self.turret_offset.rotate_rad(self.body_angle) * zoom
-        turret_center = Vector2(body_rect.center) + offset_rot
-        turret_rect.center = turret_center
-        surface.blit(rotated_turret, turret_rect.topleft)
-        barrel_scaled = pg.transform.smoothscale(self.barrel_surf, (int(20 * zoom), int(6 * zoom)))
-        rotated_barrel = pg.transform.rotate(barrel_scaled, -math.degrees(rel_angle))
-        barrel_rect = rotated_barrel.get_rect()
-        barrel_offset_rot = self.barrel_offset.rotate_rad(rel_angle) * zoom
-        barrel_center = Vector2(turret_center) + barrel_offset_rot
-        barrel_rect.center = barrel_center
-        surface.blit(rotated_barrel, barrel_rect.topleft)
-        if self.selected:
-            radius = 15 * zoom + 3
-            pg.draw.circle(surface, (255, 255, 0), (int(screen_pos[0]), int(screen_pos[1])), int(radius), int(2 * zoom))
-        self.draw_health_bar(surface, camera)
-        for particle in self.plasma_burn_particles:
-            particle.draw(surface, camera)
 
 class Grenadier(Unit):
     def __init__(self, position: tuple, team: Team):
         super().__init__(position, team, "Grenadier")
-        self.image = pg.Surface(UNIT_CLASSES["Grenadier"]["size"], pg.SRCALPHA)
-        team_color = team_to_color[team]
-        pg.draw.circle(self.image, (150, 150, 150), (8, 4), 4)
-        pg.draw.circle(self.image, (0, 0, 0), (7, 3), 1)
-        pg.draw.circle(self.image, (0, 0, 0), (9, 3), 1)
-        pg.draw.rect(self.image, team_color, (6, 2, 4, 2))
-        pg.draw.rect(self.image, (100, 100, 100), (6, 8, 4, 8))
-        pg.draw.line(self.image, (120, 120, 120), (6, 10), (2, 12), 2)
-        pg.draw.line(self.image, (120, 120, 120), (10, 10), (14, 12), 2)
-        pg.draw.line(self.image, (200, 100, 100), (14, 10), (18, 12), 2)
-        pg.draw.circle(self.image, (200, 0, 0), (18, 12), 3)
-        pg.draw.circle(self.image, (150, 0, 0), (12, 10), 2)  
-        pg.draw.line(self.image, (80, 80, 80), (7, 16), (7, 20), 2)
-        pg.draw.line(self.image, (80, 80, 80), (9, 16), (9, 20), 2)
-        self.rect = self.image.get_rect(center=position)
-
-    def draw(self, surface: pg.Surface, camera: Camera):
-        if self.health <= 0:
-            return
-        screen_rect = camera.get_screen_rect(self.rect)
-        if not screen_rect.colliderect((0, 0, camera.width, camera.height)):
-            return
-        screen_pos = camera.world_to_screen(self.position)
-        zoom = camera.zoom
-        scaled_size = (int(self.image.get_width() * zoom), int(self.image.get_height() * zoom))
-        if scaled_size[0] > 0 and scaled_size[1] > 0:
-            scaled_image = pg.transform.smoothscale(self.image, scaled_size)
-            rotated_image = pg.transform.rotate(scaled_image, -math.degrees(self.body_angle))
-            rot_rect = rotated_image.get_rect(center=screen_pos)
-            surface.blit(rotated_image, rot_rect.topleft)
-        if self.selected:
-            radius = max(self.rect.width, self.rect.height) / 2 * zoom + 3
-            pg.draw.circle(surface, (255, 255, 0), (int(screen_pos[0]), int(screen_pos[1])), int(radius), int(2 * zoom))
-        self.draw_health_bar(surface, camera)
-        for particle in self.plasma_burn_particles:
-            particle.draw(surface, camera)
 
 class MachineGunVehicle(Unit):
     def __init__(self, position: tuple, team: Team):
         super().__init__(position, team, "MachineGunVehicle")
-        self.recoil = 0
-        team_color = team_to_color[team]
-        self.body_surf = pg.Surface((35, 25), pg.SRCALPHA)
-        pg.draw.rect(self.body_surf, team_color, (0, 5, 35, 15), width=2)
-        wheel_positions = [5, 15, 25]
-        for px in wheel_positions:
-            pg.draw.circle(self.body_surf, (50, 50, 50), (px, 5), 3, width=2)
-            pg.draw.circle(self.body_surf, (50, 50, 50), (px, 20), 3, width=2)
-        pg.draw.line(self.body_surf, team_color, (0, 5), (35, 5), width=2)
-        for px in wheel_positions:
-            pg.draw.circle(self.body_surf, (40, 40, 40), (px, 5), 1, width=1)
-            pg.draw.circle(self.body_surf, (40, 40, 40), (px, 20), 1, width=1)
-        self.turret_surf = pg.Surface((8, 8), pg.SRCALPHA)
-        pg.draw.rect(self.turret_surf, team_color, (0, 0, 8, 8), width=2)
-        self.barrel_surf = pg.Surface((25, 2), pg.SRCALPHA)
-        pg.draw.line(self.barrel_surf, team_color, (0, 1), (25, 1), width=2)
-        self.turret_offset = Vector2(0, -3)
-        self.barrel_offset = Vector2(10, 0)
-        self.rect = pg.Rect(position[0] - 17.5, position[1] - 12.5, 35, 25)
-
-    def draw(self, surface: pg.Surface, camera: Camera):
-        if self.health <= 0:
-            return
-        screen_pos = camera.world_to_screen(self.position)
-        zoom = camera.zoom
-        body_scaled = pg.transform.smoothscale(self.body_surf, (int(35 * zoom), int(25 * zoom)))
-        rotated_body = pg.transform.rotate(body_scaled, -math.degrees(self.body_angle))
-        body_rect = rotated_body.get_rect(center=screen_pos)
-        surface.blit(rotated_body, body_rect.topleft)
-        rel_angle = self.turret_angle - self.body_angle
-        turret_scaled = pg.transform.smoothscale(self.turret_surf, (int(8 * zoom), int(8 * zoom)))
-        rotated_turret = pg.transform.rotate(turret_scaled, -math.degrees(rel_angle))
-        turret_rect = rotated_turret.get_rect()
-        offset_rot = self.turret_offset.rotate_rad(self.body_angle) * zoom
-        turret_center = Vector2(body_rect.center) + offset_rot
-        turret_rect.center = turret_center
-        surface.blit(rotated_turret, turret_rect.topleft)
-        barrel_scaled = pg.transform.smoothscale(self.barrel_surf, (int(25 * zoom), int(2 * zoom)))
-        rotated_barrel = pg.transform.rotate(barrel_scaled, -math.degrees(rel_angle))
-        barrel_rect = rotated_barrel.get_rect()
-        barrel_offset_rot = self.barrel_offset.rotate_rad(rel_angle) * zoom
-        barrel_center = Vector2(turret_center) + barrel_offset_rot
-        barrel_rect.center = barrel_center
-        surface.blit(rotated_barrel, barrel_rect.topleft)
-        if self.selected:
-            radius = 17.5 * zoom + 3
-            pg.draw.circle(surface, (255, 255, 0), (int(screen_pos[0]), int(screen_pos[1])), int(radius), int(2 * zoom))
-        self.draw_health_bar(surface, camera)
-        for particle in self.plasma_burn_particles:
-            particle.draw(surface, camera)
 
 class RocketArtillery(Unit):
     def __init__(self, position: tuple, team: Team):
         super().__init__(position, team, "RocketArtillery")
-        self.recoil = 0
-        team_color = team_to_color[team]
-        self.body_surf = pg.Surface((40, 25), pg.SRCALPHA)
-        pg.draw.rect(self.body_surf, team_color, (0, 5, 40, 15), width=2)
-        pg.draw.rect(self.body_surf, (50, 50, 50), (0, 0, 40, 5), width=2)
-        pg.draw.rect(self.body_surf, (50, 50, 50), (0, 20, 40, 5), width=2)
-        pg.draw.line(self.body_surf, team_color, (0, 5), (40, 5), width=2)
-        pg.draw.circle(self.body_surf, (40, 40, 40), (8, 12.5), 3, width=2)
-        pg.draw.circle(self.body_surf, (40, 40, 40), (32, 12.5), 3, width=2)
-        self.turret_surf = pg.Surface((12, 12), pg.SRCALPHA)
-        pg.draw.rect(self.turret_surf, team_color, (0, 0, 12, 12), width=2)
-        self.barrel_surf = pg.Surface((30, 8), pg.SRCALPHA)
-        for i in range(3):
-            pg.draw.line(self.barrel_surf, team_color, (i*10, 4), (i*10 + 20, 4), width=2)
-        self.turret_offset = Vector2(0, -3)
-        self.barrel_offset = Vector2(15, 0)
-        self.rect = pg.Rect(position[0] - 20, position[1] - 12.5, 40, 25)
-
-    def draw(self, surface: pg.Surface, camera: Camera):
-        if self.health <= 0:
-            return
-        screen_pos = camera.world_to_screen(self.position)
-        zoom = camera.zoom
-        body_scaled = pg.transform.smoothscale(self.body_surf, (int(40 * zoom), int(25 * zoom)))
-        rotated_body = pg.transform.rotate(body_scaled, -math.degrees(self.body_angle))
-        body_rect = rotated_body.get_rect(center=screen_pos)
-        surface.blit(rotated_body, body_rect.topleft)
-        rel_angle = self.turret_angle - self.body_angle
-        turret_scaled = pg.transform.smoothscale(self.turret_surf, (int(12 * zoom), int(12 * zoom)))
-        rotated_turret = pg.transform.rotate(turret_scaled, -math.degrees(rel_angle))
-        turret_rect = rotated_turret.get_rect()
-        offset_rot = self.turret_offset.rotate_rad(self.body_angle) * zoom
-        turret_center = Vector2(body_rect.center) + offset_rot
-        turret_rect.center = turret_center
-        surface.blit(rotated_turret, turret_rect.topleft)
-        barrel_scaled = pg.transform.smoothscale(self.barrel_surf, (int(30 * zoom), int(8 * zoom)))
-        rotated_barrel = pg.transform.rotate(barrel_scaled, -math.degrees(rel_angle))
-        barrel_rect = rotated_barrel.get_rect()
-        barrel_offset_rot = self.barrel_offset.rotate_rad(rel_angle) * zoom
-        barrel_center = Vector2(turret_center) + barrel_offset_rot
-        barrel_rect.center = barrel_center
-        surface.blit(rotated_barrel, barrel_rect.topleft)
-        if self.selected:
-            radius = 20 * zoom + 3
-            pg.draw.circle(surface, (255, 255, 0), (int(screen_pos[0]), int(screen_pos[1])), int(radius), int(2 * zoom))
-        self.draw_health_bar(surface, camera)
-        for particle in self.plasma_burn_particles:
-            particle.draw(surface, camera)
 
 class AttackHelicopter(Unit):
     def __init__(self, position: tuple, team: Team):
         super().__init__(position, team, "AttackHelicopter")
-        self.fly_height = 10
-        self.team_color = team_to_color[team]
-        self.body_surf = pg.Surface((25, 15), pg.SRCALPHA)
-        pg.draw.ellipse(self.body_surf, self.team_color, (0, 2, 25, 11), width=2)
-        pg.draw.ellipse(self.body_surf, (80, 80, 80), (2, 4, 21, 7), width=2)
-        pg.draw.ellipse(self.body_surf, (150, 200, 255), (18, 3, 6, 5), width=2)
-        pg.draw.line(self.body_surf, (90, 90, 90), (0, 7), (-5, 7), width=2)
-        pg.draw.circle(self.body_surf, self.team_color, (-5, 7), 2, width=2)
-        pg.draw.circle(self.body_surf, (60, 60, 60), (12, 7), 3, width=2)
-        pg.draw.line(self.body_surf, self.team_color, (0, 0), (25, 0), width=2)
-        pg.draw.line(self.body_surf, self.team_color, (5, 12), (9, 12), width=2)
-        pg.draw.line(self.body_surf, self.team_color, (16, 12), (20, 12), width=2)
-        self.turret_surf = pg.Surface((8, 6), pg.SRCALPHA)
-        pg.draw.rect(self.turret_surf, self.team_color, (0, 0, 8, 6), width=2)
-        self.barrel_surf = pg.Surface((12, 2), pg.SRCALPHA)
-        pg.draw.line(self.barrel_surf, self.team_color, (0, 1), (12, 1), width=2)
-        self.turret_offset = Vector2(12, 0)
-        self.barrel_offset = Vector2(6, 0)
-        self.rect = pg.Rect(position[0] - 12.5, position[1] - 7.5, 25, 15)
 
-    def draw(self, surface: pg.Surface, camera: Camera):
-        if self.health <= 0:
-            return
-        fly_screen_pos = camera.world_to_screen((self.position.x, self.position.y - self.fly_height))
-        zoom = camera.zoom
-        body_scaled = pg.transform.smoothscale(self.body_surf, (int(25 * zoom), int(15 * zoom)))
-        rotated_body = pg.transform.rotate(body_scaled, -math.degrees(self.body_angle))
-        body_rect = rotated_body.get_rect(center=fly_screen_pos)
-        surface.blit(rotated_body, body_rect.topleft)
-        rel_angle = self.turret_angle - self.body_angle
-        turret_scaled = pg.transform.smoothscale(self.turret_surf, (int(8 * zoom), int(6 * zoom)))
-        rotated_turret = pg.transform.rotate(turret_scaled, -math.degrees(rel_angle))
-        turret_rect = rotated_turret.get_rect()
-        offset_rot = self.turret_offset.rotate_rad(self.body_angle) * zoom
-        turret_center = Vector2(body_rect.center) + offset_rot
-        turret_rect.center = turret_center
-        surface.blit(rotated_turret, turret_rect.topleft)
-        barrel_scaled = pg.transform.smoothscale(self.barrel_surf, (int(12 * zoom), int(2 * zoom)))
-        rotated_barrel = pg.transform.rotate(barrel_scaled, -math.degrees(rel_angle))
-        barrel_rect = rotated_barrel.get_rect()
-        barrel_offset_rot = self.barrel_offset.rotate_rad(rel_angle) * zoom
-        barrel_center = Vector2(turret_center) + barrel_offset_rot
-        barrel_rect.center = barrel_center
-        surface.blit(rotated_barrel, barrel_rect.topleft)
-        rotor_size = int(20 * zoom)
-        pg.draw.circle(surface, self.team_color, (int(fly_screen_pos[0]), int(fly_screen_pos[1])), rotor_size // 2, int(2 * zoom))
-        if self.selected:
-            radius = 12.5 * zoom + 3
-            pg.draw.circle(surface, (255, 255, 0), (int(fly_screen_pos[0]), int(fly_screen_pos[1])), int(radius), int(2 * zoom))
-        self.draw_health_bar(surface, camera)
-        for particle in self.plasma_burn_particles:
-            particle.draw(surface, camera)
-
-class Building(GameObject):
-    COST = 500
-    SIZE = (80, 80)
-    
-    def __init__(self, position: tuple, team: Team, font):
-        super().__init__(position, team)
-        self.selected = False
-        self.font = font
-        self.image = pg.Surface(self.SIZE)
-        self.rect = self.image.get_rect(topleft=position)
-        self.position = Vector2(self.rect.center)
-        self.is_seen = False
-        self.health = 200
-        self.max_health = 200
-        self.radius = 40
-        self.turret_angle = 0
-        self.body_angle = 0
-    
-    def draw(self, surface: pg.Surface, camera: Camera, player_allies: Set[Team], fog: FogOfWar):
-        if self.health <= 0:
-            return
-        if self.team in player_allies or self.is_seen or fog.is_visible(self.position):
-            screen_rect = camera.get_screen_rect(self.rect)
-            if not screen_rect.colliderect((0, 0, camera.width, camera.height)):
-                return
-            screen_pos = camera.world_to_screen(self.position)
-            zoom = camera.zoom
-            scaled_size = (int(self.image.get_width() * zoom), int(self.image.get_height() * zoom))
-            if scaled_size[0] > 0 and scaled_size[1] > 0:
-                scaled_image = pg.transform.smoothscale(self.image, scaled_size)
-                offset_x = scaled_size[0] / 2
-                offset_y = scaled_size[1] / 2
-                blit_pos = (screen_pos[0] - offset_x, screen_pos[1] - offset_y)
-                surface.blit(scaled_image, blit_pos)
-            if self.selected:
-                screen_rect = camera.get_screen_rect(self.rect)
-                pg.draw.rect(surface, (255, 255, 0), screen_rect, int(3 * zoom))
-            if self.selected and hasattr(self, 'rally_point'):
-                rally_screen = camera.world_to_screen(self.rally_point)
-                pg.draw.circle(surface, (0, 255, 0), (int(rally_screen[0]), int(rally_screen[1])), 5)
-            
-            for particle in self.plasma_burn_particles:
-                particle.draw(surface, camera)
-    
-    def draw_health_bar(self, screen, camera):
-        if not (self.selected or self.health < self.max_health):
-            return
-        screen_pos = camera.world_to_screen(self.position)
-        health_ratio = self.health / self.max_health
-        color = (0, 255, 0) if health_ratio > 0.5 else (255, 0, 0)
-        bar_width = 50
-        bar_height = 8
-        bar_x = screen_pos[0] - bar_width / 2
-        bar_y = screen_pos[1] - (self.rect.height / 2 * camera.zoom) - bar_height - 2
-        pg.draw.rect(screen, (0, 0, 0), (bar_x - 1, bar_y - 1, bar_width + 2, bar_height + 2))
-        pg.draw.rect(screen, color, (bar_x, bar_y, bar_width * health_ratio, bar_height))
-        pg.draw.rect(screen, (255, 255, 255), (bar_x, bar_y, bar_width, bar_height), 1)
-    
-    def take_damage(self, damage: int, particles: pg.sprite.Group):
-        super().take_damage(damage, particles)
-        if self.health <= 0:
-            create_explosion(self.position, particles, self.team)
-    
-    def update(self, particles: pg.sprite.Group = None, **kwargs):
-        self.plasma_burn_particles = [p for p in self.plasma_burn_particles if not p.alive()]
-        pass
-
-class Headquarters(Building):
-    COST = 1000
-    SIZE = (100, 100)
-    
-    def __init__(self, position: tuple, team: Team, font):
-        super().__init__(position, team, font)
-        team_color = team_to_color[team]
-        self.image.fill((80, 80, 80))
-        pg.draw.rect(self.image, (100, 100, 100), (10, 10, 80, 70))
-        pg.draw.rect(self.image, team_color, (10, 10, 80, 20))
-        for i in range(5):
-            win_x = 15 + i * 15
-            win_y = 30 + (i % 2) * 15
-            pg.draw.rect(self.image, (100, 150, 255), (win_x, win_y, 8, 6))
-            pg.draw.rect(self.image, (100, 150, 255), (77 - (i % 2)*8, win_y, 8, 6))
-        pg.draw.rect(self.image, (50, 50, 50), (40, 80, 20, 20))
-        pg.draw.line(self.image, (30, 30, 30), (40, 80), (60, 100), 3)
-        pg.draw.line(self.image, team_color, (50, 10), (50, 0), 2)
-        pg.draw.circle(self.image, team_color, (50, 50), 10)
-        pg.draw.arc(self.image, (40, 40, 40), (40, 40, 20, 20), 0, math.pi, 2)
-        pg.draw.rect(self.image, (60, 60, 60), (20, 85, 10, 5))
-        pg.draw.rect(self.image, (60, 60, 60), (70, 85, 10, 5))
-        self.credits = 7500
+class Headquarters(Unit):
+    def __init__(self, position: tuple, team: Team):
+        super().__init__(position, team, "Headquarters")
+        self.credits = self.stats["starting_credits"]
         self.power_output = 100
         self.power_usage = 50
         self.has_enough_power = True
@@ -1093,510 +1511,62 @@ class Headquarters(Building):
         self.production_timer = None
         self.pending_building = None
         self.pending_building_pos = None
-        self.rally_point = Vector2(position[0] + 100 if team == Team.GREEN else position[0] - 100, position[1])
-        self.health = 500
-        self.max_health = 500
+        self.rally_point = Vector2(position[0] + (100 if team == Team.GREEN else position[0] - 100), position[1])
         self.radius = 50
     
-    def get_production_time(self, unit_class, friendly_buildings):
-        return 60
-    
-    def place_building(self, position: tuple, unit_cls, all_buildings):
+    def place_building(self, position: tuple, unit_cls: Type, all_buildings):
         all_buildings_list = list(all_buildings)
         if is_valid_building_position(position, self.team, unit_cls, all_buildings_list):
-            if issubclass(unit_cls, (OilDerrick, Refinery, ShaleFracker, BlackMarket)):
-                building = unit_cls(position, self.team, self.font, self)
+            unit_type = unit_cls.__name__
+            if unit_type in ["OilDerrick", "Refinery", "ShaleFracker", "BlackMarket"]:
+                building = unit_cls(position, self.team, self)
             else:
-                building = unit_cls(position, self.team, self.font)
-            if isinstance(building, (WarFactory, Barracks, Hangar)):
+                building = unit_cls(position, self.team)
+            if unit_type in ["WarFactory", "Barracks", "Hangar"]:
                 building.parent_hq = self
             all_buildings.add(building)
-            self.credits -= unit_cls.COST
+            self.credits -= UNIT_CLASSES[unit_type]["cost"]
             self.pending_building = None
-    
-    def update(self, particles: pg.sprite.Group = None, friendly_units=None, friendly_buildings=None, all_units=None, global_buildings=None):
-        super().update(particles)
-        pass
 
-class Barracks(Building):
-    COST = 300
-    SIZE = (80, 80)
-    
-    def __init__(self, position: tuple, team: Team, font):
-        super().__init__(position, team, font)
-        team_color = team_to_color[team]
-        self.image.fill((100, 100, 100))
-        pg.draw.rect(self.image, (120, 120, 120), (5, 5, 70, 60))
-        pg.draw.polygon(self.image, (90, 90, 90), [(0, 5), (80, 5), (60, 0), (20, 0)])
-        for i in range(3):
-            win_y = 20 + i * 12
-            pg.draw.rect(self.image, (100, 150, 255), (15, win_y, 8, 6))
-            pg.draw.rect(self.image, (100, 150, 255), (57, win_y, 8, 6))
-        pg.draw.rect(self.image, (60, 60, 60), (30, 65, 20, 15))
-        pg.draw.line(self.image, (40, 40, 40), (30, 65), (50, 80), 2)
-        pg.draw.line(self.image, (40, 40, 40), (50, 65), (70, 80), 2)
-        pg.draw.rect(self.image, (70, 70, 70), (70, 10, 5, 10))
-        pg.draw.rect(self.image, (50, 50, 50), (72, 5, 1, 5))  
-        pg.draw.line(self.image, team_color, (5, 5), (0, 0), 3)
-        self.rally_point = Vector2(self.rect.centerx + 80, self.rect.centery)
-        self.production_queue: list[Dict[str, Any]] = []
-        self.production_timer = None
-        self.gate_open = False
-        self.gate_timer = 0
+class Barracks(Unit):
+    def __init__(self, position: tuple, team: Team):
+        super().__init__(position, team, "Barracks")
         self.parent_hq = None
-    
-    def get_production_time(self, unit_class):
-        return 60
-    
-    def update(self, particles: pg.sprite.Group = None, friendly_units=None, all_units=None, global_buildings=None, **kwargs):
-        if self.gate_open:
-            self.gate_timer -= 1
-            if self.gate_timer <= 0:
-                self.gate_open = False
-        
-        if self.production_queue:
-            if self.production_timer is None:
-                self.production_timer = self.get_production_time(self.production_queue[0]['unit_type'])
-            
-            self.production_timer -= 1
-            if self.production_timer <= 0:
-                item = self.production_queue.pop(0)
-                unit_type = item['unit_type']
-                repeat = item['repeat']
-                spawn_pos = (self.rect.right, self.rect.centery)
-                if unit_type == "Infantry":
-                    new_unit = Infantry(spawn_pos, self.team)
-                elif unit_type == "Grenadier":
-                    new_unit = Grenadier(spawn_pos, self.team)
-                else:
-                    new_unit = Infantry(spawn_pos, self.team)
-                new_unit.position = Vector2(spawn_pos)
-                new_unit.rect.center = new_unit.position
-                new_unit.move_target = self.rally_point
-                if friendly_units is not None:
-                    friendly_units.add(new_unit)
-                if all_units is not None:
-                    all_units.add(new_unit)
-                self.gate_open = True
-                self.gate_timer = 60
-                if repeat:
-                    self.production_queue.append({'unit_type': unit_type, 'repeat': True})
-                self.production_timer = None
 
-        super().update(particles)
-
-    def draw(self, surface: pg.Surface, camera: Camera, player_allies: Set[Team], fog: FogOfWar):
-        super().draw(surface, camera, player_allies, fog)
-        if self.gate_open:
-            door_width = 20
-            door_height = self.rect.height - 20
-            half_door = door_width // 2
-            left_door = pg.Rect(self.rect.right - door_width, self.rect.top + 10, half_door, door_height)
-            right_door = pg.Rect(self.rect.right - half_door, self.rect.top + 10, half_door, door_height)
-            open_left = left_door.move(-15, 0)
-            open_right = right_door.move(15, 0)
-            pg.draw.rect(surface, (60, 60, 60), camera.get_screen_rect(open_left))
-            pg.draw.rect(surface, (60, 60, 60), camera.get_screen_rect(open_right))
-
-class WarFactory(Building):
-    COST = 500
-    SIZE = (100, 80)
-    
-    def __init__(self, position: tuple, team: Team, font):
-        super().__init__(position, team, font)
-        team_color = team_to_color[team]
-        self.image.fill((150, 150, 150))
-        pg.draw.rect(self.image, (130, 130, 130), (10, 10, 80, 50))
-        pg.draw.rect(self.image, (140, 140, 140), (0, 0, 100, 80))
-        pg.draw.rect(self.image, (110, 110, 110), (85, 0, 15, 30))
-        pg.draw.rect(self.image, (200, 200, 200), (87, 2, 11, 26))
-        pg.draw.circle(self.image, (100, 150, 255), (92, 18), 3)
-        for y in [20, 40]:
-            pg.draw.rect(self.image, (100, 150, 255), (20, y, 12, 8))
-            pg.draw.rect(self.image, (100, 150, 255), (68, y, 12, 8))
-        pg.draw.rect(self.image, (70, 70, 70), (40, 60, 20, 20))
-        pg.draw.line(self.image, (50, 50, 50), (40, 60), (60, 80), 3)
-        pg.draw.line(self.image, (50, 50, 50), (60, 60), (80, 80), 3)
-        pg.draw.line(self.image, (90, 90, 90), (10, 70), (90, 70), 2)
-        pg.draw.rect(self.image, team_color, (5, 5, 5, 5))
-        self.rally_point = Vector2(self.rect.centerx + 80, self.rect.centery)
-        self.production_queue: list[Dict[str, Any]] = []
-        self.production_timer = None
+class WarFactory(Unit):
+    def __init__(self, position: tuple, team: Team):
+        super().__init__(position, team, "WarFactory")
         self.parent_hq = None
-        self.gate_open = False
-        self.gate_timer = 0
-    
-    def get_production_time(self, unit_class):
-        return 60
-    
-    def update(self, particles: pg.sprite.Group = None, friendly_units=None, all_units=None, global_buildings=None, **kwargs):
-        if self.gate_open:
-            self.gate_timer -= 1
-            if self.gate_timer <= 0:
-                self.gate_open = False
-        
-        if self.production_queue:
-            if self.production_timer is None:
-                self.production_timer = self.get_production_time(self.production_queue[0]['unit_type'])
-            
-            self.production_timer -= 1
-            if self.production_timer <= 0:
-                item = self.production_queue.pop(0)
-                unit_type = item['unit_type']
-                repeat = item['repeat']
-                spawn_pos = (self.rect.right, self.rect.centery)
-                if unit_type == "Tank":
-                    new_unit = Tank(spawn_pos, self.team)
-                elif unit_type == "MachineGunVehicle":
-                    new_unit = MachineGunVehicle(spawn_pos, self.team)
-                elif unit_type == "RocketArtillery":
-                    new_unit = RocketArtillery(spawn_pos, self.team)
-                else:
-                    new_unit = Tank(spawn_pos, self.team)
-                new_unit.position = Vector2(spawn_pos)
-                new_unit.rect.center = new_unit.position
-                new_unit.move_target = self.rally_point
-                if friendly_units is not None:
-                    friendly_units.add(new_unit)
-                if all_units is not None:
-                    all_units.add(new_unit)
-                self.gate_open = True
-                self.gate_timer = 60
-                if repeat:
-                    self.production_queue.append({'unit_type': unit_type, 'repeat': True})
-                self.production_timer = None
 
-        super().update(particles)
-
-    def draw(self, surface: pg.Surface, camera: Camera, player_allies: Set[Team], fog: FogOfWar):
-        super().draw(surface, camera, player_allies, fog)
-        if self.gate_open:
-            door_width = 20
-            door_height = self.rect.height - 20
-            half_door = door_width // 2
-            left_door = pg.Rect(self.rect.right - door_width, self.rect.top + 10, half_door, door_height)
-            right_door = pg.Rect(self.rect.right - half_door, self.rect.top + 10, half_door, door_height)
-            open_left = left_door.move(-15, 0)
-            open_right = right_door.move(15, 0)
-            pg.draw.rect(surface, (60, 60, 60), camera.get_screen_rect(open_left))
-            pg.draw.rect(surface, (60, 60, 60), camera.get_screen_rect(open_right))
-
-class Hangar(Building):
-    COST = 600
-    SIZE = (90, 70)
-    
-    def __init__(self, position: tuple, team: Team, font):
-        super().__init__(position, team, font)
-        team_color = team_to_color[team]
-        self.image.fill((120, 120, 120))
-        pg.draw.rect(self.image, (140, 140, 140), (5, 10, 80, 50))
-        pg.draw.polygon(self.image, (100, 100, 100), [(0, 10), (90, 10), (70, 0), (20, 0)])
-        pg.draw.rect(self.image, (80, 80, 80), (40, 60, 10, 10))
-        pg.draw.line(self.image, (60, 60, 60), (40, 60), (50, 70), 2)
-        pg.draw.line(self.image, (60, 60, 60), (50, 60), (60, 70), 2)
-        pg.draw.rect(self.image, (110, 110, 110), (80, 5, 10, 25))
-        pg.draw.circle(self.image, (100, 150, 255), (85, 15), 2)
-        pg.draw.rect(self.image, team_color, (5, 5, 80, 3))
-        self.rally_point = Vector2(self.rect.centerx + 80, self.rect.centery)
-        self.production_queue: list[Dict[str, Any]] = []
-        self.production_timer = None
+class Hangar(Unit):
+    def __init__(self, position: tuple, team: Team):
+        super().__init__(position, team, "Hangar")
         self.parent_hq = None
-        self.gate_open = False
-        self.gate_timer = 0
-    
-    def get_production_time(self, unit_class):
-        return 90  
-    
-    def update(self, particles: pg.sprite.Group = None, friendly_units=None, all_units=None, global_buildings=None, **kwargs):
-        if self.gate_open:
-            self.gate_timer -= 1
-            if self.gate_timer <= 0:
-                self.gate_open = False
-        
-        if self.production_queue:
-            if self.production_timer is None:
-                self.production_timer = self.get_production_time(self.production_queue[0]['unit_type'])
-            
-            self.production_timer -= 1
-            if self.production_timer <= 0:
-                item = self.production_queue.pop(0)
-                unit_type = item['unit_type']
-                repeat = item['repeat']
-                spawn_pos = (self.rect.right, self.rect.centery)
-                if unit_type == "AttackHelicopter":
-                    new_unit = AttackHelicopter(spawn_pos, self.team)
-                else:
-                    new_unit = AttackHelicopter(spawn_pos, self.team)
-                new_unit.position = Vector2(spawn_pos)
-                new_unit.rect.center = new_unit.position
-                new_unit.move_target = self.rally_point
-                if friendly_units is not None:
-                    friendly_units.add(new_unit)
-                if all_units is not None:
-                    all_units.add(new_unit)
-                self.gate_open = True
-                self.gate_timer = 60
-                if repeat:
-                    self.production_queue.append({'unit_type': unit_type, 'repeat': True})
-                self.production_timer = None
 
-        super().update(particles)
+class PowerPlant(Unit):
+    def __init__(self, position: tuple, team: Team):
+        super().__init__(position, team, "PowerPlant")
 
-    def draw(self, surface: pg.Surface, camera: Camera, player_allies: Set[Team], fog: FogOfWar):
-        super().draw(surface, camera, player_allies, fog)
-        if self.gate_open:
-            door_width = 10
-            door_height = self.rect.height - 20
-            half_door = door_width // 2
-            left_door = pg.Rect(self.rect.right - door_width, self.rect.top + 10, half_door, door_height)
-            right_door = pg.Rect(self.rect.right - half_door, self.rect.top + 10, half_door, door_height)
-            open_left = left_door.move(-10, 0)
-            open_right = right_door.move(10, 0)
-            pg.draw.rect(surface, (80, 80, 80), camera.get_screen_rect(open_left))
-            pg.draw.rect(surface, (80, 80, 80), camera.get_screen_rect(open_right))
+class OilDerrick(Unit):
+    def __init__(self, position: tuple, team: Team, hq):
+        super().__init__(position, team, "OilDerrick", hq=hq)
 
-class PowerPlant(Building):
-    COST = 300
-    SIZE = (80, 80)
-    
-    def __init__(self, position: tuple, team: Team, font):
-        super().__init__(position, team, font)
-        team_color = team_to_color[team]
-        self.image.fill((200, 180, 100))
-        pg.draw.rect(self.image, (220, 200, 120), (10, 10, 60, 50))
-        pg.draw.rect(self.image, (150, 150, 150), (65, 5, 10, 25))
-        pg.draw.rect(self.image, (150, 150, 150), (65, 40, 10, 25))
-        pg.draw.rect(self.image, (100, 100, 100), (67, 7, 6, 23))
-        pg.draw.rect(self.image, (100, 100, 100), (67, 42, 6, 23))
-        pg.draw.rect(self.image, (120, 120, 120), (68, 0, 4, 5))  
-        pg.draw.rect(self.image, (120, 120, 120), (68, 35, 4, 5))  
-        for i in range(3):
-            win_y = 20 + i * 10
-            pg.draw.rect(self.image, (255, 255, 150), (20, win_y, 8, 6))
-            pg.draw.rect(self.image, (255, 255, 150), (52, win_y, 8, 6))
-        pg.draw.rect(self.image, (120, 120, 120), (35, 60, 10, 20))
-        pg.draw.line(self.image, (140, 140, 140), (70, 30), (80, 30), 3)
-        pg.draw.line(self.image, (140, 140, 140), (70, 50), (80, 50), 3)
-        pg.draw.rect(self.image, team_color, (0, 0, 80, 3))
-
-    def draw(self, surface: pg.Surface, camera: Camera, player_allies: Set[Team], fog: FogOfWar):
-        super().draw(surface, camera, player_allies, fog)
-
-class OilDerrick(Building):
-    COST = 300
-    SIZE = (60, 80)
-    
-    def __init__(self, position: tuple, team: Team, font, hq):
-        super().__init__(position, team, font)
-        self.hq = hq
-        self.collection_timer = 0
-        team_color = team_to_color[team]
-        self.image.fill((139, 120, 80))
-        pg.draw.rect(self.image, (100, 80, 60), (20, 20, 20, 50))
-        pg.draw.line(self.image, (80, 80, 80), (30, 25), (45, 15), 4)
-        pg.draw.line(self.image, (60, 60, 60), (45, 15), (45, 30), 3)
-        pg.draw.circle(self.image, (60, 60, 60), (45, 15), 5)
-        pg.draw.rect(self.image, (120, 100, 80), (10, 70, 40, 10))
-        pg.draw.rect(self.image, team_color, (25, 75, 10, 5))
-        pg.draw.line(self.image, (90, 70, 50), (10, 70), (10, 20), 3)
-        pg.draw.line(self.image, (90, 70, 50), (50, 70), (50, 20), 3)
-        pg.draw.rect(self.image, (70, 50, 30), (40, 10, 10, 10))
-    
-    def update(self, **kwargs):
-        self.collection_timer += 1
-        if self.collection_timer >= 300:
-            if self.hq:
-                self.hq.credits += 100
-            self.collection_timer = 0
-        super().update()
-
-    def draw(self, surface: pg.Surface, camera: Camera, player_allies: Set[Team], fog: FogOfWar):
-        super().draw(surface, camera, player_allies, fog)
-
-class Refinery(Building):
-    COST = 2000
-    SIZE = (120, 80)
-    
-    def __init__(self, position: tuple, team: Team, font, hq):
-        super().__init__(position, team, font)
-        self.hq = hq
-        self.collection_timer = 0
-        team_color = team_to_color[team]
-        self.image = pg.Surface(self.SIZE)
-        self.image.fill((100, 50, 0))
-        pg.draw.ellipse(self.image, (120, 80, 40), (10, 10, 50, 60))
-        pg.draw.ellipse(self.image, (120, 80, 40), (60, 10, 50, 60))
-        pg.draw.circle(self.image, (140, 100, 60), (35, 40), 5)  
-        pg.draw.circle(self.image, (140, 100, 60), (85, 40), 5)  
-        pg.draw.rect(self.image, (80, 80, 80), (55, 35, 10, 10))
-        pg.draw.rect(self.image, (60, 60, 60), (100, 20, 20, 40))
-        pg.draw.rect(self.image, (80, 80, 80), (102, 22, 16, 36))
-        pg.draw.line(self.image, (50, 50, 50), (60, 40), (100, 40), 4)
-        pg.draw.line(self.image, (50, 50, 50), (60, 50), (100, 50), 4)
-        pg.draw.rect(self.image, team_color, (0, 0, 120, 5))
+class Refinery(Unit):
+    def __init__(self, position: tuple, team: Team, hq):
+        super().__init__(position, team, "Refinery", hq=hq)
         self.radius = 60
-    
-    def update(self, **kwargs):
-        self.collection_timer += 1
-        if self.collection_timer >= 300:
-            if self.hq:
-                self.hq.credits += 125
-            self.collection_timer = 0
-        super().update()
 
-    def draw(self, surface: pg.Surface, camera: Camera, player_allies: Set[Team], fog: FogOfWar):
-        super().draw(surface, camera, player_allies, fog)
+class ShaleFracker(Unit):
+    def __init__(self, position: tuple, team: Team, hq):
+        super().__init__(position, team, "ShaleFracker", hq=hq)
 
-class ShaleFracker(Building):
-    COST = 800
-    SIZE = (70, 70)
-    
-    def __init__(self, position: tuple, team: Team, font, hq):
-        super().__init__(position, team, font)
-        self.hq = hq
-        self.collection_timer = 0
-        team_color = team_to_color[team]
-        self.image = pg.Surface(self.SIZE)
-        self.image.fill((80, 60, 40))
-        pg.draw.rect(self.image, (100, 80, 60), (10, 10, 50, 50))
-        pg.draw.rect(self.image, (120, 100, 80), (20, 60, 30, 10))
-        pg.draw.line(self.image, (60, 40, 20), (35, 10), (35, 60), 8)
-        pg.draw.polygon(self.image, (40, 20, 0), [(33, 65), (35, 70), (37, 65)])
-        pg.draw.line(self.image, (90, 70, 50), (10, 60), (10, 10), 3)
-        pg.draw.line(self.image, (90, 70, 50), (60, 60), (60, 10), 3)
-        pg.draw.rect(self.image, team_color, (5, 5, 5, 5))
-    
-    def update(self, **kwargs):
-        self.collection_timer += 1
-        if self.collection_timer >= 300:
-            if self.hq:
-                self.hq.credits += 165
-            self.collection_timer = 0
-        super().update()
+class BlackMarket(Unit):
+    def __init__(self, position: tuple, team: Team, hq):
+        super().__init__(position, team, "BlackMarket", hq=hq)
 
-    def draw(self, surface: pg.Surface, camera: Camera, player_allies: Set[Team], fog: FogOfWar):
-        super().draw(surface, camera, player_allies, fog)
-
-class BlackMarket(Building):
-    COST = 1500
-    SIZE = (90, 60)
-    
-    def __init__(self, position: tuple, team: Team, font, hq):
-        super().__init__(position, team, font)
-        self.hq = hq
-        self.collection_timer = 0
-        team_color = team_to_color[team]
-        self.image = pg.Surface(self.SIZE)
-        self.image.fill((40, 40, 80))
-        pg.draw.polygon(self.image, (60, 60, 100), [(10, 20), (35, 5), (60, 20)])
-        pg.draw.line(self.image, (50, 50, 90), (10, 20), (60, 20), 2)
-        pg.draw.polygon(self.image, (60, 60, 100), [(10, 40), (35, 25), (60, 40)])
-        pg.draw.line(self.image, (50, 50, 90), (10, 40), (60, 40), 2)
-        pg.draw.rect(self.image, (80, 60, 40), (65, 10, 20, 15))
-        pg.draw.rect(self.image, (80, 60, 40), (65, 30, 20, 15))
-        pg.draw.line(self.image, (70, 50, 30), (65, 15), (85, 15), 1)
-        pg.draw.line(self.image, (70, 50, 30), (65, 35), (85, 35), 1)
-        pg.draw.rect(self.image, (70, 70, 70), (20, 45, 20, 15))
-        pg.draw.rect(self.image, team_color, (0, 0, 90, 3))
-    
-    def update(self, **kwargs):
-        self.collection_timer += 1
-        if self.collection_timer >= 300:
-            if self.hq:
-                self.hq.credits += 200
-            self.collection_timer = 0
-        super().update()
-
-    def draw(self, surface: pg.Surface, camera: Camera, player_allies: Set[Team], fog: FogOfWar):
-        super().draw(surface, camera, player_allies, fog)
-
-class Turret(Building):
-    COST = 400
-    SIZE = (60, 60)
-    ATTACK_RANGE = 300
-    
-    def __init__(self, position: tuple, team: Team, font):
-        super().__init__(position, team, font)
-        self.body_angle = 0
-        self.turret_angle = 0
-        team_color = team_to_color[team]
-        self.body_surf = pg.Surface(self.SIZE, pg.SRCALPHA)
-        pg.draw.rect(self.body_surf, (100, 100, 100), (15, 35, 30, 25))
-        pg.draw.rect(self.body_surf, (80, 80, 80), (17, 37, 26, 21))
-        pg.draw.circle(self.body_surf, (60, 60, 60), (20, 55), 2)
-        pg.draw.circle(self.body_surf, (60, 60, 60), (40, 55), 2)
-        pg.draw.rect(self.body_surf, (120, 120, 120), (25, 50, 10, 5))  
-        self.turret_surf = pg.Surface((20, 20), pg.SRCALPHA)
-        pg.draw.circle(self.turret_surf, team_color, (10, 10), 10)
-        pg.draw.circle(self.turret_surf, (120, 120, 120), (10, 10), 8)
-        pg.draw.circle(self.turret_surf, (100, 150, 255), (10, 12), 2)  
-        self.barrel_surf = pg.Surface((5, 20), pg.SRCALPHA)
-        pg.draw.rect(self.barrel_surf, team_color, (0, 0, 5, 20))
-        pg.draw.rect(self.barrel_surf, (90, 90, 90), (4, 18, 1, 2))  
-        self.turret_offset = Vector2(0, -15)
-        self.barrel_offset = Vector2(0, -10)
-        self.rect = pg.Rect(position[0] - 30, position[1] - 30, 60, 60)
-        self.last_shot_time = 0
-        self.damage = 20
-        self.cooldown = 30
-        self.radius = 30
-    
-    def draw(self, surface: pg.Surface, camera: Camera, player_allies: Set[Team], fog: FogOfWar):
-        if self.health <= 0:
-            return
-        if self.team in player_allies or self.is_seen or fog.is_visible(self.position):
-            screen_pos = camera.world_to_screen(self.position)
-            zoom = camera.zoom
-            body_scaled = pg.transform.smoothscale(self.body_surf, (int(60 * zoom), int(60 * zoom)))
-            body_rect = body_scaled.get_rect(center=screen_pos)
-            surface.blit(body_scaled, body_rect.topleft)
-            rel_angle = self.turret_angle - self.body_angle
-            turret_scaled = pg.transform.smoothscale(self.turret_surf, (int(20 * zoom), int(20 * zoom)))
-            rotated_turret = pg.transform.rotate(turret_scaled, -math.degrees(rel_angle))
-            turret_rect = rotated_turret.get_rect()
-            offset_rot = self.turret_offset.rotate_rad(self.body_angle) * zoom
-            turret_center = Vector2(body_rect.center) + offset_rot
-            turret_rect.center = turret_center
-            surface.blit(rotated_turret, turret_rect.topleft)
-            barrel_scaled = pg.transform.smoothscale(self.barrel_surf, (int(5 * zoom), int(20 * zoom)))
-            rotated_barrel = pg.transform.rotate(barrel_scaled, -math.degrees(rel_angle))
-            barrel_rect = rotated_barrel.get_rect()
-            barrel_offset_rot = self.barrel_offset.rotate_rad(rel_angle) * zoom
-            barrel_center = Vector2(turret_center) + barrel_offset_rot
-            barrel_rect.center = barrel_center
-            surface.blit(rotated_barrel, barrel_rect.topleft)
-            if self.selected:
-                screen_rect = camera.get_screen_rect(self.rect)
-                pg.draw.rect(surface, (255, 255, 0), screen_rect, int(3 * zoom))
-            self.draw_health_bar(surface, camera)
-            for particle in self.plasma_burn_particles:
-                particle.draw(surface, camera)
-    
-    def update(self, particles: pg.sprite.Group = None, projectiles: pg.sprite.Group = None, enemy_units: list = None, **kwargs):
-        super().update(particles)
-        if not enemy_units or not projectiles:
-            return
-        
-        if self.last_shot_time > 0:
-            self.last_shot_time -= 1
-        
-        if self.last_shot_time == 0:
-            closest = min(
-                (u for u in enemy_units if u.health > 0),
-                key=lambda u: self.distance_to(u.position),
-                default=None
-            )
-            
-            if closest and self.distance_to(closest.position) <= self.ATTACK_RANGE:
-                weapon = {"damage": self.damage, "projectile_speed": 5, "projectile_length": 10, "projectile_width": 4, "cooldown": self.cooldown}
-                time_to_target = self.distance_to(closest.position) / weapon["projectile_speed"]
-                target_vel = Vector2(closest.speed * math.cos(getattr(closest, 'body_angle', 0)), closest.speed * math.sin(getattr(closest, 'body_angle', 0)))
-                predicted_pos = closest.position + target_vel * time_to_target
-                direction = (predicted_pos - self.position).normalize()
-                proj = Projectile(self.position, direction, self.damage, self.team, weapon)
-                projectiles.add(proj)
-                self.last_shot_time = self.cooldown
-                self.turret_angle = math.atan2(direction.y, direction.x)
+class Turret(Unit):
+    def __init__(self, position: tuple, team: Team):
+        super().__init__(position, team, "Turret")
 
 class GameConsole:
     def __init__(self):
@@ -1634,7 +1604,7 @@ class AI:
             "AttackHelicopter": 0.0,
         }
         self.preferred_build_direction = build_dir
-        self.build_bias_strength = 0.5  
+        self.build_bias_strength = 0.3  
     
     def assess_situation(self, friendly_units, friendly_buildings, enemy_units, enemy_buildings):
         self.military_strength = len([u for u in friendly_units if u.health > 0])
@@ -1644,16 +1614,16 @@ class AI:
         nearby_enemies = [u for u in enemy_units if u.health > 0 and u.distance_to(hq_pos) < 600]
         self.threat_level = len(nearby_enemies) / max(1, self.enemy_strength) if self.enemy_strength > 0 else 0
         
-        resource_buildings = [b for b in friendly_buildings if isinstance(b, (OilDerrick, Refinery, ShaleFracker, BlackMarket))]
+        resource_buildings = [b for b in friendly_buildings if b.unit_type in ["OilDerrick", "Refinery", "ShaleFracker", "BlackMarket"]]
         self.economy_level = min(3, len(resource_buildings) // 2)
 
-        self.resource_count = len([b for b in friendly_buildings if isinstance(b, (OilDerrick, Refinery, ShaleFracker, BlackMarket)) and b.health > 0])
-        self.turret_count = len([b for b in friendly_buildings if isinstance(b, Turret) and b.health > 0])
-        self.military_prod_count = len([b for b in friendly_buildings if isinstance(b, (Barracks, WarFactory, Hangar)) and b.health > 0])
-        self.power_count = len([b for b in friendly_buildings if isinstance(b, PowerPlant) and b.health > 0])
+        self.resource_count = len([b for b in friendly_buildings if b.unit_type in ["OilDerrick", "Refinery", "ShaleFracker", "BlackMarket"] and b.health > 0])
+        self.turret_count = len([b for b in friendly_buildings if b.unit_type == "Turret" and b.health > 0])
+        self.military_prod_count = len([b for b in friendly_buildings if b.unit_type in ["Barracks", "WarFactory", "Hangar"] and b.health > 0])
+        self.power_count = len([b for b in friendly_buildings if b.unit_type == "PowerPlant" and b.health > 0])
         self.total_buildings = self.military_prod_count + self.resource_count + self.power_count + self.turret_count
         
-        power_plants = len([b for b in friendly_buildings if isinstance(b, PowerPlant)])
+        power_plants = len([b for b in friendly_buildings if b.unit_type == "PowerPlant"])
         self.power_shortage = power_plants < self.economy_level + 1
 
         inf_prio = 0.5 if self.threat_level > 0.5 else 0.6
@@ -1707,22 +1677,47 @@ class AI:
             default=None
         )
     
+    def _get_nearest_enemy_target(self, enemy_buildings, enemy_units, from_pos):
+        if enemy_buildings:
+            building_target = self._get_nearest_enemy_building(enemy_buildings, from_pos)
+        else:
+            building_target = None
+        
+        if enemy_units:
+            unit_target = min((u for u in enemy_units if u.health > 0 and u.unit_type in ["Infantry", "Grenadier"]), key=lambda u: u.distance_to(from_pos), default=None)
+            if not unit_target:
+                unit_target = min((u for u in enemy_units if u.health > 0), key=lambda u: u.distance_to(from_pos), default=None)
+        else:
+            unit_target = None
+        
+        if building_target and unit_target:
+            if building_target.distance_to(from_pos) < unit_target.distance_to(from_pos):
+                return building_target
+            else:
+                return unit_target
+        elif building_target:
+            return building_target
+        elif unit_target:
+            return unit_target
+        return None
+    
     def find_build_position(self, building_cls, all_buildings, map_width, map_height, prefer_near_hq=True):
         default_area = 2560 * 1440
         map_area = map_width * map_height
         scale = math.sqrt(map_area / default_area)
         hq_pos = self.hq.position
-        half_w, half_h = building_cls.SIZE[0] / 2, building_cls.SIZE[1] / 2
-        attempts = 1000  
+        half_w, half_h = UNIT_CLASSES[building_cls.__name__]["size"][0] / 2, UNIT_CLASSES[building_cls.__name__]["size"][1] / 2
+        max_attempts = 2000
+        attempts = 0
 
-        if issubclass(building_cls, (PowerPlant, Barracks, WarFactory, Hangar)):
+        if building_cls.__name__ in ["PowerPlant", "Barracks", "WarFactory", "Hangar"]:
             bias_angle = self.preferred_build_direction
             dist_min, dist_max = 100, 150 + 50 * scale  
-        elif issubclass(building_cls, (OilDerrick, Refinery, ShaleFracker, BlackMarket)):
-            bias_angle = self.preferred_build_direction + random.uniform(-math.pi / 3, math.pi / 3)
+        elif building_cls.__name__ in ["OilDerrick", "Refinery", "ShaleFracker", "BlackMarket"]:
+            bias_angle = self.preferred_build_direction
             dist_min, dist_max = 120, 200 + 100 * scale
-        elif building_cls == Turret:
-            bias_angle = self.preferred_build_direction + random.uniform(-math.pi / 4, math.pi / 4)
+        elif building_cls.__name__ == "Turret":
+            bias_angle = self.preferred_build_direction
             dist_min, dist_max = 80, 150 + 30 * scale
         else:
             bias_angle = self.preferred_build_direction
@@ -1731,21 +1726,29 @@ class AI:
         if not prefer_near_hq:
             dist_min, dist_max = max(200, dist_min), 400 * scale
 
-        for attempt in range(attempts):
-            angle_offset = random.uniform(-math.pi * self.build_bias_strength, math.pi * self.build_bias_strength)
-            angle = bias_angle + angle_offset
-            dist = random.uniform(dist_min, dist_max + attempt * 1.5 * scale)  
-            center_x = hq_pos.x + dist * math.cos(angle)
-            center_y = hq_pos.y + dist * math.sin(angle)
-            center_x = max(half_w, min(map_width - half_w, center_x))
-            center_y = max(half_h, min(map_height - half_h, center_y))
-            snapped_center = snap_to_grid((center_x, center_y))
-            position = (snapped_center[0] - half_w, snapped_center[1] - half_h)
-            if is_valid_building_position(
-                position, self.hq.team, building_cls, list(all_buildings),
-                map_width, map_height
-            ):
-                return position
+        ring_step = 20 * scale
+        num_samples_per_ring = 20
+        for ring_dist in range(int(dist_min), int(dist_max + 100), int(ring_step)):
+            for _ in range(num_samples_per_ring):
+                angle_offset = random.uniform(-math.pi * self.build_bias_strength, math.pi * self.build_bias_strength)
+                angle = bias_angle + angle_offset
+                dist = ring_dist + random.uniform(-ring_step / 2, ring_step / 2)
+                center_x = hq_pos.x + dist * math.cos(angle)
+                center_y = hq_pos.y + dist * math.sin(angle)
+                center_x = max(half_w, min(map_width - half_w, center_x))
+                center_y = max(half_h, min(map_height - half_h, center_y))
+                snapped_center = snap_to_grid((center_x, center_y))
+                position = snapped_center
+                if is_valid_building_position(
+                    position, self.hq.team, building_cls, list(all_buildings),
+                    map_width, map_height
+                ):
+                    return position
+                attempts += 1
+                if attempts > max_attempts:
+                    break
+            if attempts > max_attempts:
+                break
         return None
     
     def queue_unit_production(self, barracks, war_factory, hangar, friendly_units):
@@ -1779,18 +1782,18 @@ class AI:
                     self.hq.credits -= UNIT_CLASSES["AttackHelicopter"]["cost"]
     
     def build_defenses(self, all_buildings, map_width, map_height):
-        if self.threat_level > 0.2 and self.hq.credits >= Turret.COST:
+        if self.threat_level > 0.2 and self.hq.credits >= UNIT_CLASSES["Turret"]["cost"]:
             pos = self.find_build_position(Turret, all_buildings, map_width, map_height, prefer_near_hq=True)
             if pos:
                 self.hq.place_building(pos, Turret, all_buildings)
     
-    def strategize_attacks(self, friendly_units, enemy_hq, enemy_buildings=None):
-        if not enemy_hq and not enemy_buildings:
+    def strategize_attacks(self, friendly_units, enemy_hq, enemy_buildings=None, enemy_units=None):
+        if not enemy_hq and not enemy_buildings and not enemy_units:
             return
         
         self.scout_timer += 1
         if self.scout_timer > 60 and len(friendly_units) > 1:
-            scout_target = enemy_hq.position if enemy_hq else (self._get_nearest_enemy_building(enemy_buildings, friendly_units[0].position if friendly_units else (0, 0)).position if enemy_buildings else (0, 0))
+            scout_target = enemy_hq.position if enemy_hq else ((self._get_nearest_enemy_building(enemy_buildings, friendly_units[0].position if friendly_units else (0, 0)).position if enemy_buildings else (0, 0)))
             idle_units = [u for u in friendly_units if u.health > 0 and u.move_target is None][:1]
             for scout in idle_units:
                 scout.move_target = (scout_target[0] + random.uniform(-200, 200), scout_target[1] + random.uniform(-200, 200))
@@ -1802,45 +1805,46 @@ class AI:
                 attack_fraction = 0.8 if self.threat_level > 0.5 else 0.5
                 num_to_send = int(len(idle_units) * attack_fraction)
                 for unit in idle_units[:num_to_send]:
-                    primary_target = enemy_hq
-                    if not primary_target:
-                        primary_target = self._get_nearest_enemy_building(enemy_buildings, unit.position)
+                    primary_target = self._get_nearest_enemy_target(enemy_buildings, enemy_units, unit.position)
                     if primary_target:
                         unit.move_target = primary_target.position
                     else:
-                        unit.move_target = None
+                        if enemy_hq:
+                            unit.move_target = enemy_hq.position
+                        else:
+                            unit.move_target = None
     
     def update(self, friendly_units, friendly_buildings, enemy_units, enemy_buildings, all_buildings, map_width=MAP_WIDTH, map_height=MAP_HEIGHT):
         self.assess_situation(friendly_units, friendly_buildings, enemy_units, enemy_buildings)
         self.action_timer += 1
         
         if self.action_timer % 60 == 0:
-            barracks = next((b for b in friendly_buildings if isinstance(b, Barracks) and b.health > 0), None)
-            war_factory = next((b for b in friendly_buildings if isinstance(b, WarFactory) and b.health > 0), None)
-            hangar = next((b for b in friendly_buildings if isinstance(b, Hangar) and b.health > 0), None)
+            barracks = next((b for b in friendly_buildings if b.unit_type == "Barracks" and b.health > 0), None)
+            war_factory = next((b for b in friendly_buildings if b.unit_type == "WarFactory" and b.health > 0), None)
+            hangar = next((b for b in friendly_buildings if b.unit_type == "Hangar" and b.health > 0), None)
             self.queue_unit_production(barracks, war_factory, hangar, friendly_units)
         
         if self.action_timer % 180 == 0 and self.hq.credits >= 300:
-            if self.threat_level > 0.4 and self.turret_count < min(3, self.total_buildings // 2) and self.hq.credits >= Turret.COST:
+            if self.threat_level > 0.4 and self.turret_count < min(3, self.total_buildings // 2) and self.hq.credits >= UNIT_CLASSES["Turret"]["cost"]:
                 pos = self.find_build_position(Turret, all_buildings, map_width, map_height)
                 if pos:
                     self.hq.place_building(pos, Turret, all_buildings)
                     return
             
-            if self.resource_count == 0 and self.hq.credits >= OilDerrick.COST:
+            if self.resource_count == 0 and self.hq.credits >= UNIT_CLASSES["OilDerrick"]["cost"]:
                 cls = OilDerrick
-            elif self.resource_count < 2 and self.hq.credits >= Refinery.COST:
-                built_ref = any(isinstance(b, Refinery) for b in friendly_buildings if b.health > 0)
+            elif self.resource_count < 2 and self.hq.credits >= UNIT_CLASSES["Refinery"]["cost"]:
+                built_ref = any(b.unit_type == "Refinery" for b in friendly_buildings if b.health > 0)
                 if not built_ref:
                     cls = Refinery
                 else:
                     cls = random.choice([ShaleFracker, BlackMarket])
-            elif self.power_shortage and self.economy_level > 0 and self.hq.credits >= PowerPlant.COST:
+            elif self.power_shortage and self.economy_level > 0 and self.hq.credits >= UNIT_CLASSES["PowerPlant"]["cost"]:
                 cls = PowerPlant
             elif self.military_prod_count < max(1, self.resource_count // 2 + 1):
-                built_barracks = any(isinstance(b, Barracks) for b in friendly_buildings if b.health > 0)
-                built_factory = any(isinstance(b, WarFactory) for b in friendly_buildings if b.health > 0)
-                built_hangar = any(isinstance(b, Hangar) for b in friendly_buildings if b.health > 0)
+                built_barracks = any(b.unit_type == "Barracks" for b in friendly_buildings if b.health > 0)
+                built_factory = any(b.unit_type == "WarFactory" for b in friendly_buildings if b.health > 0)
+                built_hangar = any(b.unit_type == "Hangar" for b in friendly_buildings if b.health > 0)
                 if not built_barracks:
                     cls = Barracks
                 elif self.resource_count >= 2 and not built_factory:
@@ -1859,25 +1863,25 @@ class AI:
                     all_possible = [PowerPlant, Turret] + [OilDerrick, Refinery, ShaleFracker, BlackMarket]
                     cls = random.choice(all_possible)
             
-            cost = cls.COST
+            cost = UNIT_CLASSES[cls.__name__]["cost"]
             if self.hq.credits >= cost:
                 pos = self.find_build_position(cls, all_buildings, map_width, map_height, prefer_near_hq=True)
                 if pos:
                     self.hq.place_building(pos, cls, all_buildings)
         
         self.defense_timer += 1
-        if self.defense_timer > 240 and self.threat_level > 0.3 and self.turret_count < min(5, self.total_buildings // 3) and self.hq.credits >= Turret.COST:
+        if self.defense_timer > 240 and self.threat_level > 0.3 and self.turret_count < min(5, self.total_buildings // 3) and self.hq.credits >= UNIT_CLASSES["Turret"]["cost"]:
             pos = self.find_build_position(Turret, all_buildings, map_width, map_height, prefer_near_hq=True)
             if pos:
                 self.hq.place_building(pos, Turret, all_buildings)
             self.defense_timer = 0
         
         enemy_hq = min(
-            (b for b in enemy_buildings if isinstance(b, Headquarters) and b.health > 0),
+            (b for b in enemy_buildings if b.unit_type == "Headquarters" and b.health > 0),
             key=lambda b: self.hq.distance_to(b.position),
             default=None
         )
-        self.strategize_attacks(friendly_units, enemy_hq, enemy_buildings)
+        self.strategize_attacks(friendly_units, enemy_hq, enemy_buildings, enemy_units)
 
 @dataclass(kw_only=True)
 class ProductionInterface:
@@ -1918,6 +1922,17 @@ class ProductionInterface:
     font: pg.Font = None
     producer: Any = None
     producible_items: list = dataclass_field(default_factory=list)
+    str_to_building_class: dict = dataclass_field(default_factory=lambda: {
+        "Barracks": Barracks,
+        "WarFactory": WarFactory,
+        "Hangar": Hangar,
+        "PowerPlant": PowerPlant,
+        "Turret": Turret,
+        "OilDerrick": OilDerrick,
+        "Refinery": Refinery,
+        "ShaleFracker": ShaleFracker,
+        "BlackMarket": BlackMarket,
+    })
     
     def __post_init__(self, all_buildings):
         self.placing_cls = None
@@ -1952,16 +1967,17 @@ class ProductionInterface:
             self.top_rects[label] = rect
     
     def update_producer(self, selected_building):
-        self.producer = selected_building if isinstance(selected_building, (Barracks, WarFactory, Hangar)) else self.hq
-        self.producible_items = []
-        if isinstance(selected_building, Barracks):
-            self.producible_items = ["Infantry", "Grenadier"]
-        elif isinstance(selected_building, WarFactory):
-            self.producible_items = ["Tank", "MachineGunVehicle", "RocketArtillery"]
-        elif isinstance(selected_building, Hangar):
-            self.producible_items = ["AttackHelicopter"]
+        if isinstance(selected_building, (Barracks, WarFactory, Hangar)):
+            self.producer = selected_building
+            if isinstance(selected_building, Barracks):
+                self.producible_items = ["Infantry", "Grenadier"]
+            elif isinstance(selected_building, WarFactory):
+                self.producible_items = ["Tank", "MachineGunVehicle", "RocketArtillery"]
+            elif isinstance(selected_building, Hangar):
+                self.producible_items = ["AttackHelicopter"]
         else:
-            self.producible_items = [Barracks, WarFactory, Hangar, PowerPlant, OilDerrick, Turret, Refinery, ShaleFracker, BlackMarket]
+            self.producer = self.hq
+            self.producible_items = ["Barracks", "WarFactory", "Hangar", "PowerPlant", "Turret", "OilDerrick", "Refinery", "ShaleFracker", "BlackMarket"]
         self.item_rects = {}
         y = self.PROD_ITEMS_START_Y
         for i, item in enumerate(self.producible_items):
@@ -1996,12 +2012,8 @@ class ProductionInterface:
             self.surface.blit(text_surf, text_rect)
         
         for item, rect in self.item_rects.items():
-            if isinstance(item, str):
-                cost = UNIT_CLASSES[item]["cost"]
-                label = self.unit_button_labels[item]
-            else:
-                cost = item.COST
-                label = self.unit_button_labels.get(item.__name__, item.__name__)
+            cost = UNIT_CLASSES[item]["cost"]
+            label = self.unit_button_labels[item]
             can_produce = self.hq.credits >= cost
             color = self.ACTION_ALLOWED_COLOR if can_produce else self.ACTION_BLOCKED_COLOR
             pg.draw.rect(self.surface, color, rect, border_radius=self.BUTTON_RADIUS)
@@ -2066,17 +2078,14 @@ class ProductionInterface:
         
         for item, rect in self.item_rects.items():
             if rect.collidepoint(local_pos):
-                if isinstance(item, str):
-                    cost = UNIT_CLASSES[item]["cost"]
-                    if self.hq.credits >= cost:
+                cost = UNIT_CLASSES[item]["cost"]
+                if self.hq.credits >= cost:
+                    if isinstance(self.producer, Headquarters):
+                        self.placing_cls = self.str_to_building_class[item]
+                    else:
                         if len(self.producer.production_queue) < self.MAX_PRODUCTION_QUEUE_LENGTH:
                             self.producer.production_queue.append({'unit_type': item, 'repeat': False})
                             self.hq.credits -= cost
-                        return True
-                else:
-                    cost = item.COST
-                    if self.hq.credits >= cost:
-                        self.placing_cls = item
                         return True
                 return False
         return False
@@ -2195,16 +2204,23 @@ def handle_attacks(team_units, all_units, all_buildings, projectiles, particles,
         if unit.last_shot_time == 0 and unit.weapons:
             closest_target, min_dist = None, float("inf")
             unit_allies = alliances[unit.team]
-            candidates = unit_hash.query(unit.position, unit.get_attack_range()) + building_hash.query(unit.position, unit.get_attack_range())
+            # Query within sight range to detect threats for interception
+            candidates = unit_hash.query(unit.position, unit.sight_range) + building_hash.query(unit.position, unit.sight_range)
             for obj in candidates:
                 if obj.team not in unit_allies and obj.health > 0:
                     dist = unit.distance_to(obj.position)
-                    if dist <= unit.get_attack_range() and dist < min_dist:
+                    if dist <= unit.sight_range and dist < min_dist:
                         closest_target, min_dist = obj, dist
             
             if closest_target:
                 unit.attack_target = closest_target
-                unit.shoot(closest_target, projectiles)
+                dist_to_target = unit.distance_to(closest_target.position)
+                if dist_to_target > unit.attack_range:
+                    # Intercept: move towards threat
+                    unit.move_target = closest_target.position
+                # Shoot if in range
+                if dist_to_target <= unit.attack_range:
+                    unit.shoot(closest_target, projectiles)
 
 def handle_projectiles(projectiles, all_units, all_buildings, particles, g):
     for projectile in list(projectiles):
@@ -2229,6 +2245,42 @@ def handle_projectiles(projectiles, all_units, all_buildings, particles, g):
                 break
         if hit:
             projectile.kill()
+
+def cleanup_dead_entities(g):
+    # Cleanup dead units
+    for group_name in ["global_units"]:
+        group = g[group_name]
+        dead = [obj for obj in group if hasattr(obj, 'health') and obj.health <= 0]
+        for d in dead:
+            group.remove(d)
+            if hasattr(d, 'plasma_burn_particles'):
+                for p in d.plasma_burn_particles:
+                    if hasattr(p, 'kill'):
+                        p.kill()
+                d.plasma_burn_particles = []
+    
+    # Cleanup dead buildings
+    for group_name in ["global_buildings"]:
+        group = g[group_name]
+        dead = [obj for obj in group if hasattr(obj, 'health') and obj.health <= 0]
+        for d in dead:
+            group.remove(d)
+            if hasattr(d, 'plasma_burn_particles'):
+                for p in d.plasma_burn_particles:
+                    if hasattr(p, 'kill'):
+                        p.kill()
+                d.plasma_burn_particles = []
+    
+    # Cleanup unit groups
+    for team, ug in g["unit_groups"].items():
+        dead = [u for u in ug if hasattr(u, 'health') and u.health <= 0]
+        for d in dead:
+            ug.remove(d)
+            if hasattr(d, 'plasma_burn_particles'):
+                for p in d.plasma_burn_particles:
+                    if hasattr(p, 'kill'):
+                        p.kill()
+                d.plasma_burn_particles = []
 
 class MenuButton:
     def __init__(self, x, y, width, height, text, color, hover_color):
@@ -2513,7 +2565,7 @@ class GameManager:
         
         for i, team in enumerate(teams_list):
             pos = positions[i]
-            hq = Headquarters(pos, team, self.font_medium)
+            hq = Headquarters(pos, team)
             hq.rally_point = Vector2(pos[0] + (100 if pos[0] < map_width / 2 else -100), pos[1])
             hqs[team] = hq
             units = pg.sprite.Group()
@@ -2563,7 +2615,7 @@ class GameManager:
             pos = positions[i]
             center_x = map_width / 2
             center_y = map_height / 2
-            build_dir = math.atan2(pos[1] - center_y, pos[0] - center_x)
+            build_dir = math.atan2(center_y - pos[1], center_x - pos[0])
             ai = AI(hqs[team], GameConsole(), build_dir=build_dir, allies=alliances[team])
             ais.append(ai)
         
@@ -2671,7 +2723,7 @@ class GameManager:
                                 building_to_sell = result[1]
                                 if building_to_sell in g["global_buildings"]:
                                     g["global_buildings"].remove(building_to_sell)
-                                    g["player_hq"].credits += building_to_sell.COST // 2
+                                    g["player_hq"].credits += UNIT_CLASSES[building_to_sell.unit_type]["cost"] // 2
                                     if g["selected_building"] == building_to_sell:
                                         g["selected_building"] = None
                                         g["interface"].update_producer(g["player_hq"])
@@ -2680,15 +2732,16 @@ class GameManager:
                         if g["interface"].placing_cls is not None and not g["interface_rect"].collidepoint(mouse_pos):
                             snapped = snap_to_grid(world_pos)
                             buildings_list = list(g["global_buildings"])
-                            cost = g["interface"].placing_cls.COST
+                            unit_type = g["interface"].placing_cls.__name__
+                            cost = UNIT_CLASSES[unit_type]["cost"]
                             if g["player_hq"].credits >= cost and is_valid_building_position(
                                 snapped, g["player_team"], g["interface"].placing_cls, buildings_list,
                                 g["map_width"], g["map_height"]
                             ):
-                                if issubclass(g["interface"].placing_cls, (OilDerrick, Refinery, ShaleFracker, BlackMarket)):
-                                    building = g["interface"].placing_cls(snapped, g["player_team"], g["font"], g["player_hq"])
+                                if unit_type in ["OilDerrick", "Refinery", "ShaleFracker", "BlackMarket"]:
+                                    building = g["interface"].placing_cls(snapped, g["player_team"], g["player_hq"])
                                 else:
-                                    building = g["interface"].placing_cls(snapped, g["player_team"], g["font"])
+                                    building = g["interface"].placing_cls(snapped, g["player_team"])
                                 g["global_buildings"].add(building)
                                 g["player_hq"].credits -= cost
                                 g["interface"].placing_cls = None
@@ -2783,40 +2836,23 @@ class GameManager:
                 unit.update()
             
             with ThreadPoolExecutor(max_workers=4) as executor:
-                futures = [executor.submit(update_unit, unit) for unit in unit_list]
+                futures = [executor.submit(update_unit, unit) for unit in [u for u in unit_list if not u.is_building]]
                 for future in futures:
                     future.result()
             
             for building in building_list:
-                if isinstance(building, Headquarters):
-                    building.update(
-                        particles=g["particles"],
-                        friendly_units=None,
-                        friendly_buildings=None,
-                        all_units=g["global_units"],
-                        global_buildings=g["global_buildings"],
-                    )
-                elif isinstance(building, (Barracks, WarFactory, Hangar)):
-                    building_team = building.team
-                    their_units = g["unit_groups"][building_team]
-                    building.update(
-                        particles=g["particles"],
-                        friendly_units=their_units,
-                        all_units=g["global_units"],
-                        global_buildings=g["global_buildings"],
-                    )
-                elif isinstance(building, (OilDerrick, Refinery, ShaleFracker, BlackMarket)):
-                    building.update()
-                elif isinstance(building, Turret):
-                    building_allies = g["alliances"][building.team]
-                    enemy_units = [u for u in g["global_units"].sprites() if u.team not in building_allies and u.health > 0]
-                    building.update(
-                        particles=g["particles"],
-                        projectiles=g["projectiles"],
-                        enemy_units=enemy_units,
-                    )
-                else:
-                    building.update(particles=g["particles"])
+                building_team = building.team
+                friendly_units_for_build = g["unit_groups"].get(building_team, pg.sprite.Group())
+                allies = g["alliances"][building_team]
+                enemy_units_for_build = [u for u in g["global_units"].sprites() if u.team not in allies and u.health > 0]
+                building.update(
+                    particles=g["particles"],
+                    friendly_units=friendly_units_for_build,
+                    all_units=g["global_units"],
+                    global_buildings=g["global_buildings"],
+                    projectiles=g["projectiles"],
+                    enemy_units=enemy_units_for_build
+                )
             
             g["projectiles"].update()
             g["particles"].update()
@@ -2839,6 +2875,9 @@ class GameManager:
             handle_attacks(g["ai_units"], unit_list, building_list, g["projectiles"], g["particles"], unit_hash, building_hash, g["alliances"])
             handle_projectiles(g["projectiles"], unit_list, building_list, g["particles"], g)
             
+            # Cleanup dead entities
+            cleanup_dead_entities(g)
+            
             for ai in g["ais"]:
                 their_team = ai.hq.team
                 friendly_units_list = g["unit_groups"][their_team].sprites()
@@ -2853,9 +2892,6 @@ class GameManager:
                 g["fog_of_war"].update_visibility(ally_units, ally_buildings, g["global_buildings"].sprites())
             else:
                 g["fog_of_war"].update_visibility([], [], g["global_buildings"].sprites())
-            
-            for unit in unit_list:
-                unit.under_attack = False
             
             alive_hqs = [hq for hq in g["hqs"].values() if hq.health > 0]
             if g["player_hq"] and g["player_hq"].health <= 0:
@@ -2914,9 +2950,11 @@ class GameManager:
             fog = g["fog_of_war"]
             if not g.get("spectator", False):
                 g["fog_of_war"].draw(self.screen, g["camera"])
+            mouse_pos = pg.mouse.get_pos() if g.get("interface") else None
             for building in building_list:
-                building.draw(self.screen, g["camera"], draw_allies, fog)
-                building.draw_health_bar(self.screen, g["camera"])
+                visible = building.team in draw_allies or fog.is_visible(building.position) or building.is_seen
+                if building.health > 0 and visible:
+                    building.draw(self.screen, g["camera"], mouse_pos)
             
             if g["interface"] and not g.get("spectator", False):
                 if g["interface"].placing_cls is not None:
@@ -2924,25 +2962,27 @@ class GameManager:
                     ghost_pos = g["camera"].screen_to_world(mouse_pos)
                     snapped = snap_to_grid(ghost_pos)
                     buildings_list = list(g["global_buildings"])
+                    unit_type = g["interface"].placing_cls.__name__
                     valid = is_valid_building_position(
                         snapped, g["player_team"], g["interface"].placing_cls, buildings_list,
                         g["map_width"], g["map_height"]
                     )
-                    temp_rect = pg.Rect(snapped, g["interface"].placing_cls.SIZE)
+                    width, height = UNIT_CLASSES[unit_type]["size"]
+                    half_w, half_h = width / 2, height / 2
+                    temp_rect = pg.Rect(snapped[0] - half_w, snapped[1] - half_h, width, height)
                     screen_ghost = g["camera"].get_screen_rect(temp_rect)
                     color = ProductionInterface.PLACEMENT_VALID_COLOR if valid else ProductionInterface.PLACEMENT_INVALID_COLOR
                     line_width = int(2 * g["camera"].zoom)
                     pg.draw.rect(self.screen, color, screen_ghost, line_width)
                 
-                for unit in unit_list:
-                    if unit.health > 0 and (unit.team in draw_allies or fog.is_visible(unit.position)):
-                        unit.draw(self.screen, g["camera"])
-                        unit.draw_health_bar(self.screen, g["camera"])
+                for unit in [u for u in unit_list if not u.is_building]:
+                    visible = unit.team in draw_allies or fog.is_visible(unit.position)
+                    if unit.health > 0 and visible:
+                        unit.draw(self.screen, g["camera"], mouse_pos)
             else:
-                for unit in unit_list:
+                for unit in [u for u in unit_list if not u.is_building]:
                     if unit.health > 0:
                         unit.draw(self.screen, g["camera"])
-                        unit.draw_health_bar(self.screen, g["camera"])
             
             for projectile in g["projectiles"]:
                 projectile.draw(self.screen, g["camera"])
@@ -3022,7 +3062,7 @@ class GameManager:
 if __name__ == "__main__":
     pg.init()
     screen = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    pg.display.set_caption("RTS Game - Age of Empires Style")
+    pg.display.set_caption("Paper Tigers")
     clock = pg.time.Clock()
     
     font_large = pg.font.SysFont(None, 72)
