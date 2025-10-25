@@ -3958,8 +3958,8 @@ class GameManager:
         enemy_side = []
         
         if game_mode == "1v1":
-            player_side = [Team.ORANGE]
-            enemy_side = [Team.BLUE]
+            player_side = [Team.RED]
+            enemy_side = [Team.GREEN]
             num_players = 2
         elif game_mode == "2v2":
             player_side = [Team.RED, Team.BLUE]
