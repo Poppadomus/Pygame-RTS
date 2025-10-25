@@ -13,16 +13,17 @@ from collections import deque
 import pygame as pg
 from pygame.math import Vector2
 
-SCREEN_WIDTH = 1280
-SCREEN_HEIGHT = 720
+SCREEN_WIDTH = 1920
+SCREEN_HEIGHT = 1080
 CONSOLE_HEIGHT = 100
-MAP_WIDTH = 100000
-MAP_HEIGHT = 80000
-TILE_SIZE = 40
+MAP_WIDTH = 10000
+MAP_HEIGHT = 10000
+TILE_SIZE = 100
 MINI_MAP_WIDTH = 200
 MINI_MAP_HEIGHT = 150
-PAN_EDGE = 30
+PAN_EDGE = 0
 PAN_SPEED = 10
+FITNESS_PANEL_HEIGHT = 280
 
 class Team(Enum):
     RED = 1
@@ -73,10 +74,10 @@ class GameState(Enum):
     DEFEAT = 5
 
 MAPS = {
-    "Desert": {"width": 2560, "height": 1440, "color": (139, 120, 80)},
-    "Forest": {"width": 3200, "height": 1800, "color": (34, 100, 34)},
-    "Ice": {"width": 2560, "height": 1440, "color": (180, 200, 220)},
-    "Urban": {"width": 2560, "height": 1440, "color": (100, 100, 100)},
+    "Desert": {"width": 2560, "height": 2560, "color": (139, 120, 80)},
+    "Forest": {"width": 3200, "height": 3200, "color": (34, 100, 34)},
+    "Ice": {"width": 2560, "height": 2560, "color": (180, 200, 220)},
+    "Urban": {"width": 5000, "height": 5000, "color": (100, 100, 100)},
 }
 
 UNIT_CLASSES = {
@@ -84,7 +85,7 @@ UNIT_CLASSES = {
         "cost": 100,
         "hp": 125,
         "speed": 0.5,
-        "attack_range": 40,
+        "attack_range": 80,
         "sight_range": 120,
         "weapons": [
             {"name": "Rifle", "damage": 10, "fire_rate": 0.6, "projectile_speed": 10, "projectile_length": 8, "projectile_width": 4, "cooldown": 25}
@@ -301,6 +302,57 @@ PROJECTILE_LIFETIME = 5.0
 PARTICLES_PER_EXPLOSION = 20
 PLASMA_BURN_PARTICLES = 10
 PLASMA_BURN_DURATION = 2.0
+
+class TerrainFeature:
+    def __init__(self, position: tuple, feature_type: str):
+        self.position = Vector2(position)
+        self.feature_type = feature_type
+        self.rect = pg.Rect(position[0] - 20, position[1] - 20, 40, 40)
+
+    def draw(self, surface: pg.Surface, camera: Camera):
+        screen_pos = camera.world_to_iso(self.position, camera.zoom)
+        zoom = camera.zoom
+        if self.feature_type == "tree":
+            trunk_width = int(8 * zoom)
+            trunk_height = int(20 * zoom)
+            trunk_rect = pg.Rect(screen_pos[0] - trunk_width // 2, screen_pos[1], trunk_width, trunk_height)
+            pg.draw.rect(surface, (139, 69, 19), trunk_rect)
+            foliage_radius = int(25 * zoom)
+            pg.draw.circle(surface, (0, 128, 0), (int(screen_pos[0]), int(screen_pos[1] - 10 * zoom)), foliage_radius)
+            pg.draw.circle(surface, (34, 139, 34), (int(screen_pos[0] - 10 * zoom), int(screen_pos[1] - 5 * zoom)), int(15 * zoom))
+            pg.draw.circle(surface, (34, 139, 34), (int(screen_pos[0] + 10 * zoom), int(screen_pos[1] - 5 * zoom)), int(15 * zoom))
+        elif self.feature_type == "boulder":
+            boulder_radius = int(25 * zoom)
+            pg.draw.ellipse(surface, (105, 105, 105), (screen_pos[0] - boulder_radius, screen_pos[1] - boulder_radius // 2, boulder_radius * 2, boulder_radius))
+            pg.draw.ellipse(surface, (70, 70, 70), (screen_pos[0] - boulder_radius // 2, screen_pos[1] - boulder_radius // 2, boulder_radius, boulder_radius // 2))
+        elif self.feature_type == "rock":
+            rock_width = int(15 * zoom)
+            rock_height = int(10 * zoom)
+            pg.draw.ellipse(surface, (128, 128, 128), (screen_pos[0] - rock_width // 2, screen_pos[1] - rock_height // 2, rock_width, rock_height))
+            pg.draw.ellipse(surface, (90, 90, 90), (screen_pos[0] - rock_width // 4, screen_pos[1] - rock_height // 4, rock_width // 2, rock_height // 2))
+
+def generate_terrain_features(map_name: str, map_width: int, map_height: int) -> list[TerrainFeature]:
+    features = []
+    num_tiles = (map_width // TILE_SIZE) * (map_height // TILE_SIZE)
+    tree_density = 0.02 if map_name == "Forest" else 0.005
+    boulder_density = 0.01
+    rock_density = 0.03
+    num_trees = int(num_tiles * tree_density)
+    num_boulders = int(num_tiles * boulder_density)
+    num_rocks = int(num_tiles * rock_density)
+    for _ in range(num_trees):
+        x = random.randint(0, map_width)
+        y = random.randint(0, map_height)
+        features.append(TerrainFeature((x, y), "tree"))
+    for _ in range(num_boulders):
+        x = random.randint(0, map_width)
+        y = random.randint(0, map_height)
+        features.append(TerrainFeature((x, y), "boulder"))
+    for _ in range(num_rocks):
+        x = random.randint(0, map_width)
+        y = random.randint(0, map_height)
+        features.append(TerrainFeature((x, y), "rock"))
+    return features
 
 def create_infantry_image(size: tuple, team: Team) -> pg.Surface:
     team_color = team_to_color[team]
@@ -807,18 +859,18 @@ def is_valid_building_position(
     
     return has_nearby_friendly or new_building_cls.__name__ == "Headquarters"
 
-def find_free_spawn_position(building_pos: tuple, target_pos: tuple, global_buildings, global_units, unit_size=(40, 40)):
+def find_free_spawn_position(building_pos: tuple, target_pos: tuple, global_buildings, global_units, unit_size=(40, 40), map_width=MAP_WIDTH, map_height=MAP_HEIGHT):
     for _ in range(20):
         offset_x = random.uniform(-60, 60)
         offset_y = random.uniform(-60, 60)
-        pos_x = target_pos[0] + offset_x
-        pos_y = target_pos[1] + offset_y
+        pos_x = max(0, min(target_pos[0] + offset_x, map_width))
+        pos_y = max(0, min(target_pos[1] + offset_y, map_height))
         unit_rect = pg.Rect(pos_x - unit_size[0]/2, pos_y - unit_size[1]/2, unit_size[0], unit_size[1])
         overlaps_building = any(b.rect.colliderect(unit_rect) for b in global_buildings if b.health > 0)
         overlaps_unit = any(u.rect.colliderect(unit_rect) for u in global_units if u.health > 0 and not u.air)
         if not overlaps_building and not overlaps_unit:
             return (pos_x, pos_y)
-    return target_pos
+    return (max(0, min(target_pos[0], map_width)), max(0, min(target_pos[1], map_height)))
 
 def calculate_formation_positions(
     center: tuple[float, float],
@@ -838,7 +890,7 @@ def calculate_formation_positions(
     return positions
 
 def get_starting_positions(map_width: int, map_height: int, num_players: int):
-    edge_dist = 50
+    edge_dist = 125
     half_w = map_width / 2
     half_h = map_height / 2
 
@@ -890,35 +942,57 @@ class SpatialHash:
                         nearby.append(o)
         return nearby
 
+def absolute_world_to_iso(world_pos: tuple, zoom: float) -> tuple[float, float]:
+    dx, dy = world_pos
+    iso_x = (dx - dy) * (zoom / 2)
+    iso_y = (dx + dy) * (zoom / 2)
+    return (iso_x, iso_y)
+
 class Camera:
-    def __init__(self, view_width: int = SCREEN_WIDTH - 200, view_height: int = SCREEN_HEIGHT):
+    def __init__(self):
         self.map_width = MAP_WIDTH
         self.map_height = MAP_HEIGHT
-        self.width = view_width
-        self.height = view_height
+        self.width = SCREEN_WIDTH - 200
+        self.height = SCREEN_HEIGHT
         self.zoom = 1.0
         self.rect = pg.Rect(0, 0, self.width, self.height)
+        self.target_rect = pg.Rect(self.rect)
         self.update_view_size()
     
     def update_view_size(self):
         view_w = self.width / self.zoom
         view_h = self.height / self.zoom
         self.rect.size = (view_w, view_h)
+        self.target_rect.size = (view_w, view_h)
     
-    def update_zoom(self, delta, mouse_world_pos=None):
+    def snap_to_point(self, world_point: tuple[float, float]):
+        sc_x, sc_y = self.width / 2, self.height / 2
+        dx_sc = (sc_x + 2 * sc_y) / self.zoom
+        dy_sc = (2 * sc_y - sc_x) / self.zoom
+        self.rect.x = world_point[0] - dx_sc
+        self.rect.y = world_point[1] - dy_sc
+    
+    def update_zoom(self, delta, mouse_screen_pos=None):
+        if mouse_screen_pos is None:
+            mouse_screen_pos = (self.width / 2, self.height / 2)
+        sx, sy = mouse_screen_pos
+        old_dx = (sx + 2 * sy) / self.zoom
+        old_dy = (2 * sy - sx) / self.zoom
+        old_world_x = self.rect.x + old_dx
+        old_world_y = self.rect.y + old_dy
         old_zoom = self.zoom
-        old_center = self.rect.center
         if delta > 0:
-            self.zoom = min(self.zoom * 1.2, 3.0)
+            self.zoom = min(self.zoom * 1.1, 3.0)
         else:
-            self.zoom = max(self.zoom / 1.2, 0.5)
-        if self.zoom != old_zoom:
-            self.update_view_size()
-            if mouse_world_pos:
-                self.rect.center = mouse_world_pos
-            else:
-                self.rect.center = old_center
-            self.clamp()
+            self.zoom = max(self.zoom / 1.1, 0.5)
+        self.update_view_size()
+        new_dx = (sx + 2 * sy) / self.zoom
+        new_dy = (2 * sy - sx) / self.zoom
+        self.rect.x = old_world_x - new_dx
+        self.rect.y = old_world_y - new_dy
+        self.target_rect.x = self.rect.x
+        self.target_rect.y = self.rect.y
+        self.clamp()
     
     def world_to_iso(self, world_pos: tuple, zoom: float) -> tuple[float, float]:
         dx = world_pos[0] - self.rect.x
@@ -947,6 +1021,15 @@ class Camera:
         xs = [p[0] for p in iso_corners]
         ys = [p[1] for p in iso_corners]
         return pg.Rect(min(xs), min(ys), max(xs) - min(xs), max(ys) - min(ys))
+
+    def get_render_bounds(self, tile_size: int = TILE_SIZE) -> tuple[float, float, float, float]:
+        screen_corners = [(0, 0), (self.width, 0), (self.width, self.height), (0, self.height)]
+        world_corners = [self.screen_to_world(c) for c in screen_corners]
+        min_wx = min(p[0] for p in world_corners) - tile_size
+        max_wx = max(p[0] for p in world_corners) + tile_size
+        min_wy = min(p[1] for p in world_corners) - tile_size
+        max_wy = max(p[1] for p in world_corners) + tile_size
+        return min_wx, max_wx, min_wy, max_wy
     
     def update(self, selected_units: list, mouse_pos: tuple, interface_rect: pg.Rect, keys=None):
         if keys is None:
@@ -955,24 +1038,33 @@ class Camera:
         pressed_pan = keys[pg.K_w] or keys[pg.K_a] or keys[pg.K_s] or keys[pg.K_d]
         
         mx, my = mouse_pos
+        pan_delta = PAN_SPEED / self.zoom
         
-        if mx < PAN_EDGE and self.rect.left > 0:
-            self.rect.x -= PAN_SPEED
-        if mx > self.width - PAN_EDGE and self.rect.right < self.map_width:
-            self.rect.x += PAN_SPEED
-        if my < PAN_EDGE and self.rect.top > 0:
-            self.rect.y -= PAN_SPEED
-        if my > self.height - PAN_EDGE and self.rect.bottom < self.map_height:
-            self.rect.y += PAN_SPEED
+        if mx < PAN_EDGE:
+            self.rect.x += pan_delta
+            self.rect.y -= pan_delta
+        if mx > SCREEN_WIDTH - PAN_EDGE and self.rect.right < self.map_width:
+            self.rect.x -= pan_delta
+            self.rect.y += pan_delta
+        if my < PAN_EDGE:
+            self.rect.x += 2 * pan_delta
+            self.rect.y += 2 * pan_delta
+        if my > SCREEN_HEIGHT - PAN_EDGE and self.rect.bottom < self.map_height:
+            self.rect.x -= 2 * pan_delta
+            self.rect.y -= 2 * pan_delta
         
-        if keys[pg.K_w] and self.rect.top > 0:
-            self.rect.y -= PAN_SPEED
-        if keys[pg.K_s] and self.rect.bottom < self.map_height:
-            self.rect.y += PAN_SPEED
-        if keys[pg.K_a] and self.rect.left > 0:
-            self.rect.x -= PAN_SPEED
-        if keys[pg.K_d] and self.rect.right < self.map_width:
-            self.rect.x += PAN_SPEED
+        if keys[pg.K_w]:
+            self.rect.x += 2 * pan_delta
+            self.rect.y += 2 * pan_delta
+        if keys[pg.K_s]:
+            self.rect.x -= 2 * pan_delta
+            self.rect.y -= 2 * pan_delta
+        if keys[pg.K_a]:
+            self.rect.x += pan_delta
+            self.rect.y -= pan_delta
+        if keys[pg.K_d]:
+            self.rect.x -= pan_delta
+            self.rect.y += pan_delta
         
         if interface_rect.collidepoint(mx, my):
             self.clamp()
@@ -981,14 +1073,23 @@ class Camera:
         if selected_units and not pressed_pan:
             avg_x = sum(u.position[0] for u in selected_units) / len(selected_units)
             avg_y = sum(u.position[1] for u in selected_units) / len(selected_units)
-            self.rect.centerx = avg_x
-            self.rect.centery = avg_y
+            target_point = (avg_x, avg_y)
+            self.target_rect.x = target_point[0] - (self.width / 0.1)
+            self.target_rect.y = target_point[1] - (self.height / 0.1)
+            self.snap_to_point(target_point)
+            self.target_rect.x = self.rect.x
+            self.target_rect.y = self.rect.y
+            lerp_alpha = 0.1
+            self.rect.x = self.rect.x + (self.target_rect.x - self.rect.x) * lerp_alpha
+            self.rect.y = self.rect.y + (self.target_rect.y - self.rect.y) * lerp_alpha
         
         self.clamp()
     
     def clamp(self):
-        self.rect.x = max(0, min(self.rect.x, self.map_width - self.rect.width))
-        self.rect.y = max(0, min(self.rect.y, self.map_height - self.rect.height))
+        self.rect.x = min(self.rect.x, self.map_width - self.rect.width)
+        self.rect.y = min(self.rect.y, self.map_height - self.rect.height)
+        self.target_rect.x = min(self.target_rect.x, self.map_width - self.target_rect.width)
+        self.target_rect.y = min(self.target_rect.y, self.map_height - self.target_rect.height)
 
 class FogOfWar:
     def __init__(self, map_width: int, map_height: int, tile_size: int = TILE_SIZE, spectator: bool = False):
@@ -1043,10 +1144,11 @@ class FogOfWar:
         return False
     
     def draw(self, surface: pg.Surface, camera: Camera):
-        start_tx = max(0, int((camera.rect.x - self.tile_size * 2) // self.tile_size))
-        start_ty = max(0, int((camera.rect.y - self.tile_size * 2) // self.tile_size))
-        end_tx = min(len(self.visible), int((camera.rect.right + self.tile_size * 2) // self.tile_size) + 1)
-        end_ty = min(len(self.visible[0]), int((camera.rect.bottom + self.tile_size * 2) // self.tile_size) + 1)
+        min_wx, max_wx, min_wy, max_wy = camera.get_render_bounds(self.tile_size)
+        start_tx = max(0, int(min_wx // self.tile_size))
+        start_ty = max(0, int(min_wy // self.tile_size))
+        end_tx = min(len(self.visible), int(max_wx // self.tile_size) + 2)
+        end_ty = min(len(self.visible[0]), int(max_wy // self.tile_size) + 2)
         zoom = camera.zoom
         fog_overlay = pg.Surface((int(camera.width), int(camera.height)), pg.SRCALPHA)
         fog_overlay.fill((0, 0, 0, 0))
@@ -1211,6 +1313,8 @@ class GameObject(pg.sprite.Sprite, ABC):
         self.is_seen = False
         self.body_angle = 0
         self.plasma_burn_particles: list[PlasmaBurnParticle] = []
+        self.map_width = MAP_WIDTH
+        self.map_height = MAP_HEIGHT
         self.image = pg.Surface((32, 32))
         self.rect = self.image.get_rect(center=position)
     
@@ -1343,6 +1447,8 @@ class Unit(GameObject):
         perp_dir = dir_unit.rotate_rad(math.pi / 2)
         spread_dist = random.uniform(-30, 30)
         target_pos += perp_dir * spread_dist
+        target_pos.x = max(0, min(target_pos.x, self.map_width))
+        target_pos.y = max(0, min(target_pos.y, self.map_height))
         return target_pos
     
     def _setup_drawing(self, unit_type: str):
@@ -1397,6 +1503,8 @@ class Unit(GameObject):
                     new_unit = globals()[unit_type](spawn_pos, self.team, hq=self.hq)
                 except KeyError:
                     new_unit = globals()["Infantry"](spawn_pos, self.team, hq=self.hq)
+                new_unit.map_width = self.map_width
+                new_unit.map_height = self.map_height
                 self.hq.stats['units_created'] += 1
                 new_unit.position = Vector2(spawn_pos)
                 new_unit.rect.center = new_unit.position
@@ -1461,7 +1569,12 @@ class Unit(GameObject):
         if not self.attack_target:
             self.turret_angle = self.body_angle
         
+        half_w = self.rect.width / 2
+        half_h = self.rect.height / 2
         if self.move_target:
+            mt_x = max(half_w, min(self.move_target[0], self.map_width - half_w))
+            mt_y = max(half_h, min(self.move_target[1], self.map_height - half_h))
+            self.move_target = (mt_x, mt_y)
             dir_to_target = Vector2(self.move_target) - self.position
             dist_to_move = dir_to_target.length()
             if dist_to_move > 5:
@@ -1470,6 +1583,9 @@ class Unit(GameObject):
                 self.body_angle = math.atan2(move_dir.y, move_dir.x)
             else:
                 self.move_target = None
+        
+        self.position.x = max(half_w, min(self.position.x, self.map_width - half_w))
+        self.position.y = max(half_h, min(self.position.y, self.map_height - half_h))
         
         if hasattr(self, 'stats') and "producible" in self.stats and friendly_units is not None and all_units is not None:
             self._update_production(friendly_units, all_units)
@@ -1614,6 +1730,8 @@ class Headquarters(Unit):
         if is_valid_building_position(position, self.team, unit_cls, all_buildings_list):
             unit_type = unit_cls.__name__
             building = unit_cls(position, self.team, hq=self)
+            building.map_width = self.map_width
+            building.map_height = self.map_height
             if unit_type in ["WarFactory", "Barracks", "Hangar"]:
                 building.parent_hq = self
             all_buildings.add(building)
@@ -1688,10 +1806,12 @@ class AI:
         self.scout_timer = 0
         self.defense_timer = 0
         self.attack_timer = 0
+        self.patrol_timer = 0
         self.build_queue = []
         self.barracks_index = 0
         self.warfactory_index = 0
         self.hangar_index = 0
+        self.known_enemy_pos = None
         self.personality = random.choice(['aggressive', 'defensive', 'balanced', 'rusher'])
         self.timer_offset = random.randint(0, 180)
         self.interval_multiplier = random.uniform(0.7, 1.3)
@@ -1713,6 +1833,23 @@ class AI:
         self.preferred_build_direction = build_dir
         self.build_bias_strength = 0.3  
     
+    def update_rally_points(self, friendly_buildings, enemy_pos, map_width, map_height):
+        if not enemy_pos:
+            return
+        dir_vec = Vector2(enemy_pos) - self.hq.position
+        if dir_vec.length() == 0:
+            return
+        dir_unit = dir_vec.normalize()
+        advance = 100 + min(200, self.military_strength * 10)
+        target = self.hq.position + dir_unit * advance
+        target.x = max(0, min(target.x, map_width))
+        target.y = max(0, min(target.y, map_height))
+        for b in [b for b in friendly_buildings if hasattr(b, 'rally_point')]:
+            offset = Vector2(random.uniform(-30,30), random.uniform(-30,30))
+            b.rally_point = target + offset
+            b.rally_point.x = max(0, min(b.rally_point.x, map_width))
+            b.rally_point.y = max(0, min(b.rally_point.y, map_height))
+    
     def assess_situation(self, friendly_units, friendly_buildings, enemy_units, enemy_buildings):
         self.military_strength = len([u for u in friendly_units if u.health > 0])
         self.enemy_strength = len([u for u in enemy_units if u.health > 0])
@@ -1732,6 +1869,14 @@ class AI:
         
         power_plants = len([b for b in friendly_buildings if b.unit_type == "PowerPlant"])
         self.power_shortage = power_plants < self.economy_level + 1
+
+        enemy_hq = min(
+            (b for b in enemy_buildings if b.unit_type == "Headquarters" and b.health > 0),
+            key=lambda b: self.hq.distance_to(b.position),
+            default=None
+        )
+        if enemy_hq:
+            self.known_enemy_pos = enemy_hq.position
 
         inf_prio = 0.5 if self.threat_level > 0.5 else 0.6
         gren_prio = 0.3 if self.threat_level > 0.5 else 0.2
@@ -1861,13 +2006,13 @@ class AI:
     
     def queue_unit_production(self, barracks_list, war_factory_list, hangar_list, friendly_units):
         num_units = len([u for u in friendly_units if u.health > 0])
-        target_units = max(8, int(self.military_strength * 1.5) + int(self.threat_level * 25))
+        target_units = max(12, int(self.military_strength * 1.2) + int(self.threat_level * 20))
         
         if num_units < target_units:
             if barracks_list:
                 barracks = barracks_list[self.barracks_index % len(barracks_list)]
                 self.barracks_index += 1
-                if len(barracks.production_queue) < 5:
+                if len(barracks.production_queue) < 4:
                     if self.threat_level > 0.5:
                         unit_type = random.choices(list(self.production_priorities.keys()), weights=[0.7, 0.2, 0.1, 0, 0, 0])[0]
                     else:
@@ -1877,13 +2022,13 @@ class AI:
                     if self.hq.credits >= cost:
                         barracks.production_queue.append({'unit_type': unit_type, 'repeat': False})
                         self.hq.credits -= cost
-                        if random.random() < 0.4 and unit_type == "Infantry" and num_units < 5:
+                        if random.random() < 0.6 and unit_type == "Infantry" and num_units < 5:
                             barracks.production_queue[-1]['repeat'] = True
             
             if war_factory_list:
                 war_factory = war_factory_list[self.warfactory_index % len(war_factory_list)]
                 self.warfactory_index += 1
-                if len(war_factory.production_queue) < 3 and self.economy_level > 1:
+                if len(war_factory.production_queue) < 2 and self.economy_level > 1:
                     heavy_unit = random.choice(["Tank", "MachineGunVehicle", "RocketArtillery"])
                     cost = UNIT_CLASSES[heavy_unit]["cost"]
                     if self.hq.credits >= cost and num_units < target_units * 0.8:
@@ -1904,22 +2049,24 @@ class AI:
             if pos:
                 self.hq.place_building(pos, Turret, all_buildings)
     
-    def strategize_attacks(self, friendly_units, enemy_hq, enemy_buildings=None, enemy_units=None):
+    def strategize_attacks(self, friendly_units, enemy_hq, enemy_buildings=None, enemy_units=None, map_width=MAP_WIDTH, map_height=MAP_HEIGHT):
         if not enemy_hq and not enemy_buildings and not enemy_units:
             return
         
         self.scout_timer += 1
-        scout_interval = int(60 * self.interval_multiplier)
+        scout_interval = int(30 * self.interval_multiplier)
         if self.scout_timer > scout_interval and len(friendly_units) > 1:
             scout_target = enemy_hq.position if enemy_hq else ((self._get_nearest_enemy_building(enemy_buildings, friendly_units[0].position if friendly_units else (0, 0)).position if enemy_buildings else (0, 0)))
-            idle_units = [u for u in friendly_units if u.health > 0 and u.move_target is None][:3]
+            scout_tx = max(0, min(scout_target[0] + random.uniform(-200, 200), map_width))
+            scout_ty = max(0, min(scout_target[1] + random.uniform(-200, 200), map_height))
+            idle_units = [u for u in friendly_units if u.health > 0 and u.move_target is None][:5]
             for scout in idle_units:
-                scout.move_target = (scout_target[0] + random.uniform(-200, 200), scout_target[1] + random.uniform(-200, 200))
+                scout.move_target = (scout_tx, scout_ty)
             self.scout_timer = random.randint(0, scout_interval // 2)
         
         self.attack_timer += 1
-        attack_interval = int(30 * self.interval_multiplier)
-        attack_fraction = (0.3 if self.threat_level > 0.5 else 0.2) * self.aggression_bias
+        attack_interval = int(15 * self.interval_multiplier)
+        attack_fraction = (0.4 if self.threat_level > 0.5 else 0.3) * self.aggression_bias
         if self.attack_timer > attack_interval:
             idle_units = [u for u in friendly_units if u.health > 0 and u.move_target is None]
             if len(idle_units) > 0:
@@ -1945,11 +2092,11 @@ class AI:
                             unit.move_target = None
             self.attack_timer = random.randint(0, attack_interval // 2)
         
-        push_threshold = 0.5 * self.aggression_bias
+        push_threshold = 0.6 * self.aggression_bias
         if self.military_strength > self.enemy_strength * push_threshold:
             idle_units = [u for u in friendly_units if u.health > 0 and u.move_target is None]
             if len(idle_units) > 3:
-                attack_fraction = (0.8 if self.threat_level > 0.5 else 0.5) * self.aggression_bias
+                attack_fraction = (0.8 if self.threat_level > 0.5 else 0.6) * self.aggression_bias
                 num_to_send = int(len(idle_units) * attack_fraction)
                 for unit in idle_units[:num_to_send]:
                     primary_target = self._get_nearest_enemy_target(enemy_buildings, enemy_units, unit.position)
@@ -1970,6 +2117,23 @@ class AI:
                                 unit.move_target = enemy_hq.position
                         else:
                             unit.move_target = None
+        
+        self.patrol_timer += 1
+        patrol_interval = int(90 * self.interval_multiplier)
+        if self.patrol_timer > patrol_interval:
+            idle_in_base = [u for u in friendly_units if u.health > 0 and u.move_target is None and u.distance_to(self.hq.position) < 300]
+            if idle_in_base:
+                num_patrol = min(5, len(idle_in_base))
+                patrol_target = (enemy_hq.position if enemy_hq else self.known_enemy_pos)
+                if patrol_target:
+                    patrol_tx = max(0, min(patrol_target[0] + random.uniform(-300, 300), map_width))
+                    patrol_ty = max(0, min(patrol_target[1] + random.uniform(-300, 300), map_height))
+                else:
+                    patrol_tx = random.uniform(0, map_width)
+                    patrol_ty = random.uniform(0, map_height)
+                for unit in idle_in_base[:num_patrol]:
+                    unit.move_target = (patrol_tx, patrol_ty)
+            self.patrol_timer = random.randint(0, patrol_interval // 2)
     
     def update(self, friendly_units, friendly_buildings, enemy_units, enemy_buildings, all_buildings, map_width=MAP_WIDTH, map_height=MAP_HEIGHT):
         self.assess_situation(friendly_units, friendly_buildings, enemy_units, enemy_buildings)
@@ -1982,6 +2146,15 @@ class AI:
             war_factory_list = [b for b in friendly_buildings if b.unit_type == "WarFactory" and b.health > 0]
             hangar_list = [b for b in friendly_buildings if b.unit_type == "Hangar" and b.health > 0]
             self.queue_unit_production(barracks_list, war_factory_list, hangar_list, friendly_units)
+        
+        if int(effective_timer) % 120 == 0:
+            enemy_hq = min(
+                (b for b in enemy_buildings if b.unit_type == "Headquarters" and b.health > 0),
+                key=lambda b: self.hq.distance_to(b.position),
+                default=None
+            )
+            enemy_pos = enemy_hq.position if enemy_hq else self.known_enemy_pos
+            self.update_rally_points(friendly_buildings, enemy_pos, map_width, map_height)
         
         if int(effective_timer) % int(180 * self.interval_multiplier) == 0 and self.hq.credits >= 300:
             if self.personality == 'rusher' and self.resource_count == 0:
@@ -2047,7 +2220,7 @@ class AI:
             key=lambda b: self.hq.distance_to(b.position),
             default=None
         )
-        self.strategize_attacks(friendly_units, enemy_hq, enemy_buildings, enemy_units)
+        self.strategize_attacks(friendly_units, enemy_hq, enemy_buildings, enemy_units, map_width, map_height)
 
 @dataclass(kw_only=True)
 class ProductionInterface:
@@ -2256,30 +2429,29 @@ class ProductionInterface:
                 return False
         return False
 
+def get_iso_bounds(map_w: int, map_h: int, zoom: float = 1.0) -> tuple[float, float, float, float]:
+    corners = [(0, 0), (map_w, 0), (map_w, map_h), (0, map_h)]
+    isos = [absolute_world_to_iso(c, zoom) for c in corners]
+    min_x = min(ix for ix, iy in isos)
+    max_x = max(ix for ix, iy in isos)
+    min_y = min(iy for ix, iy in isos)
+    max_y = max(iy for ix, iy in isos)
+    return min_x, max_x, min_y, max_y
+
 def draw_mini_map(screen: pg.Surface, camera: Camera, fog_of_war: FogOfWar, map_width: int, map_height: int, map_color: tuple, buildings, all_units, player_allies: Set[Team]):
     mini_map_rect = pg.Rect(SCREEN_WIDTH - MINI_MAP_WIDTH, SCREEN_HEIGHT - MINI_MAP_HEIGHT, MINI_MAP_WIDTH, MINI_MAP_HEIGHT)
     mini_map = pg.Surface((MINI_MAP_WIDTH, MINI_MAP_HEIGHT))
     mini_map.fill((0, 0, 0))
     
-    # Compute dynamic mini_zoom to fit the map as a diamond
-    total_extent = map_width + map_height
-    mini_zoom = 2.0 * MINI_MAP_WIDTH / total_extent
+    min_x1, max_x1, min_y1, max_y1 = get_iso_bounds(map_width, map_height, 1.0)
+    span_x1 = max_x1 - min_x1
+    span_y1 = max_y1 - min_y1
+    mini_zoom = min(MINI_MAP_WIDTH / span_x1, MINI_MAP_HEIGHT / span_y1)
     
-    # Compute offsets to center the map diamond in the minimap
-    mw2 = map_width / 2.0
-    mh2 = map_height / 2.0
-    center_iso_x = (mw2 - mh2) * (mini_zoom / 2)
-    center_iso_y = (mw2 + mh2) * (mini_zoom / 4)
-    offset_x = MINI_MAP_WIDTH / 2.0 - center_iso_x
-    offset_y = MINI_MAP_HEIGHT / 2.0 - center_iso_y
-    
-    # Function for absolute world to minimap isometric coordinates
-    def world_to_mini_iso(world_pos: tuple[float, float]) -> tuple[float, float]:
-        dx = world_pos[0]
-        dy = world_pos[1]
-        iso_x = (dx - dy) * (mini_zoom / 2)
-        iso_y = (dx + dy) * (mini_zoom / 4)
-        return (iso_x + offset_x, iso_y + offset_y)
+    center_offset_x = (MINI_MAP_WIDTH - span_x1 * mini_zoom) / 2
+    center_offset_y = (MINI_MAP_HEIGHT - span_y1 * mini_zoom) / 2
+    draw_offset_x = center_offset_x - min_x1 * mini_zoom
+    draw_offset_y = center_offset_y - min_y1 * mini_zoom
     
     tile_size_world = TILE_SIZE
     num_tx = map_width // tile_size_world
@@ -2287,7 +2459,6 @@ def draw_mini_map(screen: pg.Surface, camera: Camera, fog_of_war: FogOfWar, map_
     
     base_r, base_g, base_b = map_color
     
-    # Draw terrain tiles in isometric projection
     for tx in range(num_tx):
         for ty in range(num_ty):
             tile_center_x = (tx + 0.5) * tile_size_world
@@ -2295,19 +2466,23 @@ def draw_mini_map(screen: pg.Surface, camera: Camera, fog_of_war: FogOfWar, map_
             if not fog_of_war.is_explored((tile_center_x, tile_center_y)):
                 continue
             
-            # World corners of this tile
             c1 = (tx * tile_size_world, ty * tile_size_world)
             c2 = (c1[0] + tile_size_world, c1[1])
             c3 = (c2[0], c2[1] + tile_size_world)
             c4 = (c1[0], c3[1])
             
-            # Transform to minimap iso coords
-            iso1 = world_to_mini_iso(c1)
-            iso2 = world_to_mini_iso(c2)
-            iso3 = world_to_mini_iso(c3)
-            iso4 = world_to_mini_iso(c4)
+            iso_c1 = absolute_world_to_iso(c1, mini_zoom)
+            iso_c2 = absolute_world_to_iso(c2, mini_zoom)
+            iso_c3 = absolute_world_to_iso(c3, mini_zoom)
+            iso_c4 = absolute_world_to_iso(c4, mini_zoom)
             
-            # Tile color variation
+            draw_points = [
+                (iso_c1[0] + draw_offset_x, iso_c1[1] + draw_offset_y),
+                (iso_c2[0] + draw_offset_x, iso_c2[1] + draw_offset_y),
+                (iso_c3[0] + draw_offset_x, iso_c3[1] + draw_offset_y),
+                (iso_c4[0] + draw_offset_x, iso_c4[1] + draw_offset_y),
+            ]
+            
             var_r = ((tx * 17 + ty * 31) % 41) - 20
             var_g = ((tx * 23 + ty * 37) % 41) - 20
             var_b = ((tx * 29 + ty * 41) % 41) - 20
@@ -2315,52 +2490,91 @@ def draw_mini_map(screen: pg.Surface, camera: Camera, fog_of_war: FogOfWar, map_
             tile_g = max(0, min(255, base_g + var_g))
             tile_b = max(0, min(255, base_b + var_b))
             
-            # Fog darkening
             if not fog_of_war.is_visible((tile_center_x, tile_center_y)):
                 avg = (tile_r + tile_g + tile_b) // 3
                 tile_r = tile_g = tile_b = avg
             
-            pg.draw.polygon(mini_map, (tile_r, tile_g, tile_b), [iso1, iso2, iso3, iso4])
+            pg.draw.polygon(mini_map, (tile_r, tile_g, tile_b), draw_points)
             
-            # Craters
             crater_seed = (tx * 123 + ty * 456) % 100
             if crater_seed < 5:
                 crater_center = ((c1[0] + c3[0]) / 2, (c1[1] + c3[1]) / 2)
-                iso_crater = world_to_mini_iso(crater_center)
+                iso_crater = absolute_world_to_iso(crater_center, mini_zoom)
+                draw_crater = (iso_crater[0] + draw_offset_x, iso_crater[1] + draw_offset_y)
                 cr_radius = int(tile_size_world * mini_zoom / 4)
                 dark_r = max(0, tile_r - 40)
                 dark_g = max(0, tile_g - 40)
                 dark_b = max(0, tile_b - 40)
                 if cr_radius > 0:
-                    pg.draw.circle(mini_map, (dark_r, dark_g, dark_b), (int(iso_crater[0]), int(iso_crater[1])), cr_radius)
+                    pg.draw.circle(mini_map, (dark_r, dark_g, dark_b), (int(draw_crater[0]), int(draw_crater[1])), cr_radius)
     
-    # Draw buildings in iso
     for building in buildings:
         if building.health > 0 and (building.team in player_allies or building.is_seen) and fog_of_war.is_explored(building.position):
-            iso_pos = world_to_mini_iso(building.position)
-            size = 3  # Small diamond-ish rect for building
+            iso_pos = absolute_world_to_iso(building.position, mini_zoom)
+            draw_pos = (iso_pos[0] + draw_offset_x, iso_pos[1] + draw_offset_y)
+            size = 3
             color = team_to_color[building.team]
-            pg.draw.rect(mini_map, color, (iso_pos[0] - size, iso_pos[1] - size, size * 2, size * 2))
+            pg.draw.rect(mini_map, color, (draw_pos[0] - size, draw_pos[1] - size, size * 2, size * 2))
     
-    # Draw units in iso
     for unit in all_units:
         if unit.health > 0 and (unit.team in player_allies or fog_of_war.is_visible(unit.position)):
-            iso_pos = world_to_mini_iso(unit.position)
+            iso_pos = absolute_world_to_iso(unit.position, mini_zoom)
+            draw_pos = (iso_pos[0] + draw_offset_x, iso_pos[1] + draw_offset_y)
             color = team_to_color[unit.team]
-            pg.draw.circle(mini_map, color, (int(iso_pos[0]), int(iso_pos[1])), 1)
+            pg.draw.circle(mini_map, color, (int(draw_pos[0]), int(draw_pos[1])), 1)
     
-    # Camera view rect in iso (as polygon for accuracy)
-    cam_corners = [
-        camera.rect.topleft,
-        camera.rect.topright,
-        camera.rect.bottomright,
-        camera.rect.bottomleft,
-    ]
-    iso_corners = [world_to_mini_iso(c) for c in cam_corners]
-    pg.draw.polygon(mini_map, (255, 255, 255), iso_corners, 1)
+    cam_world_tl = (camera.rect.x, camera.rect.y)
+    cam_world_br = (camera.rect.right, camera.rect.bottom)
+    cam_corners = [cam_world_tl, (cam_world_br[0], cam_world_tl[1]), cam_world_br, (cam_world_tl[0], cam_world_br[1])]
+    iso_cams = [absolute_world_to_iso(c, mini_zoom) for c in cam_corners]
+    cam_draw_points = [(ix + draw_offset_x, iy + draw_offset_y) for ix, iy in iso_cams]
+    pg.draw.polygon(mini_map, (255, 255, 255), cam_draw_points, 1)
     
     screen.blit(mini_map, (SCREEN_WIDTH - MINI_MAP_WIDTH, SCREEN_HEIGHT - MINI_MAP_HEIGHT))
     return mini_map_rect
+
+def draw_fitness_panel(screen: pg.Surface, g):
+    panel_x = 10
+    panel_y = 10
+    panel_width = 250
+    panel_height = 280
+    panel_rect = pg.Rect(panel_x, panel_y, panel_width, panel_height)
+    panel_surf = pg.Surface((panel_width, panel_height), pg.SRCALPHA)
+    panel_surf.fill((40, 40, 40, 128))
+    screen.blit(panel_surf, panel_rect.topleft)
+    pg.draw.rect(screen, (100, 100, 100), panel_rect, 2)
+    
+    font = g["font"]
+    y_offset = panel_y + 10
+    title_surf = font.render("Fitness", True, (255, 255, 255))
+    screen.blit(title_surf, (panel_x + 10, y_offset))
+    y_offset += 30
+    
+    for team in g["teams"]:
+        hq = g["hqs"][team]
+        if hq.health <= 0:
+            continue
+        
+        name = team_to_name[team]
+        fitness = g["current_fitness"].get(team, 0)
+        delta = g["fitness_deltas"].get(team, 0)
+        
+        # Name
+        name_surf = font.render(f"{name}:", True, team_to_color[team])
+        screen.blit(name_surf, (panel_x + 10, y_offset))
+        
+        # Fitness value
+        value_surf = font.render(str(fitness), True, (255, 255, 255))
+        screen.blit(value_surf, (panel_x + 70, y_offset))
+        
+        # Delta
+        if delta != 0:
+            delta_text = f"{ '+' if delta > 0 else ''}{delta}"
+            delta_color = (0, 255, 0) if delta > 0 else (255, 0, 0)
+            delta_surf = font.render(delta_text, True, delta_color)
+            screen.blit(delta_surf, (panel_x + 120, y_offset))
+        
+        y_offset += 25
 
 def handle_unit_collisions(all_units: list, unit_hash: SpatialHash):
     for i, unit in enumerate(all_units):
@@ -2859,6 +3073,8 @@ class GameManager:
         map_width = int(base_width * scale)
         map_height = int(base_height * scale)
         
+        terrain_features = generate_terrain_features(map_name, map_width, map_height)
+        
         player_units = pg.sprite.Group()
         ai_units = pg.sprite.Group()
         global_units = pg.sprite.Group()
@@ -2900,6 +3116,8 @@ class GameManager:
         for i, team in enumerate(teams_list):
             pos = positions[i]
             hq = Headquarters(pos, team)
+            hq.map_width = map_width
+            hq.map_height = map_height
             hq.stats = {
                 "units_created": 3,
                 "units_lost": 0,
@@ -2913,8 +3131,11 @@ class GameManager:
             hqs[team] = hq
             units = pg.sprite.Group()
             for j in range(3):
-                offset = find_free_spawn_position(pos, pos, global_buildings.sprites(), global_units.sprites())
-                units.add(Infantry(offset, team, hq=hq))
+                offset = find_free_spawn_position(pos, pos, global_buildings.sprites(), global_units.sprites(), map_width=map_width, map_height=map_height)
+                unit = Infantry(offset, team, hq=hq)
+                unit.map_width = map_width
+                unit.map_height = map_height
+                units.add(unit)
             unit_groups[team] = units
         
         if not spectate:
@@ -2963,8 +3184,7 @@ class GameManager:
             ai = AI(hqs[team], GameConsole(), build_dir=build_dir, allies=alliances[team])
             ais.append(ai)
         
-        view_width = SCREEN_WIDTH - 200 if not spectate else SCREEN_WIDTH
-        camera = Camera(view_width=view_width, view_height=SCREEN_HEIGHT)
+        camera = Camera()
         camera.map_width = map_width
         camera.map_height = map_height
         if spectate:
@@ -3009,6 +3229,10 @@ class GameManager:
             "interface_rect": interface_rect,
             "spectator": spectate,
             "teams": teams_list,
+            "terrain_features": terrain_features,
+            "previous_fitness": {team: 0 for team in teams_list},
+            "current_fitness": {},
+            "fitness_deltas": {},
         }
     
     def run_game(self):
@@ -3023,8 +3247,7 @@ class GameManager:
                     mouse_pos = pg.mouse.get_pos()
                     game_rect = pg.Rect(0, 0, g["camera"].width, g["camera"].height)
                     if game_rect.collidepoint(mouse_pos):
-                        world_mouse = g["camera"].screen_to_world(mouse_pos)
-                        g["camera"].update_zoom(event.y, world_mouse)
+                        g["camera"].update_zoom(event.y, mouse_pos)
                 elif event.type == pg.MOUSEBUTTONDOWN:
                     mouse_pos = event.pos
                     mini_x = SCREEN_WIDTH - MINI_MAP_WIDTH
@@ -3035,11 +3258,8 @@ class GameManager:
                     if in_minimap and event.button == 1:
                         local_x = mouse_pos[0] - mini_x
                         local_y = mouse_pos[1] - mini_y
-                        # Adjust for isometric projection in minimap for click-to-pan
-                        # Inverse approximate: treat as top-down for simplicity, or implement inverse
                         scale_x = g["map_width"] / MINI_MAP_WIDTH
                         scale_y = g["map_height"] / MINI_MAP_HEIGHT
-                        # Simple linear for pan, since diamond but approx
                         world_x = local_x * scale_x
                         world_y = local_y * scale_y
                         g["camera"].rect.centerx = world_x
@@ -3061,6 +3281,7 @@ class GameManager:
                         continue
                     
                     world_pos = g["camera"].screen_to_world(mouse_pos)
+                    world_pos = (max(0, min(world_pos[0], g["map_width"])), max(0, min(world_pos[1], g["map_height"])))
                     target_x, target_y = mouse_pos
                     
                     if event.button == 1:
@@ -3087,6 +3308,8 @@ class GameManager:
                                 g["map_width"], g["map_height"]
                             ):
                                 building = g["interface"].placing_cls(snapped, g["player_team"], hq=g["player_hq"])
+                                building.map_width = g["map_width"]
+                                building.map_height = g["map_height"]
                                 g["global_buildings"].add(building)
                                 g["player_hq"].credits -= cost
                                 g["interface"].placing_cls = None
@@ -3238,6 +3461,7 @@ class GameManager:
             
             handle_unit_collisions(unit_list, unit_hash)
             handle_unit_building_collisions(unit_list, building_list, building_hash)
+            
             for unit in unit_list:
                 unit.rect.center = unit.position
             
@@ -3256,6 +3480,26 @@ class GameManager:
                 enemy_units_list = [u for team, ug in g["unit_groups"].items() if team not in ai.allies for u in ug.sprites() if u.health > 0]
                 enemy_buildings_list = [b for b in building_list if b.team not in ai.allies]
                 ai.update(friendly_units_list, friendly_buildings_list, enemy_units_list, enemy_buildings_list, g["global_buildings"], g["map_width"], g["map_height"])
+            
+            # Update fitness
+            if "previous_fitness" not in g:
+                g["previous_fitness"] = {team: 0 for team in g["teams"]}
+            g["current_fitness"] = {}
+            g["fitness_deltas"] = {}
+            for team in g["teams"]:
+                hq = g["hqs"][team]
+                if hq.health > 0:
+                    stats = hq.stats
+                    fitness = (stats.get('units_destroyed', 0) * 10 +
+                               stats.get('buildings_destroyed', 0) * 20 -
+                               stats.get('units_lost', 0) * 5 -
+                               stats.get('buildings_lost', 0) * 10 +
+                               stats.get('credits_earned', 0) // 50)
+                    g["current_fitness"][team] = fitness
+                    prev = g["previous_fitness"].get(team, 0)
+                    delta = fitness - prev
+                    g["fitness_deltas"][team] = delta
+                    g["previous_fitness"][team] = fitness
             
             if not g.get("spectator", False):
                 ally_units = [u for team in g["player_allies"] for u in g["unit_groups"][team].sprites()]
@@ -3288,10 +3532,13 @@ class GameManager:
             map_color = g["map_color"]
             base_r, base_g, base_b = map_color
             zoom = g["camera"].zoom
-            start_tx = max(0, int((g["camera"].rect.x - TILE_SIZE * 2) // TILE_SIZE))
-            start_ty = max(0, int((g["camera"].rect.y - TILE_SIZE * 2) // TILE_SIZE))
-            end_tx = min(g["map_width"] // TILE_SIZE, int((g["camera"].rect.right + TILE_SIZE * 2) // TILE_SIZE) + 1)
-            end_ty = min(g["map_height"] // TILE_SIZE, int((g["camera"].rect.bottom + TILE_SIZE * 2) // TILE_SIZE) + 1)
+            min_wx, max_wx, min_wy, max_wy = g["camera"].get_render_bounds()
+            num_tx = g["map_width"] // TILE_SIZE
+            num_ty = g["map_height"] // TILE_SIZE
+            start_tx = max(0, int(min_wx // TILE_SIZE))
+            start_ty = max(0, int(min_wy // TILE_SIZE))
+            end_tx = min(num_tx, int(max_wx // TILE_SIZE) + 2)
+            end_ty = min(num_ty, int(max_wy // TILE_SIZE) + 2)
             for tx in range(start_tx, end_tx):
                 wx = tx * TILE_SIZE
                 for ty in range(start_ty, end_ty):
@@ -3320,6 +3567,10 @@ class GameManager:
                         dark_g = max(0, tile_g - 40)
                         dark_b = max(0, tile_b - 40)
                         pg.draw.circle(self.screen, (dark_r, dark_g, dark_b), (int(iso_center[0]), int(iso_center[1])), int(cr))
+            
+            for feature in g["terrain_features"]:
+                if g["fog_of_war"].is_visible(feature.position):
+                    feature.draw(self.screen, g["camera"])
             
             draw_allies = set(g["teams"]) if g.get("spectator", False) else g["player_allies"]
             fog = g["fog_of_war"]
@@ -3373,6 +3624,8 @@ class GameManager:
             
             draw_allies_mini = set(g["teams"]) if g.get("spectator", False) else g["player_allies"]
             mini_rect = draw_mini_map(self.screen, g["camera"], g["fog_of_war"], g["map_width"], g["map_height"], g["map_color"], g["global_buildings"], g["global_units"], draw_allies_mini)
+            
+            draw_fitness_panel(self.screen, g)
             
             pg.display.flip()
             self.clock.tick(60)
