@@ -2,6 +2,8 @@ Pygame-RTS is an open source real time strategy game engine made using pygame an
 
 Features
 
+Two versions, a flat top down version or an isometric version allowing for more complex unit and building geometry.
+
 Base Building & Economy: Construct headquarters, barracks, factories, power plants, and resource extractors (e.g., Oil Derricks, Refineries). Manage credits and power to expand your empire.
 
 Unit Production & Combat: Train infantry, tanks, helicopters, and more. Units auto-target enemies with projectile-based combat, chase mechanics, and formation movement.
