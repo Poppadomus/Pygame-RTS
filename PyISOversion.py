@@ -1,10 +1,10 @@
-from __future__ import annotations
+from __future__ import annotations 
 
 import math
 import random
 from dataclasses import InitVar, dataclass, field as dataclass_field
 from enum import Enum
-from typing import TYPE_CHECKING, Any, ClassVar, Dict, Type, Set
+from typing import TYPE_CHECKING, Any, ClassVar, Dict, Type, Set, List
 from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor
 import threading
@@ -89,12 +89,28 @@ UNIT_CLASSES = {
         "attack_range": 80,
         "sight_range": 120,
         "weapons": [
-            {"name": "Rifle", "damage": 10, "fire_rate": 0.5, "projectile_speed": 10, "projectile_length": 1, "projectile_width": 1, "cooldown": 25}
+            {"name": "Rifle", "damage": 10, "fire_rate": 0.5, "projectile_speed": 25, "projectile_length": 1, "projectile_width": 1, "cooldown": 25}
         ],
         "size": (16, 16),
         "air": False,
         "is_building": False,
         "height": 8
+    },
+    "Marksman": {
+        "cost": 150,
+        "hp": 45,
+        "speed": 0.6,
+        "attack_range": 150,
+        "sight_range": 150,
+        "weapons": [
+            {"name": "Sniper", "damage": 25, "fire_rate": 0.3, "projectile_speed": 30, "projectile_length": 1, "projectile_width": 1, "cooldown": 60}
+        ],
+        "size": (16, 16),
+        "air": False,
+        "is_building": False,
+        "height": 6,
+        "rifle_length": 4.8,
+        "rifle_thickness": 1
     },
     "Tank": {
         "cost": 700,
@@ -103,12 +119,64 @@ UNIT_CLASSES = {
         "attack_range": 80,
         "sight_range": 200,
         "weapons": [
-            {"name": "Cannon", "damage": 80, "fire_rate": 0.6, "projectile_speed": 10, "projectile_length": 1, "projectile_width": 2, "cooldown": 50}
+            {"name": "Cannon", "damage": 80, "fire_rate": 0.6, "projectile_speed": 30, "projectile_length": 1, "projectile_width": 2, "cooldown": 50}
         ],
         "size": (30, 20),
         "air": False,
         "is_building": False,
-        "height": 5
+        "height": 5,
+        "turret_width": 12,
+        "turret_depth": 8,
+        "turret_height": 3,
+        "barrel_length": 20,
+        "barrel_width": 3,
+        "barrel_height": 4,
+        "turret_offset_x": 0,
+        "turret_offset_y": 0
+    },
+    "HeavyTank": {
+        "cost": 1200,
+        "hp": 500,
+        "speed": 0.6,
+        "attack_range": 90,
+        "sight_range": 220,
+        "weapons": [
+            {"name": "Heavy Cannon", "damage": 120, "fire_rate": 0.4, "projectile_speed": 25, "projectile_length": 2, "projectile_width": 3, "cooldown": 70}
+        ],
+        "size": (40, 25),
+        "air": False,
+        "is_building": False,
+        "height": 6,
+        "turret_width": 16,
+        "turret_depth": 10,
+        "turret_height": 4,
+        "barrel_length": 25,
+        "barrel_width": 4,
+        "barrel_height": 5,
+        "turret_offset_x": 0,
+        "turret_offset_y": 0
+    },
+    "TankDestroyer": {
+        "cost": 900,
+        "hp": 250,
+        "speed": 0.7,
+        "attack_range": 150,
+        "sight_range": 250,
+        "weapons": [
+            {"name": "Destroyer Gun", "damage": 150, "fire_rate": 0.3, "projectile_speed": 35, "projectile_length": 1, "projectile_width": 2, "cooldown": 90}
+        ],
+        "size": (35, 22),
+        "air": False,
+        "is_building": False,
+        "height": 5,
+        "turret_width": 14,
+        "turret_depth": 9,
+        "turret_height": 3,
+        "barrel_length": 30,
+        "barrel_width": 3,
+        "barrel_height": 4,
+        "turret_offset_x": 0,
+        "turret_offset_y": 0
     },
     "Grenadier": {
         "cost": 300,
@@ -117,7 +185,7 @@ UNIT_CLASSES = {
         "attack_range": 100,
         "sight_range": 120,
         "weapons": [
-            {"name": "Grenade", "damage": 20, "fire_rate": 0.5, "projectile_speed": 10, "projectile_length": 1, "projectile_width": 1, "cooldown": 20}
+            {"name": "Grenade", "damage": 20, "fire_rate": 0.5, "projectile_speed": 15, "projectile_length": 1, "projectile_width": 1, "cooldown": 20}
         ],
         "size": (16, 16),
         "air": False,
@@ -136,7 +204,9 @@ UNIT_CLASSES = {
         "size": (16, 16),
         "air": False,
         "is_building": False,
-        "height": 8
+        "height": 8,
+        "rocket_length": 2.8,
+        "rocket_thickness": 1
     },
     "MachineGunVehicle": {
         "cost": 500,
@@ -150,7 +220,12 @@ UNIT_CLASSES = {
         "size": (35, 25),
         "air": False,
         "is_building": False,
-        "height": 6
+        "height": 6,
+        "turret_width": 9,
+        "turret_depth": 6,
+        "turret_height": 2,
+        "turret_offset_x": 0,
+        "turret_offset_y": 0
     },
     "RocketArtillery": {
         "cost": 800,
@@ -164,7 +239,12 @@ UNIT_CLASSES = {
         "size": (40, 25),
         "air": False,
         "is_building": False,
-        "height": 8
+        "height": 8,
+        "turret_width": 20,
+        "turret_depth": 8,
+        "turret_height": 6,
+        "turret_offset_x": 0,
+        "turret_offset_y": 0
     },
     "AttackHelicopter": {
         "cost": 1000,
@@ -179,7 +259,12 @@ UNIT_CLASSES = {
         "air": True,
         "fly_height": 10,
         "is_building": False,
-        "height": 4
+        "height": 4,
+        "turret_width": 5,
+        "turret_depth": 3,
+        "turret_height": 1,
+        "turret_offset_x": 0,
+        "turret_offset_y": 0
     },
     "Headquarters": {
         "cost": 1000,
@@ -201,7 +286,7 @@ UNIT_CLASSES = {
         "attack_range": 0,
         "sight_range": 200,
         "weapons": [],
-        "producible": ["Infantry", "Grenadier", "RocketSoldier"],
+        "producible": ["Infantry", "Grenadier", "RocketSoldier", "Marksman"],
         "production_time": 60,
         "size": (32, 32),
         "air": False,
@@ -215,7 +300,7 @@ UNIT_CLASSES = {
         "attack_range": 0,
         "sight_range": 200,
         "weapons": [],
-        "producible": ["Tank", "MachineGunVehicle", "RocketArtillery"],
+        "producible": ["Tank", "HeavyTank", "TankDestroyer", "MachineGunVehicle", "RocketArtillery"],
         "production_time": 60,
         "size": (40, 32),
         "air": False,
@@ -322,7 +407,7 @@ UNIT_CLASSES = {
 
 PROJECTILE_LIFETIME = 1.0
 PARTICLES_PER_EXPLOSION = 3
-PLASMA_BURN_PARTICLES = 3
+PLASMA_BURN_PARTICLES = 0
 PLASMA_BURN_DURATION = 1.0
 
 class TerrainFeature:
@@ -850,8 +935,8 @@ def create_explosion(position: tuple, particles: pg.sprite.Group, team: Team, co
     for _ in range(count):
         vx = random.uniform(-3, 3)
         vy = random.uniform(-3, 3)
-        size = random.randint(2, 4)
-        lifetime = random.randint(3, 7)
+        size = random.randint(1, 2)
+        lifetime = random.randint(1, 3)
         particles.add(Particle(position, vx, vy, size, color, lifetime))
 
 class Projectile(pg.sprite.Sprite):
@@ -1004,7 +1089,7 @@ class Unit(GameObject):
         self.attack_range = stats["attack_range"]
         self.weapons = stats["weapons"]
         self.is_building = stats["is_building"]
-        self.is_vehicle = unit_type in ["Tank", "MachineGunVehicle", "RocketArtillery", "AttackHelicopter"]
+        self.is_vehicle = unit_type in ["Tank", "HeavyTank", "TankDestroyer", "MachineGunVehicle", "RocketArtillery", "AttackHelicopter"]
         self.current_weapon = 0
         self.attack_target = None
         self.last_shot_time = 0
@@ -1094,82 +1179,200 @@ class Unit(GameObject):
         sin_a = math.sin(angle)
         team_color = self.team_color
         side_color = tuple(max(0, c - 50) for c in team_color)
+        highlight_color = tuple(min(255, c + 30) for c in team_color)  
         outline_color = pg.Color(0, 0, 0)
-
-        torso_w = 1.2
-        torso_d = 0.8
-        torso_h = 3.0
+        shadow_color = pg.Color(50, 50, 50, 100)  
+    
+        shadow_offset = (2 * zoom, 2 * zoom)
+        base_screen = camera.world_to_iso(pos, zoom)
+        shadow_r = int(4 * zoom)
+        pg.draw.ellipse(surface, shadow_color, (
+            int(base_screen[0] + shadow_offset[0] - shadow_r),
+            int(base_screen[1] + shadow_offset[1] - shadow_r // 2),
+            shadow_r * 2, shadow_r
+        ))
+    
+        torso_w = 1.1  
+        torso_d = 0.7
+        torso_h = 2.8
         torso_base_z = 2.0
-        self.draw_rotated_box(surface, camera, torso_w, torso_d, torso_h, angle, torso_base_z, team_color, side_color, team_color, outline_color, zoom, False)
-
+        self.draw_rotated_box(surface, camera, torso_w * 0.9, torso_d * 0.9, torso_h * 0.3, angle, torso_base_z + torso_h * 0.7,
+                              highlight_color, side_color, highlight_color, outline_color, zoom, False)
+        self.draw_rotated_box(surface, camera, torso_w, torso_d, torso_h, angle, torso_base_z, team_color, side_color,
+                              team_color, outline_color, zoom, False)
+    
         head_base_z = torso_base_z + torso_h
         head_offset_x = 0.0 * cos_a - 0.0 * sin_a
         head_offset_y = 0.0 * sin_a + 0.0 * cos_a
         head_pos_x = pos.x + head_offset_x
         head_pos_y = pos.y + head_offset_y
-        head_r_world = 0.5
+        head_r_world = 0.55
         head_center_3d = (head_pos_x, head_pos_y, head_base_z + head_r_world)
         head_screen = camera.world_to_iso_3d(*head_center_3d, zoom)
         scaled_head_r = int(head_r_world * zoom * 2)
         if scaled_head_r > 0:
             pg.draw.circle(surface, team_color, (int(head_screen[0]), int(head_screen[1])), scaled_head_r)
-            pg.draw.circle(surface, outline_color, (int(head_screen[0]), int(head_screen[1])), scaled_head_r, 1)
-
-        arm_length_world = 1.5
-        arm_start_z = torso_base_z + 1.5
-
-        left_offset_x = -0.6 * cos_a - 0.4 * sin_a
-        left_offset_y = -0.6 * sin_a + 0.4 * cos_a
+            eye_offset = int(0.3 * scaled_head_r)
+            eye_size = int(0.1 * scaled_head_r)
+            pg.draw.circle(surface, outline_color, (int(head_screen[0] - eye_offset * cos_a), int(head_screen[1] - eye_offset * sin_a)), eye_size)
+            pg.draw.circle(surface, outline_color, (int(head_screen[0] + eye_offset * cos_a), int(head_screen[1] + eye_offset * sin_a)), eye_size)
+            pg.draw.circle(surface, outline_color, (int(head_screen[0]), int(head_screen[1])), scaled_head_r, 2)
+    
+        arm_upper_length = 0.8
+        arm_lower_length = 0.7
+        arm_start_z = torso_base_z + 1.2
+        arm_thickness = int(1.5 * zoom)
+    
+        left_offset_x = -0.55 * cos_a - 0.35 * sin_a
+        left_offset_y = -0.55 * sin_a + 0.35 * cos_a
         arm_l_start_x = pos.x + left_offset_x
         arm_l_start_y = pos.y + left_offset_y
-        arm_l_end_x = arm_l_start_x - arm_length_world * cos_a
-        arm_l_end_y = arm_l_start_y - arm_length_world * sin_a
+        elbow_l_x = arm_l_start_x - arm_upper_length * cos_a
+        elbow_l_y = arm_l_start_y - arm_upper_length * sin_a
         p_l_start = camera.world_to_iso_3d(arm_l_start_x, arm_l_start_y, arm_start_z, zoom)
-        p_l_end = camera.world_to_iso_3d(arm_l_end_x, arm_l_end_y, arm_start_z, zoom)
-        pg.draw.line(surface, team_color, p_l_start, p_l_end, int(2 * zoom))
-        pg.draw.line(surface, outline_color, p_l_start, p_l_end, 1)
-
-        right_offset_x = 0.6 * cos_a - 0.4 * sin_a
-        right_offset_y = 0.6 * sin_a + 0.4 * cos_a
+        p_l_elbow = camera.world_to_iso_3d(elbow_l_x, elbow_l_y, arm_start_z - 0.1, zoom)  
+        pg.draw.line(surface, team_color, p_l_start, p_l_elbow, arm_thickness)
+        pg.draw.line(surface, outline_color, p_l_start, p_l_elbow, 1)
+        hand_l_x = elbow_l_x - arm_lower_length * cos_a
+        hand_l_y = elbow_l_y - arm_lower_length * sin_a
+        p_l_hand = camera.world_to_iso_3d(hand_l_x, hand_l_y, arm_start_z - 0.2, zoom)
+        pg.draw.line(surface, team_color, p_l_elbow, p_l_hand, arm_thickness - 1)
+        pg.draw.line(surface, outline_color, p_l_elbow, p_l_hand, 1)
+        pg.draw.circle(surface, team_color, (int(p_l_hand[0]), int(p_l_hand[1])), int(0.15 * zoom * 2), 0)
+        pg.draw.circle(surface, outline_color, (int(p_l_hand[0]), int(p_l_hand[1])), int(0.15 * zoom * 2), 1)
+    
+        right_offset_x = 0.55 * cos_a - 0.35 * sin_a
+        right_offset_y = 0.55 * sin_a + 0.35 * cos_a
         arm_r_start_x = pos.x + right_offset_x
         arm_r_start_y = pos.y + right_offset_y
-        arm_r_end_x = arm_r_start_x + arm_length_world * cos_a
-        arm_r_end_y = arm_r_start_y + arm_length_world * sin_a
+        elbow_r_x = arm_r_start_x + arm_upper_length * cos_a
+        elbow_r_y = arm_r_start_y + arm_upper_length * sin_a
         p_r_start = camera.world_to_iso_3d(arm_r_start_x, arm_r_start_y, arm_start_z, zoom)
-        p_r_end = camera.world_to_iso_3d(arm_r_end_x, arm_r_end_y, arm_start_z, zoom)
-        pg.draw.line(surface, team_color, p_r_start, p_r_end, int(2 * zoom))
-        pg.draw.line(surface, outline_color, p_r_start, p_r_end, 1)
-
-        leg_length_world = 2.0
+        p_r_elbow = camera.world_to_iso_3d(elbow_r_x, elbow_r_y, arm_start_z - 0.1, zoom)
+        pg.draw.line(surface, team_color, p_r_start, p_r_elbow, arm_thickness)
+        pg.draw.line(surface, outline_color, p_r_start, p_r_elbow, 1)
+        hand_r_x = elbow_r_x + arm_lower_length * cos_a
+        hand_r_y = elbow_r_y + arm_lower_length * sin_a
+        p_r_hand = camera.world_to_iso_3d(hand_r_x, hand_r_y, arm_start_z - 0.2, zoom)
+        pg.draw.line(surface, team_color, p_r_elbow, p_r_hand, arm_thickness - 1)
+        pg.draw.line(surface, outline_color, p_r_elbow, p_r_hand, 1)
+        pg.draw.circle(surface, team_color, (int(p_r_hand[0]), int(p_r_hand[1])), int(0.15 * zoom * 2), 0)
+        pg.draw.circle(surface, outline_color, (int(p_r_hand[0]), int(p_r_hand[1])), int(0.15 * zoom * 2), 1)
+    
+        leg_thigh_length = 1.0
+        leg_shin_length = 1.0
         leg_start_z = 0.0
-
-        leg_l_offset_x = -0.3 * cos_a - 0.2 * sin_a
-        leg_l_offset_y = -0.3 * sin_a + 0.2 * cos_a
+        leg_thickness = int(2.5 * zoom)
+    
+        leg_l_offset_x = -0.25 * cos_a - 0.15 * sin_a
+        leg_l_offset_y = -0.25 * sin_a + 0.15 * cos_a
         leg_l_start_x = pos.x + leg_l_offset_x
         leg_l_start_y = pos.y + leg_l_offset_y
-        leg_l_end_x = leg_l_start_x - leg_length_world * sin_a  
-        leg_l_end_y = leg_l_start_y + leg_length_world * cos_a
+        knee_l_x = leg_l_start_x - leg_thigh_length * sin_a
+        knee_l_y = leg_l_start_y + leg_thigh_length * cos_a
         p_leg_l_start = camera.world_to_iso_3d(leg_l_start_x, leg_l_start_y, leg_start_z, zoom)
-        p_leg_l_end = camera.world_to_iso_3d(leg_l_end_x, leg_l_end_y, leg_start_z, zoom)
-        pg.draw.line(surface, team_color, p_leg_l_start, p_leg_l_end, int(3 * zoom))
-        pg.draw.line(surface, outline_color, p_leg_l_start, p_leg_l_end, 1)
-
-        leg_r_offset_x = 0.3 * cos_a - 0.2 * sin_a
-        leg_r_offset_y = 0.3 * sin_a + 0.2 * cos_a
+        p_leg_l_knee = camera.world_to_iso_3d(knee_l_x, knee_l_y, leg_start_z + 0.1, zoom)  
+        pg.draw.line(surface, team_color, p_leg_l_start, p_leg_l_knee, leg_thickness)
+        pg.draw.line(surface, outline_color, p_leg_l_start, p_leg_l_knee, 1)
+        foot_l_x = knee_l_x - leg_shin_length * sin_a
+        foot_l_y = knee_l_y + leg_shin_length * cos_a
+        p_leg_l_foot = camera.world_to_iso_3d(foot_l_x, foot_l_y, leg_start_z, zoom)
+        pg.draw.line(surface, team_color, p_leg_l_knee, p_leg_l_foot, leg_thickness - 1)
+        pg.draw.line(surface, outline_color, p_leg_l_knee, p_leg_l_foot, 1)
+        foot_w = int(0.4 * zoom * 2)
+        foot_h = int(0.2 * zoom * 2)
+        pg.draw.ellipse(surface, team_color, (
+            int(p_leg_l_foot[0] - foot_w // 2), int(p_leg_l_foot[1] - foot_h // 2), foot_w, foot_h
+        ))
+        pg.draw.ellipse(surface, outline_color, (
+            int(p_leg_l_foot[0] - foot_w // 2), int(p_leg_l_foot[1] - foot_h // 2), foot_w, foot_h
+        ), 1)
+    
+        leg_r_offset_x = 0.25 * cos_a - 0.15 * sin_a
+        leg_r_offset_y = 0.25 * sin_a + 0.15 * cos_a
         leg_r_start_x = pos.x + leg_r_offset_x
         leg_r_start_y = pos.y + leg_r_offset_y
-        leg_r_end_x = leg_r_start_x + leg_length_world * sin_a
-        leg_r_end_y = leg_r_start_y - leg_length_world * cos_a
+        knee_r_x = leg_r_start_x + leg_thigh_length * sin_a
+        knee_r_y = leg_r_start_y - leg_thigh_length * cos_a
         p_leg_r_start = camera.world_to_iso_3d(leg_r_start_x, leg_r_start_y, leg_start_z, zoom)
-        p_leg_r_end = camera.world_to_iso_3d(leg_r_end_x, leg_r_end_y, leg_start_z, zoom)
-        pg.draw.line(surface, team_color, p_leg_r_start, p_leg_r_end, int(3 * zoom))
-        pg.draw.line(surface, outline_color, p_leg_r_start, p_leg_r_end, 1)
-
+        p_leg_r_knee = camera.world_to_iso_3d(knee_r_x, knee_r_y, leg_start_z + 0.1, zoom)
+        pg.draw.line(surface, team_color, p_leg_r_start, p_leg_r_knee, leg_thickness)
+        pg.draw.line(surface, outline_color, p_leg_r_start, p_leg_r_knee, 1)
+        foot_r_x = knee_r_x + leg_shin_length * sin_a
+        foot_r_y = knee_r_y - leg_shin_length * cos_a
+        p_leg_r_foot = camera.world_to_iso_3d(foot_r_x, foot_r_y, leg_start_z, zoom)
+        pg.draw.line(surface, team_color, p_leg_r_knee, p_leg_r_foot, leg_thickness - 1)
+        pg.draw.line(surface, outline_color, p_leg_r_knee, p_leg_r_foot, 1)
+        pg.draw.ellipse(surface, team_color, (
+            int(p_leg_r_foot[0] - foot_w // 2), int(p_leg_r_foot[1] - foot_h // 2), foot_w, foot_h
+        ))
+        pg.draw.ellipse(surface, outline_color, (
+            int(p_leg_r_foot[0] - foot_w // 2), int(p_leg_r_foot[1] - foot_h // 2), foot_w, foot_h
+        ), 1)
+    
+        weapon_z = arm_start_z - 0.1
+        arm_r_end_x, arm_r_end_y = hand_r_x, hand_r_y  
+        if self.unit_type == "RocketSoldier":
+            rocket_length = self.stats["rocket_length"]
+            rocket_width = int(self.stats["rocket_thickness"] * zoom)
+            shoulder_offset_x = 0.7 * cos_a - 0.5 * sin_a
+            shoulder_offset_y = 0.7 * sin_a + 0.5 * cos_a
+            rocket_start_x = pos.x + shoulder_offset_x
+            rocket_start_y = pos.y + shoulder_offset_y
+            rocket_end_x = rocket_start_x + rocket_length * sin_a
+            rocket_end_y = rocket_start_y - rocket_length * cos_a
+            p_rocket_start = camera.world_to_iso_3d(rocket_start_x, rocket_start_y, weapon_z, zoom)
+            p_rocket_end = camera.world_to_iso_3d(rocket_end_x, rocket_end_y, weapon_z, zoom)
+            pg.draw.line(surface, pg.Color(100, 100, 100), p_rocket_start, p_rocket_end, rocket_width)
+            pg.draw.line(surface, outline_color, p_rocket_start, p_rocket_end, 2)
+            grip_length = int(0.3 * zoom * 2)
+            grip_dir_perp_x = rocket_end_x - rocket_start_x  
+            grip_dir_perp_y = rocket_end_y - rocket_start_y
+            length = math.sqrt(grip_dir_perp_x**2 + grip_dir_perp_y**2)
+            if length > 0:
+                grip_dir_perp_x /= length
+                grip_dir_perp_y /= length
+                grip_perp_x = -grip_dir_perp_y * grip_length
+                grip_perp_y = grip_dir_perp_x * grip_length
+            grip_mid = ((p_rocket_start[0] + p_rocket_end[0]) / 2, (p_rocket_start[1] + p_rocket_end[1]) / 2)
+            p_grip_end1 = (grip_mid[0] + grip_perp_x, grip_mid[1] + grip_perp_y)
+            p_grip_end2 = (grip_mid[0] - grip_perp_x, grip_mid[1] - grip_perp_y)
+            pg.draw.line(surface, pg.Color(80, 80, 80), p_grip_end1, p_grip_end2, int(2 * zoom))
+            tip_r = int(3 * zoom)
+            pg.draw.circle(surface, pg.Color(150, 150, 150), (int(p_rocket_end[0]), int(p_rocket_end[1])), tip_r)
+            fin_length = int(1 * zoom)
+            for i in range(2):
+                fin_angle = math.pi / 4 + i * math.pi
+                fin_end_x = p_rocket_end[0] + fin_length * math.cos(fin_angle)
+                fin_end_y = p_rocket_end[1] + fin_length * math.sin(fin_angle)
+                pg.draw.line(surface, pg.Color(120, 120, 120), p_rocket_end, (fin_end_x, fin_end_y), 1)
+        elif self.unit_type == "Marksman":
+            rifle_length = self.stats["rifle_length"]
+            rifle_start_x = arm_r_end_x + 0.4 * cos_a
+            rifle_start_y = arm_r_end_y + 0.4 * sin_a
+            rifle_end_x = rifle_start_x + rifle_length * cos_a
+            rifle_end_y = rifle_start_y + rifle_length * sin_a
+            p_rifle_start = camera.world_to_iso_3d(rifle_start_x, rifle_start_y, weapon_z, zoom)
+            p_rifle_end = camera.world_to_iso_3d(rifle_end_x, rifle_end_y, weapon_z, zoom)
+            pg.draw.line(surface, pg.Color(80, 80, 80), p_rifle_start, p_rifle_end, int(self.stats["rifle_thickness"] * zoom))
+            pg.draw.line(surface, outline_color, p_rifle_start, p_rifle_end, 1)
+            stock_length = int(0.6 * zoom * 2)
+            stock_end_x = p_rifle_start[0] - stock_length * sin_a / zoom  
+            stock_end_y = p_rifle_start[1] + stock_length * cos_a / zoom
+            pg.draw.line(surface, pg.Color(60, 60, 60), p_rifle_start, (stock_end_x, stock_end_y), int(3 * zoom))
+            scope_pos = ((p_rifle_start[0] + p_rifle_end[0]) / 2, (p_rifle_start[1] + p_rifle_end[1]) / 2)
+            scope_r = int(1.2 * zoom)
+            pg.draw.circle(surface, pg.Color(120, 120, 120), (int(scope_pos[0]), int(scope_pos[1])), scope_r)
+            pg.draw.circle(surface, pg.Color(200, 200, 200), (int(scope_pos[0]), int(scope_pos[1])), scope_r - 1)  
+    
         if self.selected:
-            base_screen = camera.world_to_iso(pos, zoom)
-            select_r = int(8 * zoom)
-            pg.draw.circle(surface, (255, 255, 0), (int(base_screen[0]), int(base_screen[1])), select_r, int(2 * zoom))
-
+            select_r = int(10 * zoom)
+            pulse_alpha = int(128 + 127 * math.sin(pg.time.get_ticks() * 0.01))  
+            pulse_color = (*[255, 255, 0], pulse_alpha)
+            select_surf = pg.Surface((select_r * 2, select_r * 2), pg.SRCALPHA)
+            pg.draw.circle(select_surf, pulse_color, (select_r, select_r), select_r, int(3 * zoom))
+            surface.blit(select_surf, (int(base_screen[0] - select_r), int(base_screen[1] - select_r)))
+    
         self.draw_health_bar(surface, camera, mouse_pos)
         for particle in self.plasma_burn_particles:
             particle.draw(surface, camera)
@@ -1254,34 +1457,17 @@ class Unit(GameObject):
         self.draw_rotated_box(surface, camera, w, d, h, self.body_angle, base_z, self.team_color, side_color, roof_color, outline_color, zoom, False, p_bottom)
         if self.selected:
             pg.draw.polygon(surface, (255, 255, 0), p_bottom, int(2 * zoom))
-        if self.unit_type == "Tank":
-            turret_w = w * 0.4
-            turret_d = d * 0.4
-            turret_h = h * 0.6
-        elif self.unit_type == "MachineGunVehicle":
-            turret_w = w * 0.25
-            turret_d = d * 0.25
-            turret_h = h * 0.4
-        elif self.unit_type == "RocketArtillery":
-            turret_w = w * 0.5
-            turret_d = d * 0.3
-            turret_h = h * 0.8
-        elif self.unit_type == "AttackHelicopter":
-            turret_w = w * 0.2
-            turret_d = d * 0.2
-            turret_h = h * 0.3
-        else:
-            turret_w = w * 0.3
-            turret_d = d * 0.3
-            turret_h = h * 0.5
+        turret_w = self.stats["turret_width"]
+        turret_d = self.stats["turret_depth"]
+        turret_h = self.stats["turret_height"]
         turret_base_z = base_z + h
         self.draw_rotated_box(surface, camera, turret_w, turret_d, turret_h, self.turret_angle, turret_base_z, self.team_color, side_color, roof_color, outline_color, zoom, True)
-        if self.unit_type == "Tank":
-            barrel_length = 20
-            barrel_width = 3
-            barrel_height = 4
-            turret_center_x = pos.x
-            turret_center_y = pos.y
+        if self.unit_type in ["Tank", "HeavyTank", "TankDestroyer"]:
+            barrel_length = self.stats["barrel_length"]
+            barrel_width = self.stats["barrel_width"]
+            barrel_height = self.stats["barrel_height"]
+            turret_center_x = pos.x + self.stats["turret_offset_x"]
+            turret_center_y = pos.y + self.stats["turret_offset_y"]
             turret_center_z = turret_base_z + turret_h / 2
             cos_t = math.cos(self.turret_angle)
             sin_t = math.sin(self.turret_angle)
@@ -1349,7 +1535,7 @@ class Unit(GameObject):
     def _setup_drawing(self, unit_type: str):
         self.height = self.stats.get("height", 0)
         
-        if unit_type in ["Infantry", "Grenadier", "RocketSoldier"]:
+        if unit_type in ["Infantry", "Grenadier", "RocketSoldier", "Marksman"]:
             self.draw = self.draw_humanoid
         elif unit_type in ["Barracks", "WarFactory", "Hangar", "PowerPlant", 
                            "OilDerrick", "Refinery", "ShaleFracker", "BlackMarket", "Turret"]:
@@ -1359,29 +1545,31 @@ class Unit(GameObject):
     
     def _update_production(self, friendly_units, all_units):
         if self.production_queue:
-            if self.production_timer is None:
-                self.production_timer = self.stats["production_time"]
-            self.production_timer -= 1
-            if self.production_timer <= 0:
-                item = self.production_queue.pop(0)
-                unit_type = item['unit_type']
-                repeat = item.get('repeat', False)
-                spawn_pos = (self.rect.right, self.rect.centery)
-                try:
-                    new_unit = globals()[unit_type](spawn_pos, self.team, hq=self.hq)
-                except KeyError:
-                    new_unit = globals()["Infantry"](spawn_pos, self.team, hq=self.hq)
-                new_unit.map_width = self.map_width
-                new_unit.map_height = self.map_height
-                self.hq.stats['units_created'] += 1
-                new_unit.position = Vector2(spawn_pos)
-                new_unit.rect.center = new_unit.position
-                new_unit.move_target = self.rally_point
-                friendly_units.add(new_unit)
-                all_units.add(new_unit)
-                if repeat:
-                    self.production_queue.append({'unit_type': unit_type, 'repeat': True})
-                self.production_timer = None
+            current_unit_count = len(friendly_units)
+            if current_unit_count < 100:
+                if self.production_timer is None:
+                    self.production_timer = self.stats["production_time"]
+                self.production_timer -= 1
+                if self.production_timer <= 0:
+                    item = self.production_queue.pop(0)
+                    unit_type = item['unit_type']
+                    repeat = item.get('repeat', False)
+                    spawn_pos = (self.rect.right, self.rect.centery)
+                    try:
+                        new_unit = globals()[unit_type](spawn_pos, self.team, hq=self.hq)
+                    except KeyError:
+                        new_unit = globals()["Infantry"](spawn_pos, self.team, hq=self.hq)
+                    new_unit.map_width = self.map_width
+                    new_unit.map_height = self.map_height
+                    self.hq.stats['units_created'] += 1
+                    new_unit.position = Vector2(spawn_pos)
+                    new_unit.rect.center = new_unit.position
+                    new_unit.move_target = self.rally_point
+                    friendly_units.add(new_unit)
+                    all_units.add(new_unit)
+                    if repeat:
+                        self.production_queue.append({'unit_type': unit_type, 'repeat': True})
+                    self.production_timer = None
     
     def update(self, particles=None, friendly_units=None, all_units=None, global_buildings=None, projectiles=None, enemy_units=None, enemy_buildings=None):
         self.under_attack_timer = max(0, self.under_attack_timer - 1)
@@ -1508,6 +1696,10 @@ class Infantry(Unit):
     def __init__(self, position: tuple, team: Team, hq=None):
         super().__init__(position, team, "Infantry", hq=hq)
 
+class Marksman(Unit):
+    def __init__(self, position: tuple, team: Team, hq=None):
+        super().__init__(position, team, "Marksman", hq=hq)
+
 class RocketSoldier(Unit):
     def __init__(self, position: tuple, team: Team, hq=None):
         super().__init__(position, team, "RocketSoldier", hq=hq)
@@ -1515,6 +1707,14 @@ class RocketSoldier(Unit):
 class Tank(Unit):
     def __init__(self, position: tuple, team: Team, hq=None):
         super().__init__(position, team, "Tank", hq=hq)
+
+class HeavyTank(Unit):
+    def __init__(self, position: tuple, team: Team, hq=None):
+        super().__init__(position, team, "HeavyTank", hq=hq)
+
+class TankDestroyer(Unit):
+    def __init__(self, position: tuple, team: Team, hq=None):
+        super().__init__(position, team, "TankDestroyer", hq=hq)
 
 class Grenadier(Unit):
     def __init__(self, position: tuple, team: Team, hq=None):
@@ -1569,9 +1769,6 @@ class Headquarters(Unit):
             self.credits -= UNIT_CLASSES[unit_type]["cost"]
             self.pending_building = None
 
-import math
-import pygame as pg
-
 class PowerPlant(Unit):
     def __init__(self, position: tuple, team: Team, hq=None):
         super().__init__(position, team, "PowerPlant", hq=hq)
@@ -1592,50 +1789,25 @@ class PowerPlant(Unit):
         sin = math.sin(self.body_angle)
 
         main_w = w * 1.2
-        main_d = d * 1.0
-        main_h = h * 0.6
+        main_d = d * 1.2
+        main_h = h * 0.5
         self.draw_rotated_box(surface, camera, main_w, main_d, main_h, self.body_angle, base_z, self.team_color, side_color, self.team_color, outline_color, zoom, False, p_bottom)
 
-        elev_w = w * 0.6
-        elev_d = d * 0.6
-        elev_h = h * 0.4
-        elev_base_z = base_z + main_h
-        self.draw_rotated_box(surface, camera, elev_w, elev_d, elev_h, self.body_angle, elev_base_z, tuple(min(255, c + 20) for c in self.team_color), side_color, self.team_color, outline_color, zoom, False)
+        for offset in [-w * 0.3, w * 0.3]:
+            stack_x = pos.x + offset * cos
+            stack_y = pos.y + offset * sin
+            stack_base = (stack_x, stack_y, base_z + main_h)
+            stack_top = (stack_x, stack_y, stack_base[2] + h * 0.6)
+            p_stack_base = camera.world_to_iso_3d(*stack_base, zoom)
+            p_stack_top = camera.world_to_iso_3d(*stack_top, zoom)
+            pg.draw.line(surface, pg.Color(80, 80, 80), p_stack_base, p_stack_top, int(4 * zoom))
+            pg.draw.circle(surface, pg.Color(60, 60, 60), (int(p_stack_top[0]), int(p_stack_top[1])), int(3 * zoom))
 
-        vent_x = pos.x
-        vent_y = pos.y
-        vent_base = (vent_x, vent_y, elev_base_z + elev_h)
-        vent_top = (vent_x, vent_y, elev_base_z + elev_h + h * 0.5)
-        p_vent_base = camera.world_to_iso_3d(*vent_base, zoom)
-        p_vent_top = camera.world_to_iso_3d(*vent_top, zoom)
-        vent_color = pg.Color(80, 80, 80)
-        pg.draw.line(surface, vent_color, p_vent_base, p_vent_top, int(4 * zoom))
-        pg.draw.circle(surface, pg.Color(60, 60, 60), (int(p_vent_top[0]), int(p_vent_top[1])), int(3 * zoom))
-
-        for offset in [0.3, -0.3]:
-            for ang in [0, math.pi/2]:
-                tower_x = pos.x + offset * w * math.cos(self.body_angle + ang)
-                tower_y = pos.y + offset * w * math.sin(self.body_angle + ang)
-                tower_base = (tower_x, tower_y, base_z + main_h * 0.5)
-                tower_top = (tower_x, tower_y, tower_base[2] + h * 0.3)
-                p_tower_base = camera.world_to_iso_3d(*tower_base, zoom)
-                p_tower_top = camera.world_to_iso_3d(*tower_top, zoom)
-                radius = int(w * 0.08 * zoom)
-                pg.draw.circle(surface, pg.Color(100, 100, 100), (int(p_tower_base[0]), int(p_tower_base[1])), radius)
-                pg.draw.circle(surface, pg.Color(80, 80, 80), (int(p_tower_top[0]), int(p_tower_top[1])), radius - 1)
-                pg.draw.line(surface, outline_color, p_tower_base, p_tower_top, int(2 * zoom))
-
-        for i in range(4):
-            start_ang = i * math.pi / 2 + self.body_angle
-            start_x = pos.x + 0.4 * w * math.cos(start_ang)
-            start_y = pos.y + 0.4 * w * math.sin(start_ang)
-            end_ang = (i + 1) * math.pi / 2 + self.body_angle
-            end_x = pos.x + 0.4 * w * math.cos(end_ang)
-            end_y = pos.y + 0.4 * w * math.sin(end_ang)
-            pipe_z = base_z + main_h * 0.7
-            p_start = camera.world_to_iso_3d(start_x, start_y, pipe_z, zoom)
-            p_end = camera.world_to_iso_3d(end_x, end_y, pipe_z, zoom)
-            pg.draw.line(surface, pg.Color(120, 120, 120), p_start, p_end, int(2 * zoom))
+        tower_w = w * 0.8
+        tower_d = d * 0.8
+        tower_h = h * 0.7
+        tower_base_z = base_z
+        self.draw_rotated_box(surface, camera, tower_w, tower_d, tower_h, self.body_angle, tower_base_z, pg.Color(150, 150, 150), side_color, pg.Color(150, 150, 150), outline_color, zoom, False)
 
         if self.selected:
             pg.draw.polygon(surface, (255, 255, 0), p_bottom, int(2 * zoom))
@@ -1664,51 +1836,41 @@ class OilDerrick(Unit):
         cos = math.cos(self.body_angle)
         sin = math.sin(self.body_angle)
 
-        base_w = w * 1.8
-        base_d = d * 1.8
-        base_h = h * 0.15
+        base_w = w * 1.5
+        base_d = d * 1.5
+        base_h = h * 0.1
         self.draw_rotated_box(surface, camera, base_w, base_d, base_h, self.body_angle, base_z, self.team_color, side_color, self.team_color, outline_color, zoom, False, p_bottom)
 
-        tower_w = w * 0.4
-        tower_d = d * 0.4
-        tower_h = h * 0.85
-        tower_base_z = base_z + base_h
-        self.draw_rotated_box(surface, camera, tower_w, tower_d, tower_h, self.body_angle, tower_base_z, pg.Color(100, 80, 50), side_color, pg.Color(100, 80, 50), outline_color, zoom, False)
+        leg_length = h * 1.2
+        leg_angle = math.pi / 6  
+        for side in [-1, 1]:
+            leg_base_x = pos.x + side * (w * 0.2) * cos
+            leg_base_y = pos.y + side * (w * 0.2) * sin
+            leg_top_x = pos.x + side * (w * 0.1) * math.cos(self.body_angle + leg_angle) if side > 0 else pos.x + side * (w * 0.1) * math.cos(self.body_angle - leg_angle)
+            leg_top_y = pos.y + side * (w * 0.1) * math.sin(self.body_angle + leg_angle) if side > 0 else pos.y + side * (w * 0.1) * math.sin(self.body_angle - leg_angle)
+            leg_base = (leg_base_x, leg_base_y, base_z + base_h)
+            leg_top = (leg_top_x, leg_top_y, base_z + base_h + leg_length)
+            p_leg_base = camera.world_to_iso_3d(*leg_base, zoom)
+            p_leg_top = camera.world_to_iso_3d(*leg_top, zoom)
+            pg.draw.line(surface, pg.Color(100, 80, 50), p_leg_base, p_leg_top, int(3 * zoom))
 
-        arm_length = w * 1.4
-        arm_width = w * 0.08
-        arm_height = d * 0.08
-        arm_base_z = tower_base_z + tower_h * 0.75
-        arm_angle = math.pi / 4  
-        arm_cos = math.cos(arm_angle)
-        arm_sin = math.sin(arm_angle)
-        arm_start_x = pos.x
-        arm_start_y = pos.y
-        arm_end_x = arm_start_x + arm_length * arm_cos * cos - arm_length * arm_sin * sin
-        arm_end_y = arm_start_y + arm_length * arm_cos * sin + arm_length * arm_sin * cos
-        p_arm_start = camera.world_to_iso_3d(arm_start_x, arm_start_y, arm_base_z, zoom)
-        p_arm_end = camera.world_to_iso_3d(arm_end_x, arm_end_y, arm_base_z, zoom)
-        arm_color = pg.Color(60, 50, 30)
-        pg.draw.line(surface, arm_color, p_arm_start, p_arm_end, int(4 * zoom))
+        top_z = base_z + base_h + leg_length
+        p_top_left = camera.world_to_iso_3d(pos.x - w * 0.1 * cos, pos.y - w * 0.1 * sin, top_z, zoom)
+        p_top_right = camera.world_to_iso_3d(pos.x + w * 0.1 * cos, pos.y + w * 0.1 * sin, top_z, zoom)
+        pg.draw.line(surface, pg.Color(100, 80, 50), p_top_left, p_top_right, int(3 * zoom))
 
-        drill_x = arm_end_x
-        drill_y = arm_end_y
-        drill_base = (drill_x, drill_y, arm_base_z)
-        drill_tip = (drill_x, drill_y, arm_base_z - h * 0.3)
-        p_drill_base = camera.world_to_iso_3d(*drill_base, zoom)
-        p_drill_tip = camera.world_to_iso_3d(*drill_tip, zoom)
-        drill_color = pg.Color(80, 60, 40)
-        pg.draw.circle(surface, drill_color, (int(p_drill_base[0]), int(p_drill_base[1])), int(w * 0.15 * zoom))
-        pg.draw.line(surface, pg.Color(40, 30, 20), p_drill_base, p_drill_tip, int(3 * zoom))
+        arm_length = w * 1.2
+        arm_end_x = pos.x + arm_length * cos
+        arm_end_y = pos.y + arm_length * sin
+        p_arm_start = p_top_right  
+        p_arm_end = camera.world_to_iso_3d(arm_end_x, arm_end_y, top_z, zoom)
+        pg.draw.line(surface, pg.Color(60, 50, 30), p_arm_start, p_arm_end, int(4 * zoom))
 
-        for strut_angle in [0, math.pi / 2]:
-            strut_x = pos.x + (tower_w * 0.5) * math.cos(strut_angle + self.body_angle)
-            strut_y = pos.y + (tower_w * 0.5) * math.sin(strut_angle + self.body_angle)
-            strut_base = (strut_x, strut_y, tower_base_z)
-            strut_top = (strut_x * 0.8, strut_y * 0.8, tower_base_z + tower_h * 0.3)
-            p_strut_base = camera.world_to_iso_3d(*strut_base, zoom)
-            p_strut_top = camera.world_to_iso_3d(*strut_top, zoom)
-            pg.draw.line(surface, pg.Color(80, 70, 50), p_strut_base, p_strut_top, int(2 * zoom))
+        drill_base_z = top_z
+        drill_tip_z = drill_base_z - h * 0.4
+        p_drill_tip = camera.world_to_iso_3d(arm_end_x, arm_end_y, drill_tip_z, zoom)
+        pg.draw.line(surface, pg.Color(80, 60, 40), p_arm_end, p_drill_tip, int(3 * zoom))
+        pg.draw.circle(surface, pg.Color(40, 30, 20), (int(p_drill_tip[0]), int(p_drill_tip[1])), int(2 * zoom))
 
         if self.selected:
             pg.draw.polygon(surface, (255, 255, 0), p_bottom, int(2 * zoom))
@@ -1739,73 +1901,49 @@ class Refinery(Unit):
         sin = math.sin(self.body_angle)
 
         main_w = w * 1.0
-        main_d = d * 1.2
+        main_d = d * 1.0
         main_h = h * 0.4
         self.draw_rotated_box(surface, camera, main_w, main_d, main_h, self.body_angle, base_z, self.team_color, side_color, self.team_color, outline_color, zoom, False, p_bottom)
 
-        upper_w = w * 0.8
-        upper_d = d * 1.0
-        upper_h = h * 0.3
-        upper_base_z = base_z + main_h
-        self.draw_rotated_box(surface, camera, upper_w, upper_d, upper_h, self.body_angle, upper_base_z, tuple(min(255, c + 10) for c in self.team_color), side_color, self.team_color, outline_color, zoom, False)
+        for i, offset in enumerate([-w * 0.4, 0, w * 0.4]):
+            tank_x = pos.x + offset * cos
+            tank_y = pos.y + offset * sin
+            tank_base = (tank_x, tank_y, base_z)
+            tank_top = (tank_x, tank_y, base_z + h * 0.6)
+            p_tank_base = camera.world_to_iso_3d(*tank_base, zoom)
+            p_tank_top = camera.world_to_iso_3d(*tank_top, zoom)
+            radius = int(w * 0.12 * zoom)
+            pg.draw.circle(surface, pg.Color(100, 100, 100), (int(p_tank_base[0]), int(p_tank_base[1])), radius)
+            pg.draw.circle(surface, pg.Color(80, 80, 80), (int(p_tank_top[0]), int(p_tank_top[1])), radius)
+            pg.draw.line(surface, outline_color, p_tank_base, p_tank_top, int(2 * zoom))
 
-        for silo_offset in [-w * 0.4, w * 0.4]:
-            silo_x = pos.x + silo_offset * cos
-            silo_y = pos.y + silo_offset * sin
-            silo_base = (silo_x, silo_y, upper_base_z + upper_h)
-            silo_top = (silo_x, silo_y, silo_base[2] + h * 0.6)
-            p_silo_base = camera.world_to_iso_3d(*silo_base, zoom)
-            p_silo_top = camera.world_to_iso_3d(*silo_top, zoom)
-            silo_color = pg.Color(100, 100, 100)
-            radius = int(w * 0.15 * zoom)
-            pg.draw.circle(surface, silo_color, (int(p_silo_base[0]), int(p_silo_base[1])), radius)
-            pg.draw.circle(surface, pg.Color(80, 80, 80), (int(p_silo_top[0]), int(p_silo_top[1])), radius - 2)
-            pg.draw.line(surface, outline_color, p_silo_base, p_silo_top, int(3 * zoom))
+        tower_x = pos.x
+        tower_y = pos.y + d * 0.5 * sin  
+        tower_base = (tower_x, tower_y, base_z)
+        tower_top = (tower_x, tower_y, base_z + h * 0.8)
+        p_tower_base = camera.world_to_iso_3d(*tower_base, zoom)
+        p_tower_top = camera.world_to_iso_3d(*tower_top, zoom)
+        pg.draw.line(surface, pg.Color(120, 120, 120), p_tower_base, p_tower_top, int(5 * zoom))
 
-        for vat_offset in [-d * 0.3, d * 0.3]:
-            vat_x = pos.x + vat_offset * sin  
-            vat_y = pos.y - vat_offset * cos
-            vat_base = (vat_x, vat_y, base_z + main_h * 0.5)
-            vat_top = (vat_x, vat_y, vat_base[2] + h * 0.2)
-            p_vat_base = camera.world_to_iso_3d(*vat_base, zoom)
-            p_vat_top = camera.world_to_iso_3d(*vat_top, zoom)
-            vat_color = pg.Color(120, 90, 40)
-            radius = int(d * 0.12 * zoom)
-            pg.draw.circle(surface, vat_color, (int(p_vat_base[0]), int(p_vat_base[1])), radius)
-            pg.draw.circle(surface, pg.Color(100, 70, 30), (int(p_vat_top[0]), int(p_vat_top[1])), radius - 1)
-            pg.draw.line(surface, outline_color, p_vat_base, p_vat_top, int(2 * zoom))
-
+        pipe_z = base_z + h * 0.3
         for i in range(3):
-            start_x = pos.x - w * 0.3 * cos + i * 0.2 * w * cos
-            start_y = pos.y - w * 0.3 * sin + i * 0.2 * w * sin
-            end_x = pos.x + w * 0.3 * cos + i * 0.2 * w * cos
-            end_y = pos.y + w * 0.3 * sin + i * 0.2 * w * sin
-            pipe_z = base_z + h * 0.6
+            start_x = pos.x - w * 0.4 * cos + i * w * 0.4 * cos
+            start_y = pos.y - w * 0.4 * sin + i * w * 0.4 * sin
+            end_x = tower_x
+            end_y = tower_y
             p_start = camera.world_to_iso_3d(start_x, start_y, pipe_z, zoom)
             p_end = camera.world_to_iso_3d(end_x, end_y, pipe_z, zoom)
             pg.draw.line(surface, pg.Color(150, 150, 150), p_start, p_end, int(2 * zoom))
 
-        for dock_offset in [-w * 0.5, w * 0.5]:
-            dock_x = pos.x + dock_offset * cos
-            dock_y = pos.y + dock_offset * sin
-            dock_base = (dock_x, dock_y, upper_base_z)
-            dock_top = (dock_x, dock_y, upper_base_z + upper_h * 0.2)
-            p_dock_base = camera.world_to_iso_3d(*dock_base, zoom)
-            p_dock_top = camera.world_to_iso_3d(*dock_top, zoom)
-            pg.draw.line(surface, pg.Color(80, 80, 80), p_dock_base, p_dock_top, int(3 * zoom))
-
-        control_w = w * 0.3
-        control_d = d * 0.3
-        control_h = h * 0.5
-        control_offset_x = d * 0.4 * sin
-        control_offset_y = -d * 0.4 * cos
-        control_x = pos.x + control_offset_x
-        control_y = pos.y + control_offset_y
-        control_base = (control_x, control_y, base_z + h)
-        control_top = (control_x, control_y, base_z + h + control_h)
-        p_control_base = camera.world_to_iso_3d(*control_base, zoom)
-        p_control_top = camera.world_to_iso_3d(*control_top, zoom)
-        pg.draw.line(surface, pg.Color(80, 80, 100), p_control_base, p_control_top, int(4 * zoom))
+        flare_x = pos.x + w * 0.6 * cos
+        flare_y = pos.y + w * 0.6 * sin
+        flare_base = (flare_x, flare_y, base_z)
+        flare_top = (flare_x, flare_y, base_z + h * 1.0)
+        p_flare_base = camera.world_to_iso_3d(*flare_base, zoom)
+        p_flare_top = camera.world_to_iso_3d(*flare_top, zoom)
+        pg.draw.line(surface, pg.Color(100, 100, 100), p_flare_base, p_flare_top, int(3 * zoom))
+        flame_points = [p_flare_top, (p_flare_top[0] - 5*zoom, p_flare_top[1] - 3*zoom), (p_flare_top[0] + 5*zoom, p_flare_top[1] - 3*zoom)]
+        pg.draw.polygon(surface, pg.Color(255, 100, 0), flame_points)
 
         if self.selected:
             pg.draw.polygon(surface, (255, 255, 0), p_bottom, int(2 * zoom))
@@ -1834,39 +1972,40 @@ class ShaleFracker(Unit):
         cos = math.cos(self.body_angle)
         sin = math.sin(self.body_angle)
 
-        self.draw_rotated_box(surface, camera, w * 1.1, d * 0.9, h * 0.7, self.body_angle, base_z, self.team_color, side_color, self.team_color, outline_color, zoom, False, p_bottom)
+        rig_w = w * 1.1
+        rig_d = d * 1.1
+        rig_h = h * 0.4
+        self.draw_rotated_box(surface, camera, rig_w, rig_d, rig_h, self.body_angle, base_z, self.team_color, side_color, self.team_color, outline_color, zoom, False, p_bottom)
 
-        pump_w = w * 0.35
-        pump_d = d * 0.35
-        pump_h = h * 0.9
-        pump_base_z = base_z
-        self.draw_rotated_box(surface, camera, pump_w, pump_d, pump_h, self.body_angle, pump_base_z, pg.Color(120, 100, 80), side_color, pg.Color(100, 80, 60), outline_color, zoom, False)
+        post_x = pos.x
+        post_y = pos.y
+        post_base = (post_x, post_y, base_z + rig_h)
+        post_top = (post_x, post_y, post_base[2] + h * 0.6)
+        p_post_base = camera.world_to_iso_3d(*post_base, zoom)
+        p_post_top = camera.world_to_iso_3d(*post_top, zoom)
+        pg.draw.line(surface, pg.Color(120, 100, 80), p_post_base, p_post_top, int(4 * zoom))
 
-        for cyl_side in [-w * 0.4, w * 0.4]:
-            cyl_x = pos.x + cyl_side * cos
-            cyl_y = pos.y + cyl_side * sin
-            cyl_base = (cyl_x, cyl_y, base_z)
-            cyl_top = (cyl_x, cyl_y, base_z + pump_h * 0.8)
-            p_cyl_base = camera.world_to_iso_3d(*cyl_base, zoom)
-            p_cyl_top = camera.world_to_iso_3d(*cyl_top, zoom)
-            pg.draw.line(surface, pg.Color(100, 100, 120), p_cyl_base, p_cyl_top, int(3 * zoom))
-            pg.draw.circle(surface, pg.Color(80, 80, 100), (int(p_cyl_base[0]), int(p_cyl_base[1])), int(2 * zoom))
-            pg.draw.circle(surface, pg.Color(60, 60, 80), (int(p_cyl_top[0]), int(p_cyl_top[1])), int(2 * zoom))
+        arm_z = post_top[2]
+        arm_end_x = post_x + w * 0.7 * cos
+        arm_end_y = post_y + w * 0.7 * sin
+        p_arm_end = camera.world_to_iso_3d(arm_end_x, arm_end_y, arm_z, zoom)
+        pg.draw.line(surface, pg.Color(100, 80, 60), p_post_top, p_arm_end, int(3 * zoom))
 
-        for gauge_offset in [(-w * 0.15, -d * 0.2), (w * 0.15, -d * 0.2)]:
-            gauge_x = pos.x + gauge_offset[0] * cos - gauge_offset[1] * sin
-            gauge_y = pos.y + gauge_offset[0] * sin + gauge_offset[1] * cos
-            gauge_z = base_z + h * 0.5
-            p_gauge = camera.world_to_iso_3d(gauge_x, gauge_y, gauge_z, zoom)
-            pg.draw.circle(surface, pg.Color(200, 100, 100), (int(p_gauge[0]), int(p_gauge[1])), int(2 * zoom))
+        cw_x = post_x - w * 0.3 * cos
+        cw_y = post_y - w * 0.3 * sin
+        p_cw = camera.world_to_iso_3d(cw_x, cw_y, arm_z, zoom)
+        pg.draw.rect(surface, pg.Color(80, 60, 40), (int(p_cw[0] - 4*zoom), int(p_cw[1] - 4*zoom), int(8*zoom), int(8*zoom)))
 
-        drill_x = pos.x
-        drill_y = pos.y
-        drill_base = (drill_x, drill_y, base_z + pump_h)
-        drill_tip = (drill_x, drill_y, base_z + pump_h + h * 0.5)
-        p_drill_base = camera.world_to_iso_3d(*drill_base, zoom)
-        p_drill_tip = camera.world_to_iso_3d(*drill_tip, zoom)
-        pg.draw.line(surface, pg.Color(60, 60, 60), p_drill_base, p_drill_tip, int(3 * zoom))
+        drill_base_z = arm_z
+        drill_tip_z = base_z - h * 0.2
+        p_drill_tip = camera.world_to_iso_3d(arm_end_x, arm_end_y, drill_tip_z, zoom)
+        pg.draw.line(surface, pg.Color(60, 60, 60), p_arm_end, p_drill_tip, int(3 * zoom))
+
+        for off in [-w * 0.2, w * 0.2]:
+            gauge_x = pos.x + off * cos
+            gauge_y = pos.y + off * sin
+            p_gauge = camera.world_to_iso_3d(gauge_x, gauge_y, base_z + rig_h * 0.5, zoom)
+            pg.draw.circle(surface, pg.Color(200, 100, 100), (int(p_gauge[0]), int(p_gauge[1])), int(3 * zoom))
 
         if self.selected:
             pg.draw.polygon(surface, (255, 255, 0), p_bottom, int(2 * zoom))
@@ -1895,49 +2034,41 @@ class BlackMarket(Unit):
         cos = math.cos(self.body_angle)
         sin = math.sin(self.body_angle)
 
-        self.draw_rotated_box(surface, camera, w * 1.0, d * 0.9, h * 0.8, self.body_angle, base_z, self.team_color, side_color, self.team_color, outline_color, zoom, False, p_bottom)
+        base_w = w * 1.1
+        base_d = d * 1.1
+        base_h = h * 0.2
+        self.draw_rotated_box(surface, camera, base_w, base_d, base_h, self.body_angle, base_z, pg.Color(139, 69, 19), side_color, pg.Color(139, 69, 19), outline_color, zoom, False, p_bottom)
 
-        tent_h = h * 0.4
-        tent_base_z = base_z + h * 0.8
-        tent_w = w * 1.2
-        tent_d = d * 1.1
-        rel_tent_bottom = [
-            (-tent_w / 2, -tent_d / 2, 0),
-            (tent_w / 2, -tent_d / 2, 0),
-            (tent_w / 2, tent_d / 2, 0),
-            (-tent_w / 2, tent_d / 2, 0),
-        ]
-        rel_tent_top = [(x, y, tent_h) for x, y, _ in rel_tent_bottom]
-        def rotate_rel(points, cos, sin):
-            return [(x * cos - y * sin, x * sin + y * cos, z) for x, y, z in points]
-        rot_tent_bottom = rotate_rel(rel_tent_bottom, cos, sin)
-        rot_tent_top = rotate_rel(rel_tent_top, cos, sin)
-        full_tent_bottom = [(pos.x + rx, pos.y + ry, tent_base_z + rz) for rx, ry, rz in rot_tent_bottom]
-        full_tent_top = [(pos.x + rx, pos.y + ry, tent_base_z + rz) for rx, ry, rz in rot_tent_top]
-        p_tent_bottom = [camera.world_to_iso_3d(*pt, zoom) for pt in full_tent_bottom]
-        p_tent_top = [camera.world_to_iso_3d(*pt, zoom) for pt in full_tent_top]
+        roof_h = h * 0.5
+        roof_base_z = base_z + base_h
+        for i in range(4):
+            ang = i * math.pi / 2 + self.body_angle
+            pole_x = pos.x + (w * 0.5) * math.cos(ang)
+            pole_y = pos.y + (w * 0.5) * math.sin(ang)
+            pole_top = (pole_x, pole_y, roof_base_z + roof_h)
+            p_pole_top = camera.world_to_iso_3d(*pole_top, zoom)
+            pg.draw.line(surface, pg.Color(100, 50, 0), camera.world_to_iso_3d(pole_x, pole_y, roof_base_z, zoom), p_pole_top, int(2 * zoom))
+
+        roof_points = []
+        for i in range(4):
+            ang = i * math.pi / 2 + self.body_angle
+            x = pos.x + (w * 0.5) * math.cos(ang)
+            y = pos.y + (w * 0.5) * math.sin(ang)
+            roof_points.append(camera.world_to_iso_3d(x, y, roof_base_z + roof_h, zoom))
         tent_color = pg.Color(180, 100, 50)
-        pg.draw.polygon(surface, tent_color, p_tent_bottom + p_tent_top)
+        pg.draw.polygon(surface, tent_color, [roof_points[0], roof_points[1], roof_points[2]])
+        pg.draw.polygon(surface, tent_color, [roof_points[0], roof_points[2], roof_points[3]])
 
-        for crate_x_off in [-w * 0.3, w * 0.3]:
-            for crate_y_off in [-d * 0.2, d * 0.2]:
-                crate_x = pos.x + crate_x_off * cos - crate_y_off * sin
-                crate_y = pos.y + crate_x_off * sin + crate_y_off * cos
-                crate_w = w * 0.15
-                crate_d = d * 0.15
-                crate_h = h * 0.25
-                crate_color = pg.Color(140, 90, 40)
-                crate_base = (crate_x, crate_y, base_z)
-                crate_top = (crate_x, crate_y, base_z + crate_h)
-                p_crate_base = camera.world_to_iso_3d(*crate_base, zoom)
-                p_crate_top = camera.world_to_iso_3d(*crate_top, zoom)
-                pg.draw.rect(surface, crate_color, (int(p_crate_base[0] - crate_w * zoom), int(p_crate_base[1] - crate_d * zoom), int(crate_w * zoom * 2), int(crate_d * zoom * 2)))
+        for off_x, off_y in [(-w*0.3, -d*0.3), (w*0.3, -d*0.3), (0, d*0.4)]:
+            crate_x = pos.x + off_x * cos - off_y * sin
+            crate_y = pos.y + off_x * sin + off_y * cos
+            p_crate = camera.world_to_iso_3d(crate_x, crate_y, base_z, zoom)
+            pg.draw.rect(surface, pg.Color(140, 90, 40), (int(p_crate[0]-6*zoom), int(p_crate[1]-6*zoom), int(12*zoom), int(12*zoom)))
 
-        sign_x = pos.x + w * 0.4 * cos
-        sign_y = pos.y + w * 0.4 * sin
-        sign_z = base_z + h
-        p_sign = camera.world_to_iso_3d(sign_x, sign_y, sign_z, zoom)
-        pg.draw.rect(surface, pg.Color(255, 200, 0), (int(p_sign[0] - 15 * zoom), int(p_sign[1] - 10 * zoom), int(30 * zoom), int(20 * zoom)))
+        sign_x = pos.x - d * 0.5 * cos
+        sign_y = pos.y - d * 0.5 * sin
+        p_sign = camera.world_to_iso_3d(sign_x, sign_y, base_z + base_h + roof_h * 0.5, zoom)
+        pg.draw.rect(surface, pg.Color(255, 200, 0), (int(p_sign[0]-10*zoom), int(p_sign[1]-6*zoom), int(20*zoom), int(12*zoom)))
 
         if self.selected:
             pg.draw.polygon(surface, (255, 255, 0), p_bottom, int(2 * zoom))
@@ -1960,64 +2091,42 @@ class Turret(Unit):
         pos = self.position
         base_z = 0
         side_color = tuple(max(0, c - 50) for c in self.team_color)
-        roof_color = pg.Color(120, 120, 120)
         outline_color = pg.Color(0, 0, 0)
         p_bottom = []
 
-        base_w = w * 1.3
-        base_d = d * 1.3
-        base_h = h * 0.5
+        cos = math.cos(self.body_angle)
+        sin = math.sin(self.body_angle)
+
+        base_w = w * 1.0
+        base_d = d * 1.0
+        base_h = h * 0.4
         self.draw_rotated_box(surface, camera, base_w, base_d, base_h, self.body_angle, base_z, self.team_color, side_color, self.team_color, outline_color, zoom, False, p_bottom)
 
-        turret_w = w * 0.7
-        turret_d = d * 0.7
-        turret_h = h * 0.7
-        turret_base_z = base_z + base_h
-        self.draw_rotated_box(surface, camera, turret_w, turret_d, turret_h, self.turret_angle, turret_base_z, self.team_color, side_color, roof_color, outline_color, zoom, True)
+        mount_w = w * 0.6
+        mount_d = d * 0.6
+        mount_h = h * 0.2
+        mount_base_z = base_z + base_h
+        self.draw_rotated_box(surface, camera, mount_w, mount_d, mount_h, self.turret_angle, mount_base_z, self.team_color, side_color, pg.Color(120, 120, 120), outline_color, zoom, True)
 
-        barrel_length = w * 1.8
-        barrel_width = w * 0.12
-        barrel_height = d * 0.12
-        barrel_base_z = turret_base_z + turret_h / 2
+        barrel_length = w * 1.5
+        barrel_base_z = mount_base_z + mount_h / 2
         cos_t = math.cos(self.turret_angle)
         sin_t = math.sin(self.turret_angle)
-        front_offset = turret_d / 2 * 0.9
-        barrel_start_x = pos.x + front_offset * cos_t
-        barrel_start_y = pos.y + front_offset * sin_t
-        barrel_start_z = barrel_base_z
+        barrel_start_x = pos.x + (d * 0.2) * cos_t
+        barrel_start_y = pos.y + (d * 0.2) * sin_t
         barrel_end_x = barrel_start_x + barrel_length * cos_t
         barrel_end_y = barrel_start_y + barrel_length * sin_t
-        barrel_end_z = barrel_start_z
-        perp_cos = -sin_t
-        perp_sin = cos_t
-        b1 = (barrel_start_x - (barrel_width / 2) * perp_cos, barrel_start_y - (barrel_width / 2) * perp_sin, barrel_start_z - barrel_height / 2)
-        b2 = (barrel_start_x + (barrel_width / 2) * perp_cos, barrel_start_y + (barrel_width / 2) * perp_sin, barrel_start_z - barrel_height / 2)
-        b3 = (barrel_end_x + (barrel_width / 2) * perp_cos, barrel_end_y + (barrel_width / 2) * perp_sin, barrel_end_z - barrel_height / 2)
-        b4 = (barrel_end_x - (barrel_width / 2) * perp_cos, barrel_end_y - (barrel_width / 2) * perp_sin, barrel_end_z - barrel_height / 2)
-        p_b1 = camera.world_to_iso_3d(*b1, zoom)
-        p_b2 = camera.world_to_iso_3d(*b2, zoom)
-        p_b3 = camera.world_to_iso_3d(*b3, zoom)
-        p_b4 = camera.world_to_iso_3d(*b4, zoom)
+        p_barrel_start = camera.world_to_iso_3d(barrel_start_x, barrel_start_y, barrel_base_z, zoom)
+        p_barrel_end = camera.world_to_iso_3d(barrel_end_x, barrel_end_y, barrel_base_z, zoom)
         barrel_color = tuple(min(255, c + 40) for c in self.team_color)
-        pg.draw.polygon(surface, barrel_color, [p_b1, p_b2, p_b3, p_b4])
-        pg.draw.line(surface, outline_color, p_b1, p_b2, int(2 * zoom))
-        pg.draw.line(surface, outline_color, p_b3, p_b4, int(2 * zoom))
+        pg.draw.line(surface, barrel_color, p_barrel_start, p_barrel_end, int(4 * zoom))
+        pg.draw.circle(surface, pg.Color(100, 100, 100), (int(p_barrel_end[0]), int(p_barrel_end[1])), int(2 * zoom))
 
-        coax_x = barrel_start_x - (barrel_width * 0.5) * perp_cos
-        coax_y = barrel_start_y - (barrel_width * 0.5) * perp_sin
-        coax_end_x = coax_x + (barrel_length * 0.8) * cos_t
-        coax_end_y = coax_y + (barrel_length * 0.8) * sin_t
-        p_coax_start = camera.world_to_iso_3d(coax_x, coax_y, barrel_base_z - barrel_height, zoom)
-        p_coax_end = camera.world_to_iso_3d(coax_end_x, coax_end_y, barrel_base_z - barrel_height, zoom)
-        pg.draw.line(surface, pg.Color(100, 100, 100), p_coax_start, p_coax_end, int(1 * zoom))
-
-        ammo_x = pos.x - (barrel_width * 1.5) * perp_cos
-        ammo_y = pos.y - (barrel_width * 1.5) * perp_sin
-        ammo_z = barrel_base_z - barrel_height
-        ammo_size = w * 0.15
-        p_ammo = camera.world_to_iso_3d(ammo_x, ammo_y, ammo_z, zoom)
-        ammo_color = pg.Color(80, 80, 100)
-        pg.draw.rect(surface, ammo_color, (int(p_ammo[0] - ammo_size * zoom), int(p_ammo[1] - ammo_size * zoom), int(ammo_size * zoom * 2), int(ammo_size * zoom * 1.5)))
+        for off in [-w * 0.2, w * 0.2]:
+            port_x = pos.x + off * cos
+            port_y = pos.y + off * sin
+            p_port = camera.world_to_iso_3d(port_x, port_y, base_z + base_h * 0.5, zoom)
+            pg.draw.rect(surface, pg.Color(100, 150, 200), (int(p_port[0]-2*zoom), int(p_port[1]-1*zoom), int(4*zoom), int(2*zoom)))
 
         if self.selected:
             pg.draw.polygon(surface, (255, 255, 0), p_bottom, int(2 * zoom))
@@ -2047,54 +2156,58 @@ class Barracks(Unit):
         cos = math.cos(self.body_angle)
         sin = math.sin(self.body_angle)
 
-        main_w = w * 1.3
-        main_d = d * 1.1
-        main_h = h * 0.7
+        main_w = w * 1.4
+        main_d = d * 0.8
+        main_h = h * 0.6
         self.draw_rotated_box(surface, camera, main_w, main_d, main_h, self.body_angle, base_z, self.team_color, side_color, self.team_color, outline_color, zoom, False, p_bottom)
 
-        platform_w = w * 0.8
-        platform_d = d * 0.4
-        platform_h = h * 0.1
-        front_offset = -d * 0.6 * cos
-        side_offset = -d * 0.6 * sin
-        platform_x = pos.x + front_offset
-        platform_y = pos.y + side_offset
-        platform_base = (platform_x, platform_y, base_z)
-        platform_top = (platform_x, platform_y, base_z + platform_h)
-        p_platform_base = camera.world_to_iso_3d(*platform_base, zoom)
-        p_platform_top = camera.world_to_iso_3d(*platform_top, zoom)
-        pg.draw.line(surface, pg.Color(100, 100, 100), p_platform_base, p_platform_top, int(3 * zoom))
+        roof_h = h * 0.2
+        roof_base_z = base_z + main_h
+        ridge_x = pos.x
+        ridge_y = pos.y
+        ridge_z = roof_base_z + roof_h
+        p_ridge = camera.world_to_iso_3d(ridge_x, ridge_y, ridge_z, zoom)
+        left_base_x = pos.x - main_w * 0.5 * cos
+        left_base_y = pos.y - main_w * 0.5 * sin
+        p_left_base = camera.world_to_iso_3d(left_base_x, left_base_y, roof_base_z, zoom)
+        pg.draw.polygon(surface, pg.Color(100, 100, 100), [p_left_base, p_ridge, camera.world_to_iso_3d(pos.x, pos.y - d * 0.4 * sin, roof_base_z, zoom)])
+        right_base_x = pos.x + main_w * 0.5 * cos
+        right_base_y = pos.y + main_w * 0.5 * sin
+        p_right_base = camera.world_to_iso_3d(right_base_x, right_base_y, roof_base_z, zoom)
+        pg.draw.polygon(surface, pg.Color(100, 100, 100), [p_right_base, p_ridge, camera.world_to_iso_3d(pos.x, pos.y + d * 0.4 * sin, roof_base_z, zoom)])
 
-        door_w = w * 0.5
+        door_w = w * 0.4
         door_h = h * 0.4
         door_center_x = pos.x - d * 0.5 * cos
         door_center_y = pos.y - d * 0.5 * sin
-        door_bl = (door_center_x - door_w / 2, door_center_y, base_z + platform_h)
-        door_br = (door_center_x + door_w / 2, door_center_y, base_z + platform_h)
-        door_tl = (door_center_x - door_w / 2, door_center_y, base_z + platform_h + door_h)
-        door_tr = (door_center_x + door_w / 2, door_center_y, base_z + platform_h + door_h)
+        door_bl = (door_center_x - door_w / 2, door_center_y, base_z)
+        door_br = (door_center_x + door_w / 2, door_center_y, base_z)
+        door_tl = (door_center_x - door_w / 2, door_center_y, base_z + door_h)
+        door_tr = (door_center_x + door_w / 2, door_center_y, base_z + door_h)
         p_door_bl = camera.world_to_iso_3d(*door_bl, zoom)
         p_door_br = camera.world_to_iso_3d(*door_br, zoom)
         p_door_tl = camera.world_to_iso_3d(*door_tl, zoom)
         p_door_tr = camera.world_to_iso_3d(*door_tr, zoom)
-        door_color = pg.Color(50, 50, 50)
-        pg.draw.polygon(surface, door_color, [p_door_bl, p_door_br, p_door_tr, p_door_tl])
+        pg.draw.polygon(surface, pg.Color(50, 50, 50), [p_door_bl, p_door_br, p_door_tr, p_door_tl])
 
-        window_size = w * 0.1
-        for win_y in [base_z + platform_h + h * 0.2, base_z + platform_h + h * 0.5]:
-            for win_side in [-door_w * 0.3, door_w * 0.3]:
-                win_x = door_center_x + win_side
-                win_y_pos = door_center_y
-                p_win = camera.world_to_iso_3d(win_x, win_y_pos, win_y, zoom)
-                pg.draw.rect(surface, pg.Color(100, 150, 200), (int(p_win[0] - window_size * zoom), int(p_win[1] - window_size * 0.5 * zoom), int(window_size * zoom * 2), int(window_size * zoom)))
+        for level in [base_z + h * 0.3, base_z + h * 0.6]:
+            for off in [-w * 0.3, w * 0.3]:
+                win_x = pos.x + off * cos
+                win_y = pos.y + off * sin
+                p_win = camera.world_to_iso_3d(win_x, win_y, level, zoom)
+                pg.draw.rect(surface, pg.Color(150, 200, 255), (int(p_win[0]-3*zoom), int(p_win[1]-2*zoom), int(6*zoom), int(4*zoom)))
 
-        hatch_x = pos.x + w * 0.6 * cos
-        hatch_y = pos.y + w * 0.6 * sin
-        hatch_base = (hatch_x, hatch_y, base_z + main_h * 0.5)
-        hatch_top = (hatch_x, hatch_y, hatch_base[2] + h * 0.2)
-        p_hatch_base = camera.world_to_iso_3d(*hatch_base, zoom)
-        p_hatch_top = camera.world_to_iso_3d(*hatch_top, zoom)
-        pg.draw.line(surface, pg.Color(60, 60, 60), p_hatch_base, p_hatch_top, int(2 * zoom))
+        flag_x = pos.x + w * 0.6 * cos
+        flag_y = pos.y + w * 0.6 * sin
+        flag_base_z = roof_base_z + roof_h
+        flag_top_z = flag_base_z + h * 0.3
+        p_flag_base = camera.world_to_iso_3d(flag_x, flag_y, flag_base_z, zoom)
+        p_flag_top = camera.world_to_iso_3d(flag_x, flag_y, flag_top_z, zoom)
+        pg.draw.line(surface, pg.Color(100, 100, 100), p_flag_base, p_flag_top, int(2 * zoom))
+        flag_end_x = flag_x + w * 0.2 * cos
+        flag_end_y = flag_y + w * 0.2 * sin
+        p_flag_end = camera.world_to_iso_3d(flag_end_x, flag_end_y, flag_top_z, zoom)
+        pg.draw.line(surface, self.team_color, p_flag_top, p_flag_end, int(4 * zoom))
 
         if self.selected:
             pg.draw.polygon(surface, (255, 255, 0), p_bottom, int(2 * zoom))
@@ -2124,53 +2237,39 @@ class WarFactory(Unit):
         cos = math.cos(self.body_angle)
         sin = math.sin(self.body_angle)
 
-        main_w = w * 1.2
-        main_d = d * 1.3
-        main_h = h * 0.6
+        main_w = w * 1.3
+        main_d = d * 1.2
+        main_h = h * 0.5
         self.draw_rotated_box(surface, camera, main_w, main_d, main_h, self.body_angle, base_z, self.team_color, side_color, self.team_color, outline_color, zoom, False, p_bottom)
 
-        attach_w = w * 0.4
-        attach_d = d * 0.5
-        attach_h = h * 0.4
-        for attach_off in [-main_d * 0.3 * sin, main_d * 0.3 * sin]:  
-            attach_x = pos.x + attach_off
-            attach_y = pos.y - attach_off * cos / sin if sin != 0 else pos.y
+        for off in [-1, 1]:
+            attach_x = pos.x + off * (main_w * 0.3) * cos
+            attach_y = pos.y + off * (main_w * 0.3) * sin
             attach_base = (attach_x, attach_y, base_z + main_h * 0.2)
-            self.draw_rotated_box(surface, camera, attach_w, attach_d, attach_h, self.body_angle, attach_base[2], pg.Color(90, 90, 90), side_color, pg.Color(90, 90, 90), outline_color, zoom, False)
+            self.draw_rotated_box(surface, camera, w * 0.4, d * 0.6, h * 0.3, self.body_angle, attach_base[2], pg.Color(90, 90, 90), side_color, pg.Color(90, 90, 90), outline_color, zoom, False)
 
-        crane_base_z = base_z + main_h
-        crane_length = w * 1.5
-        crane_offset = d * 0.2
-        crane_start_x = pos.x - (crane_length / 2) * cos + crane_offset * sin
-        crane_start_y = pos.y - (crane_length / 2) * sin - crane_offset * cos
-        crane_end_x = pos.x + (crane_length / 2) * cos + crane_offset * sin
-        crane_end_y = pos.y + (crane_length / 2) * sin - crane_offset * cos
-        p_crane_start = camera.world_to_iso_3d(crane_start_x, crane_start_y, crane_base_z, zoom)
-        p_crane_end = camera.world_to_iso_3d(crane_end_x, crane_end_y, crane_base_z, zoom)
-        crane_color = pg.Color(100, 100, 100)
-        pg.draw.line(surface, crane_color, p_crane_start, p_crane_end, int(5 * zoom))
-
-        pulley_x = (crane_start_x + crane_end_x) / 2
-        pulley_y = (crane_start_y + crane_end_y) / 2
-        p_pulley = camera.world_to_iso_3d(pulley_x, pulley_y, crane_base_z + h * 0.1, zoom)
-        pg.draw.circle(surface, pg.Color(80, 80, 80), (int(p_pulley[0]), int(p_pulley[1])), int(4 * zoom))
-
-        stack_offsets = [-w * 0.2, 0, w * 0.2]
-        stack_heights = [h * 0.6, h * 0.8, h * 0.4]
-        for off, height in zip(stack_offsets, stack_heights):
+        for off in [-w * 0.2, w * 0.2]:
             stack_x = pos.x + off * cos
             stack_y = pos.y + off * sin
             stack_base = (stack_x, stack_y, base_z + main_h)
-            stack_top = (stack_x, stack_y, stack_base[2] + height)
+            stack_top = (stack_x, stack_y, stack_base[2] + h * 0.7)
             p_stack_base = camera.world_to_iso_3d(*stack_base, zoom)
             p_stack_top = camera.world_to_iso_3d(*stack_top, zoom)
-            stack_color = pg.Color(70, 70, 70)
-            radius = int(w * 0.06 * zoom)
-            pg.draw.circle(surface, stack_color, (int(p_stack_base[0]), int(p_stack_base[1])), radius)
-            pg.draw.circle(surface, pg.Color(60, 60, 60), (int(p_stack_top[0]), int(p_stack_top[1])), radius - 1)
-            pg.draw.line(surface, outline_color, p_stack_base, p_stack_top, int(3 * zoom))
+            radius = int(3 * zoom)
+            pg.draw.circle(surface, pg.Color(70, 70, 70), (int(p_stack_base[0]), int(p_stack_base[1])), radius)
+            pg.draw.circle(surface, pg.Color(60, 60, 60), (int(p_stack_top[0]), int(p_stack_top[1])), radius)
+            pg.draw.line(surface, outline_color, p_stack_base, p_stack_top, int(2 * zoom))
 
-        door_w = w * 0.7
+        crane_z = base_z + main_h + h * 0.1
+        crane_start_x = pos.x - main_w * 0.5 * cos
+        crane_start_y = pos.y - main_w * 0.5 * sin
+        crane_end_x = pos.x + main_w * 0.5 * cos
+        crane_end_y = pos.y + main_w * 0.5 * sin
+        p_crane_start = camera.world_to_iso_3d(crane_start_x, crane_start_y, crane_z, zoom)
+        p_crane_end = camera.world_to_iso_3d(crane_end_x, crane_end_y, crane_z, zoom)
+        pg.draw.line(surface, pg.Color(100, 100, 100), p_crane_start, p_crane_end, int(5 * zoom))
+
+        door_w = w * 0.6
         door_h = h * 0.4
         door_center_x = pos.x - d * 0.6 * cos
         door_center_y = pos.y - d * 0.6 * sin
@@ -2182,25 +2281,14 @@ class WarFactory(Unit):
         p_door_br = camera.world_to_iso_3d(*door_br, zoom)
         p_door_tl = camera.world_to_iso_3d(*door_tl, zoom)
         p_door_tr = camera.world_to_iso_3d(*door_tr, zoom)
-        door_color = pg.Color(40, 40, 40)
-        pg.draw.polygon(surface, door_color, [p_door_bl, p_door_br, p_door_tr, p_door_tl])
+        pg.draw.polygon(surface, pg.Color(40, 40, 40), [p_door_bl, p_door_br, p_door_tr, p_door_tl])
 
-        for level in [base_z + h * 0.3, base_z + h * 0.6]:
-            for win_off in [-w * 0.4, w * 0.4, 0]:
-                win_x = pos.x + win_off * cos
-                win_y = pos.y + win_off * sin
+        for level in [base_z + h * 0.2, base_z + h * 0.4]:
+            for off in [-w * 0.4, 0, w * 0.4]:
+                win_x = pos.x + off * cos
+                win_y = pos.y + off * sin
                 p_win = camera.world_to_iso_3d(win_x, win_y, level, zoom)
-                win_size = w * 0.08
-                pg.draw.rect(surface, pg.Color(150, 200, 255), (int(p_win[0] - win_size * zoom), int(p_win[1] - win_size * 0.5 * zoom), int(win_size * zoom * 2), int(win_size * zoom)))
-
-        conv_x1 = pos.x - w * 0.5 * cos
-        conv_y1 = pos.y - w * 0.5 * sin
-        conv_x2 = pos.x + w * 0.5 * cos
-        conv_y2 = pos.y + w * 0.5 * sin
-        conv_z = base_z + main_h * 0.8
-        p_conv1 = camera.world_to_iso_3d(conv_x1, conv_y1, conv_z, zoom)
-        p_conv2 = camera.world_to_iso_3d(conv_x2, conv_y2, conv_z, zoom)
-        pg.draw.line(surface, pg.Color(90, 90, 90), p_conv1, p_conv2, int(3 * zoom))
+                pg.draw.rect(surface, pg.Color(150, 200, 255), (int(p_win[0]-4*zoom), int(p_win[1]-2*zoom), int(8*zoom), int(4*zoom)))
 
         if self.selected:
             pg.draw.polygon(surface, (255, 255, 0), p_bottom, int(2 * zoom))
@@ -2230,48 +2318,54 @@ class Hangar(Unit):
         cos = math.cos(self.body_angle)
         sin = math.sin(self.body_angle)
 
-        platform_w = w * 1.4
-        platform_d = d * 1.2
-        platform_h = h * 0.2
-        platform_base_z = base_z
-        self.draw_rotated_box(surface, camera, platform_w, platform_d, platform_h, self.body_angle, platform_base_z, self.team_color, side_color, self.team_color, outline_color, zoom, False, p_bottom)
+        hangar_w = w * 1.6
+        hangar_d = d * 1.4
+        hangar_h = h * 0.3
+        self.draw_rotated_box(surface, camera, hangar_w, hangar_d, hangar_h, self.body_angle, base_z, self.team_color, side_color, self.team_color, outline_color, zoom, False, p_bottom)
 
-        pillar_radius = w * 0.08
-        pillar_h = platform_h
-        pillar_offsets = [(-platform_w * 0.4, -platform_d * 0.4), (platform_w * 0.4, -platform_d * 0.4), (platform_w * 0.4, platform_d * 0.4), (-platform_w * 0.4, platform_d * 0.4)]
+        roof_h = h * 0.4
+        roof_base_z = base_z + hangar_h
+        for side in [-1, 1]:
+            roof_side_x = pos.x + side * (hangar_w * 0.5) * cos
+            roof_side_y = pos.y + side * (hangar_w * 0.5) * sin
+            p_roof_side = camera.world_to_iso_3d(roof_side_x, roof_side_y, roof_base_z + roof_h, zoom)
+            p_base_side = camera.world_to_iso_3d(roof_side_x, roof_side_y, roof_base_z, zoom)
+            pg.draw.line(surface, pg.Color(120, 120, 120), p_base_side, p_roof_side, int(4 * zoom))
+        p_ridge_left = camera.world_to_iso_3d(pos.x - hangar_d * 0.2 * sin, pos.y + hangar_d * 0.2 * cos, roof_base_z + roof_h * 1.2, zoom)
+        p_ridge_right = camera.world_to_iso_3d(pos.x + hangar_d * 0.2 * sin, pos.y - hangar_d * 0.2 * cos, roof_base_z + roof_h * 1.2, zoom)
+        pg.draw.line(surface, pg.Color(100, 100, 100), p_ridge_left, p_ridge_right, int(5 * zoom))
+
+        door_w = hangar_w * 0.4
+        door_h = h * 0.5
+        door_center_x = pos.x - hangar_d * 0.5 * cos
+        door_center_y = pos.y - hangar_d * 0.5 * sin
+        for off in [-door_w * 0.25, door_w * 0.25]:
+            d_center_x = door_center_x + off
+            d_bl = (d_center_x - door_w / 2, door_center_y, base_z)
+            d_br = (d_center_x + door_w / 2, door_center_y, base_z)
+            d_tl = (d_center_x - door_w / 2, door_center_y, base_z + door_h)
+            d_tr = (d_center_x + door_w / 2, door_center_y, base_z + door_h)
+            p_d_bl = camera.world_to_iso_3d(*d_bl, zoom)
+            p_d_br = camera.world_to_iso_3d(*d_br, zoom)
+            p_d_tl = camera.world_to_iso_3d(*d_tl, zoom)
+            p_d_tr = camera.world_to_iso_3d(*d_tr, zoom)
+            pg.draw.polygon(surface, pg.Color(60, 60, 60), [p_d_bl, p_d_br, p_d_tr, p_d_tl])
+
+        pillar_offsets = [(-w * 0.3, -d * 0.3), (w * 0.3, -d * 0.3), (w * 0.3, d * 0.3), (-w * 0.3, d * 0.3)]
         for off_x, off_y in pillar_offsets:
             pillar_x = pos.x + off_x * cos - off_y * sin
             pillar_y = pos.y + off_x * sin + off_y * cos
-            pillar_ground = (pillar_x, pillar_y, base_z)
-            pillar_top = (pillar_x, pillar_y, base_z + pillar_h)
-            p_pillar_ground = camera.world_to_iso_3d(*pillar_ground, zoom)
-            p_pillar_top = camera.world_to_iso_3d(*pillar_top, zoom)
-            pg.draw.line(surface, pg.Color(80, 80, 80), p_pillar_ground, p_pillar_top, int(4 * zoom))
-            pg.draw.circle(surface, pg.Color(100, 100, 100), (int(p_pillar_ground[0]), int(p_pillar_ground[1])), int(pillar_radius * zoom))
+            p_pillar_base = camera.world_to_iso_3d(pillar_x, pillar_y, base_z, zoom)
+            p_pillar_top = camera.world_to_iso_3d(pillar_x, pillar_y, base_z + hangar_h, zoom)
+            pg.draw.line(surface, pg.Color(80, 80, 80), p_pillar_base, p_pillar_top, int(3 * zoom))
 
-        tower_w = w * 0.3
-        tower_d = d * 0.3
-        tower_h = h * 0.6
-        tower_offset_x = w * 0.6 * cos
-        tower_offset_y = w * 0.6 * sin
-        tower_x = pos.x + tower_offset_x
-        tower_y = pos.y + tower_offset_y
-        tower_base = (tower_x, tower_y, base_z + platform_h)
-        tower_top = (tower_x, tower_y, tower_base[2] + tower_h)
-        self.draw_rotated_box(surface, camera, tower_w, tower_d, tower_h, self.body_angle, tower_base[2], pg.Color(100, 80, 60), side_color, pg.Color(100, 80, 60), outline_color, zoom, False)
+        tower_x = pos.x + w * 0.7 * cos
+        tower_y = pos.y + w * 0.7 * sin
+        tower_base = (tower_x, tower_y, base_z)
+        self.draw_rotated_box(surface, camera, w * 0.3, d * 0.3, h * 0.6, self.body_angle, tower_base[2], pg.Color(100, 80, 60), side_color, pg.Color(100, 80, 60), outline_color, zoom, False)
 
-        win_x = tower_x
-        win_y = tower_y
-        win_z = tower_base[2] + tower_h * 0.5
-        p_win = camera.world_to_iso_3d(win_x, win_y, win_z, zoom)
-        win_size = w * 0.1
-        pg.draw.rect(surface, pg.Color(150, 200, 255), (int(p_win[0] - win_size * zoom), int(p_win[1] - win_size * 0.5 * zoom), int(win_size * zoom * 2), int(win_size * zoom)))
-
-        pad_center_x = pos.x
-        pad_center_y = pos.y
-        pad_center_z = base_z + platform_h * 0.5
-        p_pad_center = camera.world_to_iso_3d(pad_center_x, pad_center_y, pad_center_z, zoom)
-        pg.draw.circle(surface, pg.Color(255, 255, 255, 100), (int(p_pad_center[0]), int(p_pad_center[1])), int(w * 0.5 * zoom), 2)
+        apron_center = camera.world_to_iso_3d(pos.x, pos.y, base_z + hangar_h * 0.5, zoom)
+        pg.draw.circle(surface, pg.Color(255, 255, 255, 80), (int(apron_center[0]), int(apron_center[1])), int(w * 0.8 * zoom), 3)
 
         if self.selected:
             pg.draw.polygon(surface, (255, 255, 0), p_bottom, int(2 * zoom))
@@ -2322,7 +2416,8 @@ class AI:
         self.economy_bias = 1.0  
         
         base_priorities = {
-            "Infantry": 0.6, "Grenadier": 0.2, "RocketSoldier": 0.1, "Tank": 0.15,
+            "Infantry": 0.6, "Grenadier": 0.2, "RocketSoldier": 0.1, "Marksman": 0.1, "Tank": 0.15,
+            "HeavyTank": 0.1, "TankDestroyer": 0.1,
             "MachineGunVehicle": 0.05, "RocketArtillery": 0.05, "AttackHelicopter": 0.0,
         }
         if self.personality == 'rusher':
@@ -2427,16 +2522,22 @@ class AI:
         inf_prio = 0.5 if self.threat_level > 0.5 else 0.6
         gren_prio = 0.3 if self.threat_level > 0.5 else 0.2
         rocket_prio = 0.1 if self.economy_level >= 1 else 0.0
+        marksman_prio = 0.1 if self.economy_level >= 1 else 0.0
         tank_prio = 0.15 if self.economy_level >= 1 else 0.05
+        heavy_tank_prio = 0.1 if self.economy_level >= 2 else 0.0
+        tank_destroyer_prio = 0.1 if self.economy_level >= 2 else 0.0
         mgv_prio = 0.05 if self.economy_level >= 2 else 0.0
         rocket_art_prio = 0.05 if self.economy_level >= 2 else 0.0
         heli_prio = 0.1 if self.economy_level >= 2 else 0.0
-        total_prio = inf_prio + gren_prio + rocket_prio + tank_prio + mgv_prio + rocket_art_prio + heli_prio
+        total_prio = inf_prio + gren_prio + rocket_prio + marksman_prio + tank_prio + heavy_tank_prio + tank_destroyer_prio + mgv_prio + rocket_art_prio + heli_prio
         if total_prio > 0:
             inf_prio /= total_prio
             gren_prio /= total_prio
             rocket_prio /= total_prio
+            marksman_prio /= total_prio
             tank_prio /= total_prio
+            heavy_tank_prio /= total_prio
+            tank_destroyer_prio /= total_prio
             mgv_prio /= total_prio
             rocket_art_prio /= total_prio
             heli_prio /= total_prio
@@ -2444,7 +2545,10 @@ class AI:
             "Infantry": inf_prio,
             "Grenadier": gren_prio,
             "RocketSoldier": rocket_prio,
+            "Marksman": marksman_prio,
             "Tank": tank_prio,
+            "HeavyTank": heavy_tank_prio,
+            "TankDestroyer": tank_destroyer_prio,
             "MachineGunVehicle": mgv_prio,
             "RocketArtillery": rocket_art_prio,
             "AttackHelicopter": heli_prio,
@@ -2569,7 +2673,7 @@ class AI:
                 self.barracks_index += 1
                 if len(barracks.production_queue) < max_queue_light:
                     if self.threat_level > 0.5:
-                        unit_type = random.choices(list(self.production_priorities.keys()), weights=[0.7, 0.2, 0.1, 0.0, 0, 0, 0])[0]
+                        unit_type = random.choices(list(self.production_priorities.keys()), weights=[0.7, 0.2, 0.1, 0.0, 0, 0, 0, 0, 0, 0])[0]
                     else:
                         unit_type = random.choices(list(self.production_priorities.keys()), weights=list(self.production_priorities.values()))[0]
                     
@@ -2584,7 +2688,7 @@ class AI:
                 war_factory = war_factory_list[self.warfactory_index % len(war_factory_list)]
                 self.warfactory_index += 1
                 if len(war_factory.production_queue) < max_queue_heavy:
-                    heavy_unit = random.choice(["Tank", "MachineGunVehicle", "RocketArtillery"])
+                    heavy_unit = random.choice(["Tank", "HeavyTank", "TankDestroyer", "MachineGunVehicle", "RocketArtillery"])
                     cost = UNIT_CLASSES[heavy_unit]["cost"]
                     if self.hq.credits >= cost and num_units < target_units * 0.7:
                         war_factory.production_queue.append({'unit_type': heavy_unit, 'repeat': False})
@@ -2829,7 +2933,10 @@ class ProductionInterface:
             "Infantry": "Infantry",
             "Grenadier": "Grenadier",
             "RocketSoldier": "Rocket Soldier",
+            "Marksman": "Marksman",
             "Tank": "Tank",
+            "HeavyTank": "Heavy Tank",
+            "TankDestroyer": "Tank Destroyer",
             "MachineGunVehicle": "MG Vehicle",
             "RocketArtillery": "Rocket Artillery",
             "AttackHelicopter": "Attack Heli",
@@ -2857,9 +2964,9 @@ class ProductionInterface:
         if isinstance(selected_building, (Barracks, WarFactory, Hangar)):
             self.producer = selected_building
             if isinstance(selected_building, Barracks):
-                self.producible_items = ["Infantry", "Grenadier", "RocketSoldier"]
+                self.producible_items = ["Infantry", "Grenadier", "RocketSoldier", "Marksman"]
             elif isinstance(selected_building, WarFactory):
-                self.producible_items = ["Tank", "MachineGunVehicle", "RocketArtillery"]
+                self.producible_items = ["Tank", "HeavyTank", "TankDestroyer", "MachineGunVehicle", "RocketArtillery"]
             elif isinstance(selected_building, Hangar):
                 self.producible_items = ["AttackHelicopter"]
         else:
@@ -3031,12 +3138,9 @@ def draw_mini_map(screen: pg.Surface, camera: Camera, fog_of_war: FogOfWar, map_
                 (iso_c4[0] + draw_offset_x, iso_c4[1] + draw_offset_y),
             ]
             
-            var_r = ((tx * 17 + ty * 31) % 41) - 20
-            var_g = ((tx * 23 + ty * 37) % 41) - 20
-            var_b = ((tx * 29 + ty * 41) % 41) - 20
-            tile_r = max(0, min(255, base_r + var_r))
-            tile_g = max(0, min(255, base_g + var_g))
-            tile_b = max(0, min(255, base_b + var_b))
+            tile_r = base_r
+            tile_g = base_g
+            tile_b = base_b
             
             if not fog_of_war.is_visible((tile_center_x, tile_center_y)):
                 avg = (tile_r + tile_g + tile_b) // 3
@@ -4075,12 +4179,9 @@ class GameManager:
                 wx = tx * TILE_SIZE
                 for ty in range(start_ty, end_ty):
                     wy = ty * TILE_SIZE
-                    var_r = ((tx * 17 + ty * 31) % 41) - 20
-                    var_g = ((tx * 23 + ty * 37) % 41) - 20
-                    var_b = ((tx * 29 + ty * 41) % 41) - 20
-                    tile_r = max(0, min(255, base_r + var_r))
-                    tile_g = max(0, min(255, base_g + var_g))
-                    tile_b = max(0, min(255, base_b + var_b))
+                    tile_r = base_r
+                    tile_g = base_g
+                    tile_b = base_b
                     c1 = (wx, wy)
                     c2 = (wx + TILE_SIZE, wy)
                     c3 = (wx + TILE_SIZE, wy + TILE_SIZE)
