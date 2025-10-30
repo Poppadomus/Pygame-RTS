@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import math
 import random
+import heapq
 from dataclasses import InitVar, dataclass, field as dataclass_field
 from enum import Enum
 from typing import TYPE_CHECKING, Any, ClassVar, Dict, Type, Set, List
@@ -86,7 +87,7 @@ UNIT_CLASSES = {
         "cost": 100,
         "hp": 45,
         "speed": 0.7,
-        "attack_range": 80,
+        "attack_range": 140,
         "sight_range": 120,
         "weapons": [
             {"name": "Rifle", "damage": 10, "fire_rate": 0.5, "projectile_speed": 25, "projectile_length": 1, "projectile_width": 1, "cooldown": 25}
@@ -94,7 +95,9 @@ UNIT_CLASSES = {
         "size": (16, 16),
         "air": False,
         "is_building": False,
-        "height": 8
+        "height": 8,
+        "rifle_length": 2.0,
+        "rifle_thickness": 0.4
     },
     "Marksman": {
         "cost": 150,
@@ -109,8 +112,8 @@ UNIT_CLASSES = {
         "air": False,
         "is_building": False,
         "height": 6,
-        "rifle_length": 4.8,
-        "rifle_thickness": 1
+        "rifle_length": 2.5,
+        "rifle_thickness": 0.3
     },
     "Tank": {
         "cost": 700,
@@ -132,7 +135,9 @@ UNIT_CLASSES = {
         "barrel_width": 3,
         "barrel_height": 4,
         "turret_offset_x": 0,
-        "turret_offset_y": 0
+        "turret_offset_y": 0,
+        "hull_rotation_speed": 0.05,
+        "turret_rotation_speed": 0.15
     },
     "HeavyTank": {
         "cost": 1200,
@@ -154,7 +159,9 @@ UNIT_CLASSES = {
         "barrel_width": 4,
         "barrel_height": 5,
         "turret_offset_x": 0,
-        "turret_offset_y": 0
+        "turret_offset_y": 0,
+        "hull_rotation_speed": 0.05,
+        "turret_rotation_speed": 0.15
     },
     "TankDestroyer": {
         "cost": 900,
@@ -176,7 +183,9 @@ UNIT_CLASSES = {
         "barrel_width": 3,
         "barrel_height": 4,
         "turret_offset_x": 0,
-        "turret_offset_y": 0
+        "turret_offset_y": 0,
+        "hull_rotation_speed": 0.05,
+        "turret_rotation_speed": 0.15
     },
     "Grenadier": {
         "cost": 300,
@@ -190,7 +199,9 @@ UNIT_CLASSES = {
         "size": (16, 16),
         "air": False,
         "is_building": False,
-        "height": 8
+        "height": 8,
+        "rifle_length": 1.8,
+        "rifle_thickness": 0.3
     },
     "RocketSoldier": {
         "cost": 200,
@@ -205,8 +216,8 @@ UNIT_CLASSES = {
         "air": False,
         "is_building": False,
         "height": 8,
-        "rocket_length": 2.8,
-        "rocket_thickness": 1
+        "rocket_length": 1.8,
+        "rocket_thickness": 0.3
     },
     "MachineGunVehicle": {
         "cost": 500,
@@ -225,7 +236,9 @@ UNIT_CLASSES = {
         "turret_depth": 6,
         "turret_height": 2,
         "turret_offset_x": 0,
-        "turret_offset_y": 0
+        "turret_offset_y": 0,
+        "hull_rotation_speed": 0.05,
+        "turret_rotation_speed": 0.15
     },
     "RocketArtillery": {
         "cost": 800,
@@ -244,7 +257,9 @@ UNIT_CLASSES = {
         "turret_depth": 8,
         "turret_height": 6,
         "turret_offset_x": 0,
-        "turret_offset_y": 0
+        "turret_offset_y": 0,
+        "hull_rotation_speed": 0.05,
+        "turret_rotation_speed": 0.15
     },
     "AttackHelicopter": {
         "cost": 1000,
@@ -264,7 +279,9 @@ UNIT_CLASSES = {
         "turret_depth": 3,
         "turret_height": 1,
         "turret_offset_x": 0,
-        "turret_offset_y": 0
+        "turret_offset_y": 0,
+        "hull_rotation_speed": 0.08,
+        "turret_rotation_speed": 0.2
     },
     "Headquarters": {
         "cost": 1000,
@@ -333,20 +350,6 @@ UNIT_CLASSES = {
         "is_building": True,
         "height": 15
     },
-    "OilDerrick": {
-        "cost": 300,
-        "hp": 200,
-        "speed": 0,
-        "attack_range": 0,
-        "sight_range": 200,
-        "weapons": [],
-        "income": 100,
-        "income_interval": 300,
-        "size": (24, 32),
-        "air": False,
-        "is_building": True,
-        "height": 60
-    },
     "Refinery": {
         "cost": 2000,
         "hp": 200,
@@ -361,34 +364,6 @@ UNIT_CLASSES = {
         "is_building": True,
         "height": 25
     },
-    "ShaleFracker": {
-        "cost": 800,
-        "hp": 200,
-        "speed": 0,
-        "attack_range": 0,
-        "sight_range": 200,
-        "weapons": [],
-        "income": 165,
-        "income_interval": 300,
-        "size": (28, 28),
-        "air": False,
-        "is_building": True,
-        "height": 20
-    },
-    "BlackMarket": {
-        "cost": 1500,
-        "hp": 200,
-        "speed": 0,
-        "attack_range": 0,
-        "sight_range": 200,
-        "weapons": [],
-        "income": 150,
-        "income_interval": 300,
-        "size": (36, 24),
-        "air": False,
-        "is_building": True,
-        "height": 15
-    },
     "Turret": {
         "cost": 400,
         "hp": 200,
@@ -401,14 +376,74 @@ UNIT_CLASSES = {
         "size": (24, 24),
         "air": False,
         "is_building": True,
-        "height": 25
+        "height": 25,
+        "hull_rotation_speed": 0.0,
+        "turret_rotation_speed": 0.1
     }
 }
+
 
 PROJECTILE_LIFETIME = 1.0
 PARTICLES_PER_EXPLOSION = 3
 PLASMA_BURN_PARTICLES = 0
 PLASMA_BURN_DURATION = 1.0
+
+def heuristic(a: tuple, b: tuple) -> float:
+    return math.hypot(a[0] - b[0], a[1] - b[1])
+
+def astar(start: Vector2, goal: Vector2, buildings: list, tile_size: int = TILE_SIZE, map_width: int = MAP_WIDTH, map_height: int = MAP_HEIGHT) -> list[Vector2]:
+    start_tile = (int(start.x // tile_size), int(start.y // tile_size))
+    goal_tile = (int(goal.x // tile_size), int(goal.y // tile_size))
+    
+    num_tiles_x = map_width // tile_size
+    num_tiles_y = map_height // tile_size
+    
+    blocked = set()
+    for b in buildings:
+        if b.health <= 0 or getattr(b, 'air', False):
+            continue
+        min_tx = max(0, int(b.rect.left // tile_size))
+        max_tx = min(num_tiles_x, int(b.rect.right // tile_size) + 1)
+        min_ty = max(0, int(b.rect.top // tile_size))
+        max_ty = min(num_tiles_y, int(b.rect.bottom // tile_size) + 1)
+        for tx in range(min_tx, max_tx):
+            for ty in range(min_ty, max_ty):
+                blocked.add((tx, ty))
+    
+    open_set = []
+    heapq.heappush(open_set, (0, start_tile))
+    came_from = {}
+    g_score = {start_tile: 0}
+    f_score = {start_tile: heuristic(start_tile, goal_tile)}
+    
+    while open_set:
+        _, current = heapq.heappop(open_set)
+        
+        if current == goal_tile:
+            path = []
+            while current in came_from:
+                tile_center = Vector2(current[0] * tile_size + tile_size / 2, current[1] * tile_size + tile_size / 2)
+                path.append(tile_center)
+                current = came_from[current]
+            path.append(start)
+            path.reverse()
+            return path
+        
+        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]:
+            neighbor = (current[0] + dx, current[1] + dy)
+            if neighbor in blocked or not (0 <= neighbor[0] < num_tiles_x and 0 <= neighbor[1] < num_tiles_y):
+                continue
+            
+            tentative_g = g_score[current] + (1.414 if dx != 0 and dy != 0 else 1)
+            
+            if neighbor not in g_score or tentative_g < g_score[neighbor]:
+                came_from[neighbor] = current
+                g_score[neighbor] = tentative_g
+                f_score[neighbor] = tentative_g + heuristic(neighbor, goal_tile)
+                heapq.heappush(open_set, (f_score[neighbor], neighbor))
+    
+    # Fallback: straight line
+    return [start, goal]
 
 class TerrainFeature:
     def __init__(self, position: tuple, feature_type: str):
@@ -574,17 +609,38 @@ def calculate_formation_positions(
     center: tuple[float, float],
     target: tuple[float, float],
     num_units: int,
+    formation_type: str = 'line',
+    spacing: float = 40.0,  # Wider default for anti-blob
 ) -> list[tuple[float, float]]:
     if num_units == 0:
         return []
     positions = []
-    spacing = 30
-    cols = max(1, int(math.sqrt(num_units)))
-    for i in range(num_units):
-        row, col = i // cols, i % cols
-        x = center[0] + (col - cols / 2) * spacing
-        y = center[1] + (row - num_units / cols / 2) * spacing
-        positions.append((x, y))
+    if formation_type == 'line':
+        # Grid-like for rallies/defense
+        cols = max(1, int(math.sqrt(num_units)))
+        rows = (num_units + cols - 1) // cols  # Ceiling div
+        for i in range(num_units):
+            row, col = i // cols, i % cols
+            x = center[0] + (col - cols / 2) * spacing
+            y = center[1] + (row - rows / 2) * spacing
+            # Jitter for natural spread
+            x += random.uniform(-spacing*0.1, spacing*0.1)
+            y += random.uniform(-spacing*0.1, spacing*0.1)
+            positions.append((x, y))
+    elif formation_type == 'v':
+        # Wedge toward target for attacks
+        apex = Vector2(target)
+        base = Vector2(center)
+        dir_to_target = (apex - base).normalize() if (apex - base).length() > 0 else Vector2(1, 0)
+        perp = dir_to_target.rotate_rad(math.pi / 2)
+        half = (num_units - 1) / 2
+        for i in range(num_units):
+            offset = (i - half) * spacing * 0.5  # Tighter base, wider tip
+            depth = spacing * (i / num_units) * 0.7  # Compress depth
+            pos = base + perp * offset + dir_to_target * depth
+            # Jitter
+            pos += Vector2(random.uniform(-5, 5), random.uniform(-5, 5))
+            positions.append((pos.x, pos.y))
     return positions
 
 def get_starting_positions(map_width: int, map_height: int, num_players: int):
@@ -1095,11 +1151,17 @@ class Unit(GameObject):
         self.last_shot_time = 0
         self.cooldown = stats["weapons"][0].get("cooldown", 0) if stats["weapons"] else 0
         self.move_target = None
+        self.path = []
+        self.path_index = 0
         self.formation_target = None
         self.player_ordered = False
         self.random_offset_angle = random.uniform(-0.5, 0.5)
         self.turret_angle = 0
         self.body_angle = 0
+        self.target_body_angle = 0.0
+        self.target_turret_angle = 0.0
+        self.hull_rotation_speed = stats.get("hull_rotation_speed", float('inf'))
+        self.turret_rotation_speed = stats.get("turret_rotation_speed", float('inf'))
         self.air = stats["air"]
         self.fly_height = stats.get("fly_height", 0)
         self.size = stats["size"]
@@ -1112,6 +1174,13 @@ class Unit(GameObject):
             self.production_queue = []
             self.production_timer = None
         self._setup_drawing(unit_type)
+        # Load firing sound if the unit has weapons
+        if "weapons" in stats and stats["weapons"]:
+            sound_file = f"{unit_type.lower()}.mp3"
+            try:
+                self.sound = pg.mixer.Sound(sound_file)
+            except:
+                self.sound = None  # Graceful fallback if file not found
     
     def draw_static(self, surface: pg.Surface, camera: Camera, mouse_pos: tuple = None):
         if self.health <= 0:
@@ -1312,7 +1381,41 @@ class Unit(GameObject):
     
         weapon_z = arm_start_z - 0.1
         arm_r_end_x, arm_r_end_y = hand_r_x, hand_r_y  
-        if self.unit_type == "RocketSoldier":
+        if self.unit_type in ["Infantry", "Grenadier", "Marksman"]:
+            rifle_length = self.stats.get("rifle_length", 2.0)
+            rifle_thickness = self.stats.get("rifle_thickness", 0.4)
+            rifle_start_x = arm_r_end_x + 0.3 * cos_a  
+            rifle_start_y = arm_r_end_y + 0.3 * sin_a
+            rifle_end_x = rifle_start_x + rifle_length * cos_a
+            rifle_end_y = rifle_start_y + rifle_length * sin_a
+            p_rifle_start = camera.world_to_iso_3d(rifle_start_x, rifle_start_y, weapon_z, zoom)
+            p_rifle_end = camera.world_to_iso_3d(rifle_end_x, rifle_end_y, weapon_z, zoom)
+            
+            team_grey = tuple(int(c * 0.6) for c in team_color)  
+            barrel_color = (team_grey)  
+            stock_color = (139, 69, 19)  
+            highlight_color = (200, 200, 200)  
+            
+            rifle_width = int(rifle_thickness * zoom)
+            pg.draw.line(surface, barrel_color, p_rifle_start, p_rifle_end, rifle_width)
+            pg.draw.line(surface, outline_color, p_rifle_start, p_rifle_end, 1)
+            
+            stock_length = int(0.4 * zoom * 2) if self.unit_type != "Marksman" else int(0.6 * zoom * 2)
+            stock_end_x = p_rifle_start[0] - stock_length * sin_a / zoom  
+            stock_end_y = p_rifle_start[1] + stock_length * cos_a / zoom
+            pg.draw.line(surface, stock_color, p_rifle_start, (stock_end_x, stock_end_y), int(2 * zoom))
+            
+            muzzle_r = int(0.8 * zoom)
+            pg.draw.circle(surface, highlight_color, (int(p_rifle_end[0]), int(p_rifle_end[1])), muzzle_r)
+            pg.draw.circle(surface, outline_color, (int(p_rifle_end[0]), int(p_rifle_end[1])), muzzle_r, 1)
+            
+            if self.unit_type == "Marksman":
+                scope_pos = ((p_rifle_start[0] + p_rifle_end[0]) / 2, (p_rifle_start[1] + p_rifle_end[1]) / 2)
+                scope_r = int(1.2 * zoom)
+                pg.draw.circle(surface, (120, 120, 120), (int(scope_pos[0]), int(scope_pos[1])), scope_r)
+                pg.draw.circle(surface, highlight_color, (int(scope_pos[0]), int(scope_pos[1])), scope_r - 1)  
+        
+        elif self.unit_type == "RocketSoldier":
             rocket_length = self.stats["rocket_length"]
             rocket_width = int(self.stats["rocket_thickness"] * zoom)
             shoulder_offset_x = 0.7 * cos_a - 0.5 * sin_a
@@ -1323,9 +1426,12 @@ class Unit(GameObject):
             rocket_end_y = rocket_start_y - rocket_length * cos_a
             p_rocket_start = camera.world_to_iso_3d(rocket_start_x, rocket_start_y, weapon_z, zoom)
             p_rocket_end = camera.world_to_iso_3d(rocket_end_x, rocket_end_y, weapon_z, zoom)
-            pg.draw.line(surface, pg.Color(100, 100, 100), p_rocket_start, p_rocket_end, rocket_width)
+            
+            tube_color = tuple(int(c * 0.7) for c in team_color)  
+            warhead_color = (200, 50, 50)  
+            pg.draw.line(surface, tube_color, p_rocket_start, p_rocket_end, rocket_width)
             pg.draw.line(surface, outline_color, p_rocket_start, p_rocket_end, 2)
-            grip_length = int(0.3 * zoom * 2)
+            grip_length = int(0.1 * zoom * 2)
             grip_dir_perp_x = rocket_end_x - rocket_start_x  
             grip_dir_perp_y = rocket_end_y - rocket_start_y
             length = math.sqrt(grip_dir_perp_x**2 + grip_dir_perp_y**2)
@@ -1337,34 +1443,16 @@ class Unit(GameObject):
             grip_mid = ((p_rocket_start[0] + p_rocket_end[0]) / 2, (p_rocket_start[1] + p_rocket_end[1]) / 2)
             p_grip_end1 = (grip_mid[0] + grip_perp_x, grip_mid[1] + grip_perp_y)
             p_grip_end2 = (grip_mid[0] - grip_perp_x, grip_mid[1] - grip_perp_y)
-            pg.draw.line(surface, pg.Color(80, 80, 80), p_grip_end1, p_grip_end2, int(2 * zoom))
-            tip_r = int(3 * zoom)
-            pg.draw.circle(surface, pg.Color(150, 150, 150), (int(p_rocket_end[0]), int(p_rocket_end[1])), tip_r)
-            fin_length = int(1 * zoom)
+            pg.draw.line(surface, (80, 80, 80), p_grip_end1, p_grip_end2, int(2 * zoom))
+            tip_r = int(0.1 * zoom)
+            pg.draw.circle(surface, warhead_color, (int(p_rocket_end[0]), int(p_rocket_end[1])), tip_r)
+            fin_length = int(0.1 * zoom)
             for i in range(2):
                 fin_angle = math.pi / 4 + i * math.pi
                 fin_end_x = p_rocket_end[0] + fin_length * math.cos(fin_angle)
                 fin_end_y = p_rocket_end[1] + fin_length * math.sin(fin_angle)
-                pg.draw.line(surface, pg.Color(120, 120, 120), p_rocket_end, (fin_end_x, fin_end_y), 1)
-        elif self.unit_type == "Marksman":
-            rifle_length = self.stats["rifle_length"]
-            rifle_start_x = arm_r_end_x + 0.4 * cos_a
-            rifle_start_y = arm_r_end_y + 0.4 * sin_a
-            rifle_end_x = rifle_start_x + rifle_length * cos_a
-            rifle_end_y = rifle_start_y + rifle_length * sin_a
-            p_rifle_start = camera.world_to_iso_3d(rifle_start_x, rifle_start_y, weapon_z, zoom)
-            p_rifle_end = camera.world_to_iso_3d(rifle_end_x, rifle_end_y, weapon_z, zoom)
-            pg.draw.line(surface, pg.Color(80, 80, 80), p_rifle_start, p_rifle_end, int(self.stats["rifle_thickness"] * zoom))
-            pg.draw.line(surface, outline_color, p_rifle_start, p_rifle_end, 1)
-            stock_length = int(0.6 * zoom * 2)
-            stock_end_x = p_rifle_start[0] - stock_length * sin_a / zoom  
-            stock_end_y = p_rifle_start[1] + stock_length * cos_a / zoom
-            pg.draw.line(surface, pg.Color(60, 60, 60), p_rifle_start, (stock_end_x, stock_end_y), int(3 * zoom))
-            scope_pos = ((p_rifle_start[0] + p_rifle_end[0]) / 2, (p_rifle_start[1] + p_rifle_end[1]) / 2)
-            scope_r = int(1.2 * zoom)
-            pg.draw.circle(surface, pg.Color(120, 120, 120), (int(scope_pos[0]), int(scope_pos[1])), scope_r)
-            pg.draw.circle(surface, pg.Color(200, 200, 200), (int(scope_pos[0]), int(scope_pos[1])), scope_r - 1)  
-    
+                pg.draw.line(surface, (120, 120, 120), p_rocket_end, (fin_end_x, fin_end_y), 1)
+        
         if self.selected:
             select_r = int(10 * zoom)
             pulse_alpha = int(128 + 127 * math.sin(pg.time.get_ticks() * 0.01))  
@@ -1538,7 +1626,7 @@ class Unit(GameObject):
         if unit_type in ["Infantry", "Grenadier", "RocketSoldier", "Marksman"]:
             self.draw = self.draw_humanoid
         elif unit_type in ["Barracks", "WarFactory", "Hangar", "PowerPlant", 
-                           "OilDerrick", "Refinery", "ShaleFracker", "BlackMarket", "Turret"]:
+                           "Refinery", "Turret"]:
             pass
         else:
             self.draw = self.draw_static if not self.is_vehicle else self.draw_vehicle
@@ -1589,6 +1677,32 @@ class Unit(GameObject):
                 self.attack_target = None
         
         if not self.is_building:
+            if self.move_target:
+                half_w = self.rect.width / 2
+                half_h = self.rect.height / 2
+                mt_x = max(half_w, min(self.move_target[0], self.map_width - half_w))
+                mt_y = max(half_h, min(self.move_target[1], self.map_height - half_h))
+                self.move_target = (mt_x, mt_y)
+                if not self.path:
+                    self.path = astar(self.position, Vector2(self.move_target), [b for b in global_buildings if b.health > 0 and not b.air], TILE_SIZE, self.map_width, self.map_height)
+                    self.path_index = 0
+                if self.path and self.path_index < len(self.path):
+                    next_wp = self.path[self.path_index]
+                    dir_to_wp = next_wp - self.position
+                    dist_to_wp = dir_to_wp.length()
+                    waypoint_threshold = 10.0
+                    if dist_to_wp > waypoint_threshold:
+                        move_dir = dir_to_wp.normalize()
+                        self.position += move_dir * self.speed
+                        self.target_body_angle = math.atan2(move_dir.y, move_dir.x)
+                    else:
+                        self.path_index += 1
+                        if self.path_index >= len(self.path):
+                            self.path = []
+                            self.move_target = None
+                else:
+                    self.path = []
+                    self.move_target = None
             if self.attack_target and self.attack_target.health > 0:
                 if self.attack_target.is_building:
                     closest = self._closest_point_on_rect(self.attack_target.rect, self.position)
@@ -1603,42 +1717,32 @@ class Unit(GameObject):
                     dir_to_enemy = Vector2(self.attack_target.position) - self.position
                 if dir_to_enemy.length() > 0:
                     dir_to_enemy = dir_to_enemy.normalize()
-                self.turret_angle = math.atan2(dir_to_enemy.y, dir_to_enemy.x)
-                if dist <= self.attack_range:
-                    original_move_target = self.move_target
-                    self.move_target = None
-                    if not self.attack_target.is_building and random.random() < 0.1:
-                        self.position += dir_to_enemy.rotate_rad(random.uniform(-0.5, 0.5)) * self.speed * 0.2
-                else:
+                self.target_turret_angle = math.atan2(dir_to_enemy.y, dir_to_enemy.x)
+                
+                # CHANGE: Removed stopping logic here. Units now fire on the move via handle_attacks().
+                # Optional: Keep slight adjust for non-building targets to avoid perfect overlap.
+                if not self.attack_target.is_building and random.random() < 0.1:
+                    self.position += dir_to_enemy.rotate_rad(random.uniform(-0.5, 0.5)) * self.speed * 0.2
+                
+                # CHANGE: Only chase/adjust move_target if out of range; otherwise, keep moving/shooting.
+                if dist > self.attack_range:
                     if self.attack_target.is_building:
                         chase_pos = self.get_chase_position_for_building(self.attack_target)
                         if chase_pos is not None:
                             self.move_target = chase_pos
+                            self.path = []
                         else:
                             self.move_target = None
+                            self.path = []
                     else:
                         self.move_target = self.attack_target.position
+                        self.path = []
         
         if not self.attack_target:
-            self.turret_angle = self.body_angle
+            self.target_turret_angle = self.body_angle
         
-        half_w = self.rect.width / 2
-        half_h = self.rect.height / 2
-        if self.move_target:
-            mt_x = max(half_w, min(self.move_target[0], self.map_width - half_w))
-            mt_y = max(half_h, min(self.move_target[1], self.map_height - half_h))
-            self.move_target = (mt_x, mt_y)
-            dir_to_target = Vector2(self.move_target) - self.position
-            dist_to_move = dir_to_target.length()
-            if dist_to_move > 5:
-                move_dir = dir_to_target.normalize()
-                self.position += move_dir * self.speed
-                self.body_angle = math.atan2(move_dir.y, move_dir.x)
-            else:
-                self.move_target = None
-        
-        self.position.x = max(half_w, min(self.position.x, self.map_width - half_w))
-        self.position.y = max(half_h, min(self.position.y, self.map_height - half_h))
+        self.position.x = max(self.rect.width / 2, min(self.position.x, self.map_width - self.rect.width / 2))
+        self.position.y = max(self.rect.height / 2, min(self.position.y, self.map_height - self.rect.height / 2))
         
         if hasattr(self, 'stats') and "producible" in self.stats and friendly_units is not None and all_units is not None:
             self._update_production(friendly_units, all_units)
@@ -1650,6 +1754,20 @@ class Unit(GameObject):
                 self.hq.credits += income
                 self.hq.stats['credits_earned'] += income
                 self.collection_timer = 0
+        
+        angle_diff = (self.target_body_angle - self.body_angle + math.pi) % (2 * math.pi) - math.pi
+        rot_step = min(self.hull_rotation_speed, abs(angle_diff))
+        if angle_diff > 0:
+            self.body_angle += rot_step
+        elif angle_diff < 0:
+            self.body_angle -= rot_step
+        
+        angle_diff = (self.target_turret_angle - self.turret_angle + math.pi) % (2 * math.pi) - math.pi
+        rot_step = min(self.turret_rotation_speed, abs(angle_diff))
+        if angle_diff > 0:
+            self.turret_angle += rot_step
+        elif angle_diff < 0:
+            self.turret_angle -= rot_step
         
         self.rect.center = self.position
         
@@ -1689,8 +1807,10 @@ class Unit(GameObject):
         proj = Projectile(self.position, direction, weapon["damage"], self.team, weapon)
         projectiles.add(proj)
         self.last_shot_time = weapon["cooldown"]
-        self.turret_angle = math.atan2(direction.y, direction.x)
         create_explosion(self.position, pg.sprite.Group(), self.team, 3)
+        # Play firing sound
+        if hasattr(self, 'sound') and self.sound:
+            self.sound.play()
 
 class Infantry(Unit):
     def __init__(self, position: tuple, team: Team, hq=None):
@@ -1817,69 +1937,6 @@ class PowerPlant(Unit):
             particle.draw(surface, camera)
 
 
-class OilDerrick(Unit):
-    def __init__(self, position: tuple, team: Team, hq=None):
-        super().__init__(position, team, "OilDerrick", hq=hq)
-
-    def draw(self, surface: pg.Surface, camera: Camera, mouse_pos: tuple = None):
-        if self.health <= 0:
-            return
-        zoom = camera.zoom
-        w, d = self.size
-        h = self.height
-        pos = self.position
-        base_z = 0
-        side_color = tuple(max(0, c - 50) for c in self.team_color)
-        outline_color = pg.Color(0, 0, 0)
-        p_bottom = []
-
-        cos = math.cos(self.body_angle)
-        sin = math.sin(self.body_angle)
-
-        base_w = w * 1.5
-        base_d = d * 1.5
-        base_h = h * 0.1
-        self.draw_rotated_box(surface, camera, base_w, base_d, base_h, self.body_angle, base_z, self.team_color, side_color, self.team_color, outline_color, zoom, False, p_bottom)
-
-        leg_length = h * 1.2
-        leg_angle = math.pi / 6  
-        for side in [-1, 1]:
-            leg_base_x = pos.x + side * (w * 0.2) * cos
-            leg_base_y = pos.y + side * (w * 0.2) * sin
-            leg_top_x = pos.x + side * (w * 0.1) * math.cos(self.body_angle + leg_angle) if side > 0 else pos.x + side * (w * 0.1) * math.cos(self.body_angle - leg_angle)
-            leg_top_y = pos.y + side * (w * 0.1) * math.sin(self.body_angle + leg_angle) if side > 0 else pos.y + side * (w * 0.1) * math.sin(self.body_angle - leg_angle)
-            leg_base = (leg_base_x, leg_base_y, base_z + base_h)
-            leg_top = (leg_top_x, leg_top_y, base_z + base_h + leg_length)
-            p_leg_base = camera.world_to_iso_3d(*leg_base, zoom)
-            p_leg_top = camera.world_to_iso_3d(*leg_top, zoom)
-            pg.draw.line(surface, pg.Color(100, 80, 50), p_leg_base, p_leg_top, int(3 * zoom))
-
-        top_z = base_z + base_h + leg_length
-        p_top_left = camera.world_to_iso_3d(pos.x - w * 0.1 * cos, pos.y - w * 0.1 * sin, top_z, zoom)
-        p_top_right = camera.world_to_iso_3d(pos.x + w * 0.1 * cos, pos.y + w * 0.1 * sin, top_z, zoom)
-        pg.draw.line(surface, pg.Color(100, 80, 50), p_top_left, p_top_right, int(3 * zoom))
-
-        arm_length = w * 1.2
-        arm_end_x = pos.x + arm_length * cos
-        arm_end_y = pos.y + arm_length * sin
-        p_arm_start = p_top_right  
-        p_arm_end = camera.world_to_iso_3d(arm_end_x, arm_end_y, top_z, zoom)
-        pg.draw.line(surface, pg.Color(60, 50, 30), p_arm_start, p_arm_end, int(4 * zoom))
-
-        drill_base_z = top_z
-        drill_tip_z = drill_base_z - h * 0.4
-        p_drill_tip = camera.world_to_iso_3d(arm_end_x, arm_end_y, drill_tip_z, zoom)
-        pg.draw.line(surface, pg.Color(80, 60, 40), p_arm_end, p_drill_tip, int(3 * zoom))
-        pg.draw.circle(surface, pg.Color(40, 30, 20), (int(p_drill_tip[0]), int(p_drill_tip[1])), int(2 * zoom))
-
-        if self.selected:
-            pg.draw.polygon(surface, (255, 255, 0), p_bottom, int(2 * zoom))
-
-        self.draw_health_bar(surface, camera, mouse_pos)
-        for particle in self.plasma_burn_particles:
-            particle.draw(surface, camera)
-
-
 class Refinery(Unit):
     def __init__(self, position: tuple, team: Team, hq=None):
         super().__init__(position, team, "Refinery", hq=hq)
@@ -1944,131 +2001,6 @@ class Refinery(Unit):
         pg.draw.line(surface, pg.Color(100, 100, 100), p_flare_base, p_flare_top, int(3 * zoom))
         flame_points = [p_flare_top, (p_flare_top[0] - 5*zoom, p_flare_top[1] - 3*zoom), (p_flare_top[0] + 5*zoom, p_flare_top[1] - 3*zoom)]
         pg.draw.polygon(surface, pg.Color(255, 100, 0), flame_points)
-
-        if self.selected:
-            pg.draw.polygon(surface, (255, 255, 0), p_bottom, int(2 * zoom))
-
-        self.draw_health_bar(surface, camera, mouse_pos)
-        for particle in self.plasma_burn_particles:
-            particle.draw(surface, camera)
-
-
-class ShaleFracker(Unit):
-    def __init__(self, position: tuple, team: Team, hq=None):
-        super().__init__(position, team, "ShaleFracker", hq=hq)
-
-    def draw(self, surface: pg.Surface, camera: Camera, mouse_pos: tuple = None):
-        if self.health <= 0:
-            return
-        zoom = camera.zoom
-        w, d = self.size
-        h = self.height
-        pos = self.position
-        base_z = 0
-        side_color = tuple(max(0, c - 50) for c in self.team_color)
-        outline_color = pg.Color(0, 0, 0)
-        p_bottom = []
-
-        cos = math.cos(self.body_angle)
-        sin = math.sin(self.body_angle)
-
-        rig_w = w * 1.1
-        rig_d = d * 1.1
-        rig_h = h * 0.4
-        self.draw_rotated_box(surface, camera, rig_w, rig_d, rig_h, self.body_angle, base_z, self.team_color, side_color, self.team_color, outline_color, zoom, False, p_bottom)
-
-        post_x = pos.x
-        post_y = pos.y
-        post_base = (post_x, post_y, base_z + rig_h)
-        post_top = (post_x, post_y, post_base[2] + h * 0.6)
-        p_post_base = camera.world_to_iso_3d(*post_base, zoom)
-        p_post_top = camera.world_to_iso_3d(*post_top, zoom)
-        pg.draw.line(surface, pg.Color(120, 100, 80), p_post_base, p_post_top, int(4 * zoom))
-
-        arm_z = post_top[2]
-        arm_end_x = post_x + w * 0.7 * cos
-        arm_end_y = post_y + w * 0.7 * sin
-        p_arm_end = camera.world_to_iso_3d(arm_end_x, arm_end_y, arm_z, zoom)
-        pg.draw.line(surface, pg.Color(100, 80, 60), p_post_top, p_arm_end, int(3 * zoom))
-
-        cw_x = post_x - w * 0.3 * cos
-        cw_y = post_y - w * 0.3 * sin
-        p_cw = camera.world_to_iso_3d(cw_x, cw_y, arm_z, zoom)
-        pg.draw.rect(surface, pg.Color(80, 60, 40), (int(p_cw[0] - 4*zoom), int(p_cw[1] - 4*zoom), int(8*zoom), int(8*zoom)))
-
-        drill_base_z = arm_z
-        drill_tip_z = base_z - h * 0.2
-        p_drill_tip = camera.world_to_iso_3d(arm_end_x, arm_end_y, drill_tip_z, zoom)
-        pg.draw.line(surface, pg.Color(60, 60, 60), p_arm_end, p_drill_tip, int(3 * zoom))
-
-        for off in [-w * 0.2, w * 0.2]:
-            gauge_x = pos.x + off * cos
-            gauge_y = pos.y + off * sin
-            p_gauge = camera.world_to_iso_3d(gauge_x, gauge_y, base_z + rig_h * 0.5, zoom)
-            pg.draw.circle(surface, pg.Color(200, 100, 100), (int(p_gauge[0]), int(p_gauge[1])), int(3 * zoom))
-
-        if self.selected:
-            pg.draw.polygon(surface, (255, 255, 0), p_bottom, int(2 * zoom))
-
-        self.draw_health_bar(surface, camera, mouse_pos)
-        for particle in self.plasma_burn_particles:
-            particle.draw(surface, camera)
-
-
-class BlackMarket(Unit):
-    def __init__(self, position: tuple, team: Team, hq=None):
-        super().__init__(position, team, "BlackMarket", hq=hq)
-
-    def draw(self, surface: pg.Surface, camera: Camera, mouse_pos: tuple = None):
-        if self.health <= 0:
-            return
-        zoom = camera.zoom
-        w, d = self.size
-        h = self.height
-        pos = self.position
-        base_z = 0
-        side_color = tuple(max(0, c - 50) for c in self.team_color)
-        outline_color = pg.Color(0, 0, 0)
-        p_bottom = []
-
-        cos = math.cos(self.body_angle)
-        sin = math.sin(self.body_angle)
-
-        base_w = w * 1.1
-        base_d = d * 1.1
-        base_h = h * 0.2
-        self.draw_rotated_box(surface, camera, base_w, base_d, base_h, self.body_angle, base_z, pg.Color(139, 69, 19), side_color, pg.Color(139, 69, 19), outline_color, zoom, False, p_bottom)
-
-        roof_h = h * 0.5
-        roof_base_z = base_z + base_h
-        for i in range(4):
-            ang = i * math.pi / 2 + self.body_angle
-            pole_x = pos.x + (w * 0.5) * math.cos(ang)
-            pole_y = pos.y + (w * 0.5) * math.sin(ang)
-            pole_top = (pole_x, pole_y, roof_base_z + roof_h)
-            p_pole_top = camera.world_to_iso_3d(*pole_top, zoom)
-            pg.draw.line(surface, pg.Color(100, 50, 0), camera.world_to_iso_3d(pole_x, pole_y, roof_base_z, zoom), p_pole_top, int(2 * zoom))
-
-        roof_points = []
-        for i in range(4):
-            ang = i * math.pi / 2 + self.body_angle
-            x = pos.x + (w * 0.5) * math.cos(ang)
-            y = pos.y + (w * 0.5) * math.sin(ang)
-            roof_points.append(camera.world_to_iso_3d(x, y, roof_base_z + roof_h, zoom))
-        tent_color = pg.Color(180, 100, 50)
-        pg.draw.polygon(surface, tent_color, [roof_points[0], roof_points[1], roof_points[2]])
-        pg.draw.polygon(surface, tent_color, [roof_points[0], roof_points[2], roof_points[3]])
-
-        for off_x, off_y in [(-w*0.3, -d*0.3), (w*0.3, -d*0.3), (0, d*0.4)]:
-            crate_x = pos.x + off_x * cos - off_y * sin
-            crate_y = pos.y + off_x * sin + off_y * cos
-            p_crate = camera.world_to_iso_3d(crate_x, crate_y, base_z, zoom)
-            pg.draw.rect(surface, pg.Color(140, 90, 40), (int(p_crate[0]-6*zoom), int(p_crate[1]-6*zoom), int(12*zoom), int(12*zoom)))
-
-        sign_x = pos.x - d * 0.5 * cos
-        sign_y = pos.y - d * 0.5 * sin
-        p_sign = camera.world_to_iso_3d(sign_x, sign_y, base_z + base_h + roof_h * 0.5, zoom)
-        pg.draw.rect(surface, pg.Color(255, 200, 0), (int(p_sign[0]-10*zoom), int(p_sign[1]-6*zoom), int(20*zoom), int(12*zoom)))
 
         if self.selected:
             pg.draw.polygon(surface, (255, 255, 0), p_bottom, int(2 * zoom))
@@ -2402,6 +2334,7 @@ class AI:
         self.defense_timer = 0
         self.attack_timer = 0
         self.patrol_timer = 0
+        self.regroup_timer = 0  # NEW: For maintaining formations
         self.build_queue = []
         self.barracks_index = 0
         self.warfactory_index = 0
@@ -2426,6 +2359,7 @@ class AI:
         elif self.personality == 'defensive':
             base_priorities["Grenadier"] *= 1.5
             base_priorities["Tank"] *= 0.5
+        self.base_priorities = base_priorities  # CHANGED: Store base for dynamic adjustment
         self.production_priorities = base_priorities
         self.preferred_build_direction = build_dir
         self.build_bias_strength = 0.3  
@@ -2434,6 +2368,10 @@ class AI:
         self.power_target = 2
         self.defense_target = 2
         self.expansion_factor = 1.0  
+        # NEW: Formation prefs
+        self.formation_spacing_mult = 1.5 if self.personality == 'rusher' else 0.8 if self.personality == 'defensive' else 1.0
+        # NEW: Unit balance tracking
+        self.unit_counts = {unit: 0 for unit in base_priorities.keys()}
 
     def _send_attack_group(self, friendly_units, enemy_buildings, enemy_units, num_to_send, map_width, map_height):
         if num_to_send <= 0:
@@ -2446,25 +2384,28 @@ class AI:
         for u in friendly_units[:num_to_send]:
             total_pos += Vector2(u.position)
         avg_pos = total_pos / num_to_send
-        dir_to_target = Vector2(target_center) - avg_pos
-        if dir_to_target.length() == 0:
-            return
-        dir_unit = dir_to_target.normalize()
-        perp = dir_unit.rotate_rad(math.pi / 2)
-        spacing = 30 * (1 + self.economy_level * 0.2)
-        attack_dist = 80
-        positions = []
-        half = (num_to_send - 1) / 2
-        for i in range(num_to_send):
-            offset = (i - half) * spacing
-            flank_pos = Vector2(target_center) - dir_unit * attack_dist + perp * offset
-            flank_pos.x = max(0, min(flank_pos.x, map_width))
-            flank_pos.y = max(0, min(flank_pos.y, map_height))
-            positions.append(tuple(flank_pos))
+        # CHANGED: Use enhanced formation, 'v' for spread attacks
+        formation_type = 'v' if self.personality in ['aggressive', 'rusher'] else 'line'
+        spacing = 40 * self.formation_spacing_mult
+        positions = calculate_formation_positions(
+            avg_pos, target_center, num_to_send, formation_type, spacing
+        )
+        # Clamp positions
+        positions = [(max(0, min(p[0], map_width)), max(0, min(p[1], map_height))) for p in positions]
         attackers = friendly_units[:num_to_send]
         for unit, pos in zip(attackers, positions):
             unit.attack_target = primary_target
-            unit.move_target = pos
+            unit.move_target = pos  # Set to formation slot
+
+    def regroup_idle_units(self, friendly_units, focal_point: tuple, num_to_group: int, formation_type: str = 'line'):
+        """NEW: Reassign idle units to formation slots around focal_point (e.g., HQ)"""
+        idle_units = [u for u in friendly_units if u.health > 0 and u.move_target is None][:num_to_group]
+        if len(idle_units) < 2:
+            return
+        spacing = 30 * self.formation_spacing_mult  # Tighter for regroup
+        positions = calculate_formation_positions(focal_point, focal_point, len(idle_units), formation_type, spacing)
+        for unit, pos in zip(idle_units, positions):
+            unit.move_target = pos  # Gentle nudge to slot
 
     def update_rally_points(self, friendly_buildings, enemy_pos, map_width, map_height):
         if not enemy_pos:
@@ -2477,12 +2418,17 @@ class AI:
         target = self.hq.position + dir_unit * advance
         target.x = max(0, min(target.x, map_width))
         target.y = max(0, min(target.y, map_height))
-        for b in [b for b in friendly_buildings if hasattr(b, 'rally_point')]:
-            offset = Vector2(random.uniform(-30,30), random.uniform(-30,30))
-            b.rally_point = target + offset
+        # CHANGED: Use formation for producers' rally
+        formation_type = 'line' if self.personality == 'defensive' else 'v'
+        positions = calculate_formation_positions(target, target, len(friendly_buildings), formation_type)
+        for i, b in enumerate([b for b in friendly_buildings if hasattr(b, 'rally_point')]):
+            if i < len(positions):
+                b.rally_point = Vector2(positions[i])
+            else:
+                b.rally_point = Vector2(target)
             b.rally_point.x = max(0, min(b.rally_point.x, map_width))
             b.rally_point.y = max(0, min(b.rally_point.y, map_height))
-    
+
     def assess_situation(self, friendly_units, friendly_buildings, enemy_units, enemy_buildings):
         self.military_strength = len([u for u in friendly_units if u.health > 0])
         self.enemy_strength = len([u for u in enemy_units if u.health > 0])
@@ -2492,10 +2438,10 @@ class AI:
         self.threat_level = len(nearby_enemies) / max(1, self.enemy_strength) if self.enemy_strength > 0 else 0
         self.nearby_enemies = nearby_enemies  
         
-        resource_buildings = [b for b in friendly_buildings if b.unit_type in ["OilDerrick", "Refinery", "ShaleFracker", "BlackMarket"]]
+        resource_buildings = [b for b in friendly_buildings if b.unit_type in ["Refinery"]]
         self.economy_level = len(resource_buildings) // 2  
 
-        self.resource_count = len([b for b in friendly_buildings if b.unit_type in ["OilDerrick", "Refinery", "ShaleFracker", "BlackMarket"] and b.health > 0])
+        self.resource_count = len([b for b in friendly_buildings if b.unit_type in ["Refinery"] and b.health > 0])
         self.turret_count = len([b for b in friendly_buildings if b.unit_type == "Turret" and b.health > 0])
         self.military_prod_count = len([b for b in friendly_buildings if b.unit_type in ["Barracks", "WarFactory", "Hangar"] and b.health > 0])
         self.power_count = len([b for b in friendly_buildings if b.unit_type == "PowerPlant" and b.health > 0])
@@ -2519,6 +2465,12 @@ class AI:
         if enemy_hq:
             self.known_enemy_pos = enemy_hq.position
 
+        # CHANGED: Dynamic priority adjustment based on current unit counts
+        # First, update unit counts
+        self.unit_counts = {unit: sum(1 for u in friendly_units if u.unit_type == unit and u.health > 0) for unit in self.base_priorities.keys()}
+        total_units = sum(self.unit_counts.values())
+        
+        # Base adjustments for threat/economy (unchanged)
         inf_prio = 0.5 if self.threat_level > 0.5 else 0.6
         gren_prio = 0.3 if self.threat_level > 0.5 else 0.2
         rocket_prio = 0.1 if self.economy_level >= 1 else 0.0
@@ -2529,6 +2481,38 @@ class AI:
         mgv_prio = 0.05 if self.economy_level >= 2 else 0.0
         rocket_art_prio = 0.05 if self.economy_level >= 2 else 0.0
         heli_prio = 0.1 if self.economy_level >= 2 else 0.0
+        
+        # NEW: Balance adjustment - reduce prio for overproduced units, boost underproduced
+        ideal_ratios = self.base_priorities.copy()  # Use base as ideal
+        total_ideal = sum(ideal_ratios.values())
+        for unit in ideal_ratios:
+            ideal_count = max(1, total_units * (ideal_ratios[unit] / total_ideal))
+            current_count = self.unit_counts[unit]
+            balance_factor = min(2.0, max(0.1, ideal_count / max(1, current_count)))  # Cap at 2x boost/0.1x nerf
+            if unit == "Infantry":  # Extra nerf for Infantry blob prevention
+                balance_factor *= 0.7 if current_count > ideal_count * 1.5 else 1.0
+            # Apply to base prio
+            if unit == "Infantry":
+                inf_prio *= balance_factor
+            elif unit == "Grenadier":
+                gren_prio *= balance_factor
+            elif unit == "RocketSoldier":
+                rocket_prio *= balance_factor
+            elif unit == "Marksman":
+                marksman_prio *= balance_factor
+            elif unit == "Tank":
+                tank_prio *= balance_factor
+            elif unit == "HeavyTank":
+                heavy_tank_prio *= balance_factor
+            elif unit == "TankDestroyer":
+                tank_destroyer_prio *= balance_factor
+            elif unit == "MachineGunVehicle":
+                mgv_prio *= balance_factor
+            elif unit == "RocketArtillery":
+                rocket_art_prio *= balance_factor
+            elif unit == "AttackHelicopter":
+                heli_prio *= balance_factor
+        
         total_prio = inf_prio + gren_prio + rocket_prio + marksman_prio + tank_prio + heavy_tank_prio + tank_destroyer_prio + mgv_prio + rocket_art_prio + heli_prio
         if total_prio > 0:
             inf_prio /= total_prio
@@ -2553,7 +2537,7 @@ class AI:
             "RocketArtillery": rocket_art_prio,
             "AttackHelicopter": heli_prio,
         }
-    
+
     def _get_nearest_enemy_building(self, enemy_buildings, from_pos):
         if not enemy_buildings:
             return None
@@ -2566,9 +2550,6 @@ class AI:
             Refinery: 0.7,
             PowerPlant: 0.6,
             Turret: 0.5,
-            OilDerrick: 0.4,
-            ShaleFracker: 0.4,
-            BlackMarket: 0.4,
         }
         
         def weighted_dist(b):
@@ -2618,7 +2599,7 @@ class AI:
         if building_cls.__name__ in ["PowerPlant", "Barracks", "WarFactory", "Hangar"]:
             bias_angle = self.preferred_build_direction
             dist_min, dist_max = 100, (150 + 50 * scale + 100 * self.economy_level)  
-        elif building_cls.__name__ in ["OilDerrick", "Refinery", "ShaleFracker", "BlackMarket"]:
+        elif building_cls.__name__ in ["Refinery"]:
             bias_angle = self.preferred_build_direction
             dist_min, dist_max = 120, (200 + 100 * scale + 150 * self.economy_level)  
         elif building_cls.__name__ == "Turret":
@@ -2665,8 +2646,10 @@ class AI:
             return  
         
         if num_units < target_units:
-            max_queue_light = 3 if self.economy_level < 2 else 5  
-            max_queue_heavy = 2 if self.economy_level < 2 else 4
+            # CHANGED: Smaller batches to avoid spawn blobs (1-3 per queue)
+            batch_size = min(3, max(1, self.economy_level))  
+            max_queue_light = batch_size if self.economy_level < 2 else batch_size * 2  
+            max_queue_heavy = batch_size - 1 if self.economy_level < 2 else batch_size
             
             if barracks_list:
                 barracks = barracks_list[self.barracks_index % len(barracks_list)]
@@ -2679,8 +2662,12 @@ class AI:
                     
                     cost = UNIT_CLASSES[unit_type]["cost"]
                     if self.hq.credits >= cost:
-                        barracks.production_queue.append({'unit_type': unit_type, 'repeat': False})
-                        self.hq.credits -= cost
+                        # Queue batch
+                        for _ in range(batch_size):
+                            if self.hq.credits < cost or len(barracks.production_queue) >= max_queue_light:
+                                break
+                            barracks.production_queue.append({'unit_type': unit_type, 'repeat': False})
+                            self.hq.credits -= cost
                         if random.random() < 0.4 and unit_type == "Infantry" and num_units < 10:  
                             barracks.production_queue[-1]['repeat'] = True
             
@@ -2691,6 +2678,7 @@ class AI:
                     heavy_unit = random.choice(["Tank", "HeavyTank", "TankDestroyer", "MachineGunVehicle", "RocketArtillery"])
                     cost = UNIT_CLASSES[heavy_unit]["cost"]
                     if self.hq.credits >= cost and num_units < target_units * 0.7:
+                        # Queue single heavy (avoid blob heavies)
                         war_factory.production_queue.append({'unit_type': heavy_unit, 'repeat': False})
                         self.hq.credits -= cost
             
@@ -2700,7 +2688,7 @@ class AI:
                 if len(hangar.production_queue) < max_queue_heavy and random.random() < 0.2:  
                     hangar.production_queue.append({'unit_type': "AttackHelicopter", 'repeat': False})
                     self.hq.credits -= UNIT_CLASSES["AttackHelicopter"]["cost"]
-    
+
     def build_defenses(self, all_buildings, map_width, map_height):
         if self.threat_level > 0.2 and self.turret_count < self.defense_target and self.hq.credits >= UNIT_CLASSES["Turret"]["cost"]:
             pos = self.find_build_position(Turret, all_buildings, map_width, map_height, prefer_near_hq=True)
@@ -2728,6 +2716,18 @@ class AI:
                         friend.move_target = nearest_threat.position
                 self.defense_timer = random.randint(0, defense_check_interval)
         
+        # NEW: Regroup idle units
+        
+        # NEW: Regroup idle units periodically to maintain spread
+        self.regroup_timer += 1
+        regroup_interval = int(30 * self.interval_multiplier)  # Every ~0.5s
+        if self.regroup_timer > regroup_interval:
+            focal_point = self.hq.position
+            num_to_group = min(10, len(friendly_units) // 2)  # Half idle max
+            formation_type = 'line' if self.threat_level > 0.5 else 'v'  # Defensive cluster vs. advance spread
+            self.regroup_idle_units(friendly_units, focal_point, num_to_group, formation_type)
+            self.regroup_timer = random.randint(0, regroup_interval // 2)
+        
         self.scout_timer += 1
         scout_interval = int(20 * self.interval_multiplier)  
         if self.scout_timer > scout_interval and len(friendly_units) > 1:
@@ -2735,8 +2735,10 @@ class AI:
             scout_tx = max(0, min(scout_target[0] + random.uniform(-200, 200), map_width))
             scout_ty = max(0, min(scout_target[1] + random.uniform(-200, 200), map_height))
             idle_units = [u for u in friendly_units if u.health > 0 and u.move_target is None][:8]  
-            for scout in idle_units:
-                scout.move_target = (scout_tx, scout_ty)
+            # CHANGED: Use formation for scouts too
+            positions = calculate_formation_positions((scout_tx, scout_ty), scout_target, len(idle_units), 'line')
+            for scout, pos in zip(idle_units, positions):
+                scout.move_target = pos
             self.scout_timer = random.randint(0, scout_interval // 2)
         
         self.attack_timer += 1
@@ -2770,8 +2772,10 @@ class AI:
                 else:
                     patrol_tx = random.uniform(0, map_width)
                     patrol_ty = random.uniform(0, map_height)
-                for unit in idle_in_base[:num_patrol]:
-                    unit.move_target = (patrol_tx, patrol_ty)
+                # CHANGED: Formation for patrols
+                positions = calculate_formation_positions((patrol_tx, patrol_ty), (patrol_tx, patrol_ty), num_patrol, 'line')
+                for unit, pos in zip(idle_in_base[:num_patrol], positions):
+                    unit.move_target = pos
             self.patrol_timer = random.randint(0, patrol_interval // 2)
     
     def update(self, friendly_units, friendly_buildings, enemy_units, enemy_buildings, all_buildings, map_width=MAP_WIDTH, map_height=MAP_HEIGHT):
@@ -2825,12 +2829,10 @@ class AI:
             cls = None
             if priority_type == 'resource':
                 
-                if self.resource_count == 0:
-                    cls = OilDerrick
-                elif len([b for b in friendly_buildings if b.unit_type == "Refinery"]) < 2:
+                if len([b for b in friendly_buildings if b.unit_type == "Refinery"]) < 2:
                     cls = Refinery
                 else:
-                    cls = random.choice([ShaleFracker, BlackMarket, OilDerrick])  
+                    cls = Refinery
             elif priority_type == 'power':
                 cls = PowerPlant
             elif priority_type == 'military':
@@ -2918,10 +2920,7 @@ class ProductionInterface:
         "Hangar": Hangar,
         "PowerPlant": PowerPlant,
         "Turret": Turret,
-        "OilDerrick": OilDerrick,
         "Refinery": Refinery,
-        "ShaleFracker": ShaleFracker,
-        "BlackMarket": BlackMarket,
     })
     
     def __post_init__(self, all_buildings):
@@ -2945,10 +2944,7 @@ class ProductionInterface:
             "Hangar": "Hangar",
             "PowerPlant": "Power Plant",
             "Turret": "Turret",
-            "OilDerrick": "Oil Derrick",
             "Refinery": "Refinery",
-            "ShaleFracker": "Shale Fracker",
-            "BlackMarket": "Black Market",
         }
         self.update_producer(self.hq)
     
@@ -2971,7 +2967,7 @@ class ProductionInterface:
                 self.producible_items = ["AttackHelicopter"]
         else:
             self.producer = self.hq
-            self.producible_items = ["Barracks", "WarFactory", "Hangar", "PowerPlant", "Turret", "OilDerrick", "Refinery", "ShaleFracker", "BlackMarket"]
+            self.producible_items = ["Barracks", "WarFactory", "Hangar", "PowerPlant", "Turret", "Refinery"]
         self.item_rects = {}
         y = self.PROD_ITEMS_START_Y
         for i, item in enumerate(self.producible_items):
@@ -3104,7 +3100,7 @@ def draw_mini_map(screen: pg.Surface, camera: Camera, fog_of_war: FogOfWar, map_
     mini_zoom = min(MINI_MAP_WIDTH / span_x1, MINI_MAP_HEIGHT / span_y1)
     
     center_offset_x = (MINI_MAP_WIDTH - span_x1 * mini_zoom) / 2
-    center_offset_y = (MINI_MAP_HEIGHT - span_y1 * mini_zoom) / 2
+    center_offset_y = (MINI_MAP_HEIGHT - span_y1 * mini_zoom) / 1
     draw_offset_x = center_offset_x - min_x1 * mini_zoom
     draw_offset_y = center_offset_y - min_y1 * mini_zoom
     
@@ -3307,10 +3303,13 @@ def handle_attacks(team: Team, all_units: list, all_buildings: list, projectiles
             entity.attack_target = closest_target
             if closest_target.is_building:
                 closest_pt = entity._closest_point_on_rect(closest_target.rect, entity.position)
-                dir_c = Vector2(closest_pt) - entity.position
-                dist_to_target = dir_c.length()
+                dir_vec = Vector2(closest_pt) - entity.position
+                dist_to_target = dir_vec.length()
             else:
+                dir_vec = Vector2(closest_target.position) - entity.position
                 dist_to_target = entity.distance_to(closest_target.position)
+            if dir_vec.length() > 0:
+                entity.target_turret_angle = math.atan2(dir_vec.y, dir_vec.x)
             if dist_to_target <= entity.attack_range:
                 entity.shoot(closest_target, projectiles)
             else:
@@ -3712,6 +3711,10 @@ class GameManager:
         
         terrain_features = generate_terrain_features(map_name, map_width, map_height)
         
+        num_tx = map_width // TILE_SIZE
+        num_ty = map_height // TILE_SIZE
+        ownership = [[None] * num_ty for _ in range(num_tx)]
+        
         player_units = pg.sprite.Group()
         ai_units = pg.sprite.Group()
         global_units = pg.sprite.Group()
@@ -3870,6 +3873,10 @@ class GameManager:
             "previous_fitness": {team: 0 for team in teams_list},
             "current_fitness": {},
             "fitness_deltas": {},
+            "tile_ownership": ownership,
+            "tile_timer": 0,
+            "num_tx": num_tx,
+            "num_ty": num_ty,
         }
     
     def run_game(self):
@@ -4002,14 +4009,17 @@ class GameManager:
                                     if clicked_enemy.is_building:
                                         chase_pos = unit.get_chase_position_for_building(clicked_enemy)
                                         unit.move_target = chase_pos if chase_pos is not None else None
+                                        unit.path = []
                                     else:
                                         unit.move_target = clicked_enemy.position
+                                        unit.path = []
                             else:
                                 formation_positions = calculate_formation_positions(
                                     center=world_pos, target=world_pos, num_units=len(g["selected_units"])
                                 )
                                 for unit, pos in zip(g["selected_units"], formation_positions):
                                     unit.move_target = pos
+                                    unit.path = []
                                     unit.attack_target = None
                                     unit.formation_target = pos
                 
@@ -4062,7 +4072,7 @@ class GameManager:
             building_list = [b for b in g["global_buildings"] if b.health > 0]
             
             def update_unit(unit):
-                unit.update()
+                unit.update(global_buildings=list(g["global_buildings"]))
             
             with ThreadPoolExecutor(max_workers=4) as executor:
                 futures = [executor.submit(update_unit, unit) for unit in [u for u in unit_list if not u.is_building]]
@@ -4109,6 +4119,31 @@ class GameManager:
             handle_projectiles(g["projectiles"], unit_list, building_list, g["particles"], g)
             
             cleanup_dead_entities(g)
+
+            g["tile_timer"] += 1
+            if g["tile_timer"] >= 60:
+                g["tile_timer"] = 0
+                alive_hqs_pos = {team: hq.position for team, hq in g["hqs"].items() if hq.health > 0}
+                if alive_hqs_pos:
+                    for tx in range(g["num_tx"]):
+                        tile_x = tx * TILE_SIZE + TILE_SIZE / 2
+                        for ty in range(g["num_ty"]):
+                            tile_y = ty * TILE_SIZE + TILE_SIZE / 2
+                            min_dist = float('inf')
+                            nearest_team = None
+                            for team, pos in alive_hqs_pos.items():
+                                dist = math.hypot(tile_x - pos.x, tile_y - pos.y)
+                                if dist < min_dist:
+                                    min_dist = dist
+                                    nearest_team = team
+                            g["tile_ownership"][tx][ty] = nearest_team
+                    for team, hq in g["hqs"].items():
+                        if hq.health > 0:
+                            count = sum(1 for tx in range(g["num_tx"]) for ty in range(g["num_ty"]) if g["tile_ownership"][tx][ty] == team)
+                            income = count * 0.050
+                            hq.credits += income
+                            if 'credits_earned' in hq.stats:
+                                hq.stats['credits_earned'] += income
             
             for ai in g["ais"]:
                 their_team = ai.hq.team
@@ -4313,6 +4348,7 @@ class GameManager:
 
 if __name__ == "__main__":
     pg.init()
+    pg.mixer.init(frequency=22050, size=-16, channels=2, buffer=512)
     screen = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pg.display.set_caption("Paper Tigers")
     clock = pg.time.Clock()
